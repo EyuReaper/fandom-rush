@@ -1,1 +1,20 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Press+Start+2P&display=swap");
 @import "tailwindcss";
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #0a0a0f;
+    color: white;
+    overflow: hidden;
+    font-family: "Inter", system-ui, san-serif;
+}
+
+.arcade-title {
+    font-family: "Press start 2P", san-serif;
+    letter-spacing: 2px;
+}
