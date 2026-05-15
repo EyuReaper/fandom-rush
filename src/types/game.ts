@@ -1,18 +1,20 @@
 import {  type FandomClue } from "../data/fandomClues";
 
-export type GameMode = 'endless' | 'sixty-seconds';
+export type GameMode = "endless" | "sixty-second" | "category";
 
 export interface GameState {
   currentClue: FandomClue | null;
   options: string[];
   score: number;
+  combo: number;
   lives: number;
   timeLeft: number;
   isPlaying: boolean;
-  gameMode: GameMode:
+  gameMode: GameMode;
+  selectedCategory: string | null;
   maxTime: number; // 8 seconds default
   highScore: number;
-
+  swipeMode: boolean;
 }
 
 export type GameAction =

@@ -1,73 +1,99 @@
-# React + TypeScript + Vite
+# 🎮 FANDOM RUSH
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Fandom Rush** is a fast-paced, high-octane arcade fandom guessing game. Forget screenshots and emojis—identify iconic shows, anime, movies, and games through their most famous **props and objects**.
 
-Currently, two official plugins are available:
+> "Identify the thing. Beat the clock. Start the rush."
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## ⚡ The Core Gameplay Loop
+Everything in Fandom Rush is built for **speed + recognition + arcade flow**.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1.  **SEE OBJECT** (Floating, premium 3D collectible asset)
+2.  **INSTANT RECOGNITION** (Wand? Straw Hat? Hazmat Suit?)
+3.  **CHOOSE ANSWER** (Swipe or Click)
+4.  **COMBO + POINTS** (Speed matters!)
+5.  **NEXT ROUND IMMEDIATELY**
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 📱 Platform-Based Gameplay
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Mobile → Swipe Mode (TikTok/Tinder Inspired)
+Swipe the clue card toward the correct answer.
+*   **Up/Down/Left/Right** swipes map to specific options.
+*   Enabled by default on mobile devices.
+*   Fast, tactile, and addictive.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Desktop → Multiple Choice (MCQ)
+Precision clicking or lightning-fast keyboard input.
+*   **Keyboard Support:** Use `1`, `2`, `3`, `4` OR `W`, `A`, `S`, `D` / `Arrow Keys`.
+*   Minimal UI to keep the focus on the clue.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## 🎨 Visual Identity: "Guess the Thing"
+Fandom Rush moves away from generic trivia. The game identity is built on:
+*   ❌ No Emojis
+*   ❌ No Screenshots / Movie Scenes
+*   ❌ No Character Faces
+*   ✅ **Iconic Objects / Props Only**
+
+### Art Direction
+All assets follow a **Semi-Realistic Collectible Style**:
+*   Floating, centered composition.
+*   Soft cinematic lighting and shadows.
+*   Stylized 3D render feel (AI-Assisted Asset Generation).
+
+---
+
+## 🏆 Scoring & Difficulty
+
+### Base Points
+*   **Easy:** +10
+*   **Medium:** +25
+*   **Hard:** +50
+
+### Speed Bonus
+React instantly for massive boosts:
+*   **Under 2 seconds:** +30 points
+*   **Under 3 seconds:** +20 points
+
+### Combo System
+Correct streaks build a multiplier (×1.3, ×1.6, ×2.0+). One mistake resets your multiplier—and in Endless Mode, costs a life!
+
+---
+
+## 🕹️ Game Modes
+1.  **Endless Rush:** Survive as long as you can with 3 lives.
+2.  **60-Second Rush:** Pure arcade mode—guess as many as possible in one minute.
+3.  **Category Rush:** Focus on your specialty (Anime, Movies, TV, etc.).
+4.  **Chaos Mode:** *Coming Soon* — Moving answers and speed modifiers.
+
+---
+
+## 🛠️ Tech Stack
+*   **Frontend:** React 19 + TypeScript
+*   **Styling:** Tailwind CSS 4
+*   **Animations:** Framer Motion (Smooth card physics & feedback)
+*   **State Management:** Zustand (Fast, global store)
+*   **Icons:** Lucide React
+
+---
+
+## 🚀 Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+*Built with ❤️ for fans everywhere.*
