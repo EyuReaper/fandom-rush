@@ -31,6 +31,7 @@ export default function GameScreen() {
     selectAnswer,
     startGame,
     resetGame,
+    chaosModifiers,
   } = useGameStore();
 
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
@@ -109,8 +110,9 @@ export default function GameScreen() {
       if (!isPlaying || !options.length || feedback) return;
       
       const key = e.key.toLowerCase();
+      const { invertedControls } = chaosModifiers;
       
-      // 1-4 keys
+      // 1-4 keys (usually not inverted as they are direct labels)
       const num = parseInt(key);
       if (num >= 1 && num <= 4) {
         handleAnswer(options[num - 1], num - 1);
@@ -118,12 +120,12 @@ export default function GameScreen() {
       }
 
       // WASD / Arrow keys
-      if (key === "w" || key === "arrowup") handleAnswer(options[0], 0);
-      if (key === "a" || key === "arrowleft") handleAnswer(options[1], 1);
-      if (key === "d" || key === "arrowright") handleAnswer(options[2], 2);
-      if (key === "s" || key === "arrowdown") handleAnswer(options[3], 3);
+      if (key === "w" || key === "arrowup") handleAnswer(options[invertedControls ? 3 : 0], invertedControls ? 3 : 0);
+      if (key === "a" || key === "arrowleft") handleAnswer(options[invertedControls ? 2 : 1], invertedControls ? 2 : 1);
+      if (key === "d" || key === "arrowright") handleAnswer(options[invertedControls ? 1 : 2], invertedControls ? 1 : 2);
+      if (key === "s" || key === "arrowdown") handleAnswer(options[invertedControls ? 0 : 3], invertedControls ? 0 : 3);
     },
-    [isPlaying, options, feedback, handleAnswer],
+    [isPlaying, options, feedback, handleAnswer, chaosModifiers],
   );
 
   useEffect(() => {
@@ -136,13 +138,14 @@ export default function GameScreen() {
 
     const threshold = 100;
     const { offset } = info;
+    const { invertedControls } = chaosModifiers;
 
     if (Math.abs(offset.x) > Math.abs(offset.y)) {
-      if (offset.x > threshold) handleAnswer(options[2], 2); // Right
-      else if (offset.x < -threshold) handleAnswer(options[1], 1); // Left
+      if (offset.x > threshold) handleAnswer(options[invertedControls ? 1 : 2], invertedControls ? 1 : 2); // Right
+      else if (offset.x < -threshold) handleAnswer(options[invertedControls ? 2 : 1], invertedControls ? 2 : 1); // Left
     } else {
-      if (offset.y > threshold) handleAnswer(options[3], 3); // Down
-      else if (offset.y < -threshold) handleAnswer(options[0], 0); // Up
+      if (offset.y > threshold) handleAnswer(options[invertedControls ? 0 : 3], invertedControls ? 0 : 3); // Down
+      else if (offset.y < -threshold) handleAnswer(options[invertedControls ? 3 : 0], invertedControls ? 3 : 0); // Up
     }
   };
 
@@ -288,7 +291,16 @@ export default function GameScreen() {
               onDragEnd={onDragEnd}
               whileDrag={{ scale: 1.05, cursor: "grabbing" }}
               initial={{ scale: 0.8, opacity: 0, y: 50 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
+              animate={chaosModifiers.movingTargets ? {
+                scale: 1,
+                opacity: 1,
+                y: [0, -15, 15, 0],
+                x: [0, 15, -15, 0],
+                transition: {
+                  y: { repeat: Infinity, duration: 2, ease: "easeInOut" },
+                  x: { repeat: Infinity, duration: 2.5, ease: "easeInOut" },
+                }
+              } : { scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 1.1, opacity: 0, filter: "blur(10px)" }}
               className={`relative z-20 ${swipeMode ? 'cursor-grab' : ''}`}
             >
@@ -307,7 +319,8 @@ export default function GameScreen() {
                 <img
                   src={currentClue.imagePath}
                   alt={currentClue.objectName}
-                  className="max-h-[240px] md:max-h-[340px] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10"
+                  style={{ filter: chaosModifiers.blurryClues ? "blur(10px)" : "none" }}
+                  className="max-h-[240px] md:max-h-[340px] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10 transition-all duration-500"
                 />
 
                 {/* Wrong Overlay */}

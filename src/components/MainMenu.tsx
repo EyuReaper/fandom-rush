@@ -13,10 +13,12 @@ import {
   X,
   Info,
   Flame,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 
 export default function MainMenu() {
-  const { startGame, highScore, swipeMode, toggleSwipeMode } = useGameStore();
+  const { startGame, highScore, swipeMode, toggleSwipeMode, isMuted, toggleMute } = useGameStore();
   const [showCategories, setShowCategories] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -53,7 +55,6 @@ export default function MainMenu() {
       icon: "📺",
       color: "from-emerald-500 to-teal-400",
       glow: "shadow-emerald-500/20",
-      disabled: true,
     },
     {
       id: "cartoons",
@@ -61,7 +62,6 @@ export default function MainMenu() {
       icon: "🎨",
       color: "from-yellow-400 to-orange-500",
       glow: "shadow-yellow-500/20",
-      disabled: true,
     },
     {
       id: "games",
@@ -69,7 +69,6 @@ export default function MainMenu() {
       icon: "🎮",
       color: "from-fuchsia-500 to-purple-600",
       glow: "shadow-fuchsia-500/20",
-      disabled: true,
     },
   ];
 
@@ -298,7 +297,7 @@ export default function MainMenu() {
                 title="Chaos Mode"
                 description="Random modifiers. Moving targets. Pure insanity."
                 color="red"
-                disabled
+                onClick={() => startGame("chaos")}
                 accent="red"
               />
             </div>
@@ -442,7 +441,7 @@ export default function MainMenu() {
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 bg-white/[0.03] border border-white/5 rounded-xl">
+                  <div className="flex items-center justify-between p-4 bg-white/[0.03] border border-white/5 rounded-xl mb-4">
                     <span className="text-sm font-bold uppercase italic tracking-wider">
                       Swipe Mechanics
                     </span>
@@ -457,6 +456,28 @@ export default function MainMenu() {
                       <motion.div
                         animate={{ x: swipeMode ? 24 : 4 }}
                         className={`absolute top-1 w-4 h-4 rounded-full ${swipeMode ? "bg-cyan-400" : "bg-gray-600"}`}
+                      />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-white/[0.03] border border-white/5 rounded-xl">
+                    <div className="flex items-center gap-3">
+                      {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-cyan-400" />}
+                      <span className="text-sm font-bold uppercase italic tracking-wider">
+                        Audio {isMuted ? "(Muted)" : "(On)"}
+                      </span>
+                    </div>
+                    <button
+                      onClick={toggleMute}
+                      className={`relative w-12 h-6 rounded-full transition-colors duration-300 border ${
+                        !isMuted
+                          ? "bg-cyan-500/20 border-cyan-500"
+                          : "bg-white/5 border-white/10"
+                      }`}
+                    >
+                      <motion.div
+                        animate={{ x: !isMuted ? 24 : 4 }}
+                        className={`absolute top-1 w-4 h-4 rounded-full ${!isMuted ? "bg-cyan-400" : "bg-gray-600"}`}
                       />
                     </button>
                   </div>

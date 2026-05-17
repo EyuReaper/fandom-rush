@@ -10,6 +10,7 @@ interface GameStore extends GameState {
   endGame: () => void;
   nextQuestion: () => void;
   toggleSwipeMode: () => void;
+  toggleMute: () => void;
 }
 
 const isMobile = typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -28,15 +29,33 @@ const initialState: GameState = {
   highScore: localStorage.getItem("fandomRushHighScore")
     ? parseInt(localStorage.getItem("fandomRushHighScore")!)
     : 0,
-  swipeMode: isMobile,
+  swipeMode: localStorage.getItem("fandomRushSwipeMode") 
+    ? localStorage.getItem("fandomRushSwipeMode") === "true" 
+    : isMobile,
+  isMuted: localStorage.getItem("fandomRushMuted") === "true",
+  chaosModifiers: {
+    speedMultiplier: 1,
+    movingTargets: false,
+    invertedControls: false,
+    blurryClues: false,
+  },
+  previousClueIds: [],
 };
 
 export const useGameStore = create<GameStore>((set, get) => ({
   ...initialState,
 
   startGame: (mode, category) => {
-    const firstClue = getRandomClue(category);
+    const firstClue = getRandomClue(category, []);
     const options = generateOptions(firstClue);
+
+    const isChaos = mode === "chaos";
+    const chaosModifiers = {
+      speedMultiplier: isChaos ? 1.5 : 1,
+      movingTargets: isChaos,
+      invertedControls: isChaos && Math.random() > 0.5,
+      blurryClues: isChaos && Math.random() > 0.7,
+    };
 
     set({
       isPlaying: true,
@@ -49,12 +68,24 @@ export const useGameStore = create<GameStore>((set, get) => ({
       lives: 3,
       timeLeft: mode === "sixty-second" ? 60 : 8,
       maxTime: mode === "sixty-second" ? 60 : 8,
+      chaosModifiers,
+      previousClueIds: [firstClue.id],
     });
 
     startTimer();
   },
 
-  toggleSwipeMode: () => set((state) => ({ swipeMode: !state.swipeMode })),
+  toggleSwipeMode: () => {
+    const newMode = !get().swipeMode;
+    localStorage.setItem("fandomRushSwipeMode", String(newMode));
+    set({ swipeMode: newMode });
+  },
+
+  toggleMute: () => {
+    const newMute = !get().isMuted;
+    localStorage.setItem("fandomRushMuted", String(newMute));
+    set({ isMuted: newMute });
+  },
 
   selectAnswer: (selectedAnswer) => {
     const { currentClue, combo, timeLeft, gameMode, maxTime } = get();
@@ -110,7 +141,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   nextQuestion: () => {
-    const { lives, gameMode, timeLeft, isPlaying, selectedCategory } = get();
+    const { lives, gameMode, timeLeft, isPlaying, selectedCategory, previousClueIds } = get();
 
     if (!isPlaying) return;
 
@@ -124,18 +155,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
       return;
     }
 
-    const nextClue = getRandomClue(selectedCategory || undefined);
+    const nextClue = getRandomClue(selectedCategory || undefined, previousClueIds);
     const newOptions = generateOptions(nextClue);
 
-    set({
+    set((state) => ({
       currentClue: nextClue,
       options: newOptions,
       timeLeft: gameMode === "sixty-second" ? timeLeft : 8,
-    });
+      previousClueIds: [...state.previousClueIds.slice(-10), nextClue.id],
+    }));
   },
 
   tickTimer: () => {
-    const { timeLeft, isPlaying, gameMode } = get();
+    const { timeLeft, isPlaying, gameMode, chaosModifiers } = get();
     if (!isPlaying) return;
 
     if (timeLeft <= 0) {
@@ -145,8 +177,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
         get().endGame();
       }
     } else {
-      // Use 0.1s increments
-      set({ timeLeft: Math.max(0, parseFloat((timeLeft - 0.1).toFixed(1))) });
+      // Use 0.1s increments, modified by speed multiplier
+      const decrement = 0.1 * chaosModifiers.speedMultiplier;
+      set({ timeLeft: Math.max(0, parseFloat((timeLeft - decrement).toFixed(1))) });
     }
   },
 
@@ -163,14 +196,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
 // ==================== Helper Functions ====================
 
-function getRandomClue(category?: string) {
-  const filtered = category 
+function getRandomClue(category?: string, previousClueIds: number[] = []) {
+  let filtered = category 
     ? fandomClues.filter(c => c.category === category)
     : fandomClues;
   
-  if (filtered.length === 0) return fandomClues[Math.floor(Math.random() * fandomClues.length)];
+  // Try to avoid recently used clues
+  const available = filtered.filter(c => !previousClueIds.includes(c.id));
   
-  return filtered[Math.floor(Math.random() * filtered.length)];
+  // If we run out of new clues, fallback to any filtered clue
+  const source = available.length > 0 ? available : filtered;
+  
+  if (source.length === 0) return fandomClues[Math.floor(Math.random() * fandomClues.length)];
+  
+  return source[Math.floor(Math.random() * source.length)];
 }
 
 function generateOptions(correctClue: FandomClue) {
