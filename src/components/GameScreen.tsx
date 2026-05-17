@@ -35,6 +35,7 @@ export default function GameScreen() {
 
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [activeKeyIndex, setActiveKeyIndex] = useState<number | null>(null);
   const [floatingPoints, setFloatingPoints] = useState<{
     points: number;
     id: number;
@@ -48,11 +49,19 @@ export default function GameScreen() {
 
   const isGameOver = !isPlaying && currentClue !== null;
 
-  const handleAnswer = useCallback((answer: string) => {
+  const handleAnswer = useCallback((answer: string, index?: number) => {
     if (feedback || !answer || !currentClue) return;
     setSelectedOption(answer);
+    if (index !== undefined) setActiveKeyIndex(index);
 
     const isCorrect = answer === currentClue?.correctAnswer;
+    
+    // Haptic Feedback
+    if ("vibrate" in navigator) {
+      if (isCorrect) navigator.vibrate(10); // Light tap for correct
+      else navigator.vibrate([50, 30, 50]); // Double buzz for wrong
+    }
+
     if (isCorrect) {
       setFeedback("correct");
       
@@ -87,6 +96,7 @@ export default function GameScreen() {
     setTimeout(() => {
       setFeedback(null);
       setSelectedOption(null);
+      setActiveKeyIndex(null);
       setFloatingPoints(null);
       x.set(0);
       y.set(0);
@@ -103,17 +113,17 @@ export default function GameScreen() {
       // 1-4 keys
       const num = parseInt(key);
       if (num >= 1 && num <= 4) {
-        handleAnswer(options[num - 1]);
+        handleAnswer(options[num - 1], num - 1);
         return;
       }
 
       // WASD / Arrow keys
-      if (key === "w" || key === "arrowup") handleAnswer(options[0]);
-      if (key === "a" || key === "arrowleft") handleAnswer(options[1]);
-      if (key === "d" || key === "arrowright") handleAnswer(options[2]);
-      if (key === "s" || key === "arrowdown") handleAnswer(options[3]);
+      if (key === "w" || key === "arrowup") handleAnswer(options[0], 0);
+      if (key === "a" || key === "arrowleft") handleAnswer(options[1], 1);
+      if (key === "d" || key === "arrowright") handleAnswer(options[2], 2);
+      if (key === "s" || key === "arrowdown") handleAnswer(options[3], 3);
     },
-    [isPlaying, options, feedback, swipeMode, handleAnswer],
+    [isPlaying, options, feedback, handleAnswer],
   );
 
   useEffect(() => {
@@ -128,11 +138,11 @@ export default function GameScreen() {
     const { offset } = info;
 
     if (Math.abs(offset.x) > Math.abs(offset.y)) {
-      if (offset.x > threshold) handleAnswer(options[2]); // Right
-      else if (offset.x < -threshold) handleAnswer(options[1]); // Left
+      if (offset.x > threshold) handleAnswer(options[2], 2); // Right
+      else if (offset.x < -threshold) handleAnswer(options[1], 1); // Left
     } else {
-      if (offset.y > threshold) handleAnswer(options[3]); // Down
-      else if (offset.y < -threshold) handleAnswer(options[0]); // Up
+      if (offset.y > threshold) handleAnswer(options[3], 3); // Down
+      else if (offset.y < -threshold) handleAnswer(options[0], 0); // Up
     }
   };
 
@@ -276,10 +286,11 @@ export default function GameScreen() {
               drag={swipeMode && !feedback}
               dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
               onDragEnd={onDragEnd}
+              whileDrag={{ scale: 1.05, cursor: "grabbing" }}
               initial={{ scale: 0.8, opacity: 0, y: 50 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 1.1, opacity: 0, filter: "blur(10px)" }}
-              className={`relative z-20 ${swipeMode ? 'cursor-grab active:cursor-grabbing' : ''}`}
+              className={`relative z-20 ${swipeMode ? 'cursor-grab' : ''}`}
             >
               <div
                 className={`bg-white/5 backdrop-blur-2xl border-2 rounded-[40px] p-8 md:p-12 flex items-center justify-center min-h-[360px] md:min-h-[460px] transition-all duration-300 shadow-2xl relative overflow-hidden group ${
@@ -344,13 +355,15 @@ export default function GameScreen() {
               {options.map((option, index) => {
                 const isSelected = selectedOption === option;
                 const isCorrectOption = option === currentClue.correctAnswer;
+                const isPressed = activeKeyIndex === index;
 
                 return (
                   <motion.button
                     key={option}
                     whileHover={!feedback ? { scale: 1.05, y: -5 } : {}}
                     whileTap={!feedback ? { scale: 0.95 } : {}}
-                    onClick={() => handleAnswer(option)}
+                    animate={isPressed ? { scale: 0.95, backgroundColor: "rgba(255, 255, 255, 0.1)" } : {}}
+                    onClick={() => handleAnswer(option, index)}
                     disabled={!!feedback}
                     className={`group relative bg-white/5 backdrop-blur-xl border-2 rounded-[24px] p-6 md:p-8 text-left transition-all ${
                       isSelected && feedback === "correct"
@@ -359,7 +372,9 @@ export default function GameScreen() {
                           ? "border-red-500 bg-red-500/20"
                           : isCorrectOption && feedback
                             ? "border-green-500/50 bg-green-500/5"
-                            : "border-white/10 hover:border-cyan-400 hover:bg-white/10"
+                            : isPressed
+                              ? "border-cyan-400 bg-white/10"
+                              : "border-white/10 hover:border-cyan-400 hover:bg-white/10"
                     }`}
                   >
                     <span className="absolute top-4 right-4 bg-white/5 text-[10px] w-6 h-6 flex items-center justify-center rounded-full border border-white/10 font-black">
@@ -399,17 +414,13 @@ export default function GameScreen() {
 
       {/* Keyboard Help */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 px-6 py-2 bg-white/5 backdrop-blur-md rounded-full border border-white/10 text-white/30 text-[10px] font-black uppercase tracking-widest flex gap-4">
-        <div>
-          Keys: <span className="text-cyan-400">1-4</span>
+        <div className="flex gap-2">
+          Pick: <span className="text-cyan-400 font-black">1-4</span>
         </div>
-        {swipeMode && (
-          <>
-            <div className="w-px h-3 bg-white/10" />
-            <div>
-              Swipe: <span className="text-cyan-400">W A S D</span>
-            </div>
-          </>
-        )}
+        <div className="w-px h-3 bg-white/10" />
+        <div className="flex gap-2">
+          Control: <span className="text-cyan-400 font-black">W A S D</span> / <span className="text-cyan-400 font-black">ARROWS</span>
+        </div>
       </div>
     </div>
   );
