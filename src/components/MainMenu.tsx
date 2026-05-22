@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore } from "../stores/useGameStore";
+import { audioManager } from "../lib/audioManager";
 import {
   Trophy,
   Zap,
@@ -18,10 +19,32 @@ import {
 } from "lucide-react";
 
 export default function MainMenu() {
-  const { startGame, highScore, swipeMode, toggleSwipeMode, isMuted, toggleMute } = useGameStore();
+  const { startGame, highScore, swipeMode, toggleSwipeMode, isMuted, toggleMute, isPlaying } = useGameStore();
   const [showCategories, setShowCategories] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  const handleInteraction = useCallback(() => {
+    audioManager.playBGM(isMuted);
+  }, [isMuted]);
+
+  useEffect(() => {
+    // If we're not playing, we should be hearing the BGM
+    if (!isPlaying) {
+      audioManager.playBGM(isMuted);
+    }
+  }, [isPlaying, isMuted]);
+
+  useEffect(() => {
+    window.addEventListener("mousedown", handleInteraction, { once: true });
+    window.addEventListener("keydown", handleInteraction, { once: true });
+    window.addEventListener("touchstart", handleInteraction, { once: true });
+    return () => {
+      window.removeEventListener("mousedown", handleInteraction);
+      window.removeEventListener("keydown", handleInteraction);
+      window.removeEventListener("touchstart", handleInteraction);
+    };
+  }, [handleInteraction]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {

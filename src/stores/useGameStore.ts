@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { fandomClues, type FandomClue } from "../data/fandomClues";
 import type { GameState, GameMode } from "../types/game";
+import { audioManager } from "../lib/audioManager";
 
 interface GameStore extends GameState {
   startGame: (mode: GameMode, category?: string) => void;
@@ -46,6 +47,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   ...initialState,
 
   startGame: (mode, category) => {
+    audioManager.init();
     const firstClue = getRandomClue(category, []);
     const options = generateOptions(firstClue);
 
@@ -72,6 +74,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       previousClueIds: [firstClue.id],
     });
 
+    audioManager.stopBGM();
     startTimer();
   },
 
@@ -85,6 +88,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const newMute = !get().isMuted;
     localStorage.setItem("fandomRushMuted", String(newMute));
     set({ isMuted: newMute });
+    audioManager.setMute(newMute);
   },
 
   selectAnswer: (selectedAnswer) => {
@@ -113,6 +117,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     if (isCorrect) {
+      audioManager.play('correct', get().isMuted);
       const newCombo = combo + 1;
       const multiplier = 1 + Math.floor(newCombo / 5) * 0.3;
       const points = Math.floor((difficultyPoints + speedBonus) * multiplier);
@@ -128,6 +133,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         set({ highScore: newScore });
       }
     } else {
+      audioManager.play('wrong', get().isMuted);
       set((state) => ({
         lives: gameMode === "sixty-second" ? state.lives : Math.max(0, state.lives - 1),
         combo: 0,
@@ -179,18 +185,30 @@ export const useGameStore = create<GameStore>((set, get) => ({
     } else {
       // Use 0.1s increments, modified by speed multiplier
       const decrement = 0.1 * chaosModifiers.speedMultiplier;
-      set({ timeLeft: Math.max(0, parseFloat((timeLeft - decrement).toFixed(1))) });
+      const newTime = Math.max(0, parseFloat((timeLeft - decrement).toFixed(1)));
+      
+      // Play tick sound every second of gameplay
+      // newTime is like 7.9, 7.8... we want to trigger at 7.0, 6.0 etc.
+      const isSecondBoundary = Math.floor(timeLeft) !== Math.floor(newTime);
+      if (isSecondBoundary || (newTime <= 3 && Math.floor(newTime * 10) % 5 === 0)) {
+        audioManager.playTick(get().isMuted, newTime <= 3);
+      }
+
+      set({ timeLeft: newTime });
     }
   },
 
   endGame: () => {
     set({ isPlaying: false });
+    audioManager.stopBGM();
+    audioManager.play('game-over', get().isMuted);
     if (timerInterval) clearInterval(timerInterval);
   },
 
   resetGame: () => {
     if (timerInterval) clearInterval(timerInterval);
     set({ ...initialState, highScore: get().highScore });
+    audioManager.playBGM(get().isMuted);
   }
 }));
 
