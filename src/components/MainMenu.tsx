@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore } from "../stores/useGameStore";
 import { audioManager } from "../lib/audioManager";
+import LoginButton from "./LoginButton";
+import Leaderboard from "./Leaderboard";
 import {
   Trophy,
   Zap,
@@ -11,6 +13,7 @@ import {
   ChevronLeft,
   Target,
   Settings,
+  Globe,
   X,
   Info,
   Flame,
@@ -22,7 +25,39 @@ export default function MainMenu() {
   const { startGame, highScore, swipeMode, toggleSwipeMode, isMuted, toggleMute, isPlaying } = useGameStore();
   const [showCategories, setShowCategories] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const { data: session } = authClient.useSession();
+
+  useEffect(() => {
+    const claimScore = async () => {
+      if (session && highScore > 0) {
+        // Check if we've already claimed this score to avoid redundant API calls
+        const hasClaimed = localStorage.getItem(`fandomRushClaimed_${session.user.id}`);
+        if (hasClaimed === highScore.toString()) return;
+
+        try {
+          await fetch("http://localhost:3000/api/leaderboard/claim", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...authClient.getHeaders(),
+            },
+            body: JSON.stringify({
+              score: highScore,
+              gameMode: "endless", // Default for legacy high scores
+              category: "all",
+            }),
+          });
+          localStorage.setItem(`fandomRushClaimed_${session.user.id}`, highScore.toString());
+        } catch (err) {
+          console.error("Failed to claim score:", err);
+        }
+      }
+    };
+
+    claimScore();
+  }, [session, highScore]);
 
   const handleInteraction = useCallback(() => {
     audioManager.playBGM(isMuted);
@@ -151,17 +186,21 @@ export default function MainMenu() {
         className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[140px] pointer-events-none"
       />
 
-      {/* --- SETTINGS ICON (TOP RIGHT) --- */}
-      <motion.button
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        whileHover={{ rotate: 90, scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => setShowSettings(true)}
-        className="absolute top-8 right-8 z-[100] p-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl hover:bg-white/10 transition-colors shadow-2xl"
-      >
-        <Settings className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
-      </motion.button>
+      {/* --- TOP HUD --- */}
+      <div className="absolute top-8 left-8 right-8 z-[100] flex justify-between items-start">
+        <LoginButton />
+        
+        <motion.button
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          whileHover={{ rotate: 90, scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setShowSettings(true)}
+          className="p-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl hover:bg-white/10 transition-colors shadow-2xl"
+        >
+          <Settings className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+        </motion.button>
+      </div>
 
       <AnimatePresence mode="wait">
         {!showCategories ? (
@@ -268,16 +307,17 @@ export default function MainMenu() {
             {/* --- TOP STATS --- */}
             <motion.div
               variants={itemVariants}
-              className="group relative bg-[#10101a]  p-10 mb-20 w-full max-w-md overflow-hidden"
+              onClick={() => setShowLeaderboard(true)}
+              className="group relative bg-[#10101a]  p-10 mb-20 w-full max-w-md overflow-hidden cursor-pointer active:scale-95 transition-transform"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/20 via-transparent to-yellow-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="bg-[#0a0a0f] rounded-[10px] p-6 flex items-center gap-6 relative z-10 border border-white/5">
                 <div className="relative">
                   <div className="w-15 h-15 bg-yellow-500/10 rounded-xl flex items-center justify-center border border-yellow-500/30">
-                    <Trophy className="text-yellow-500 w-8 h-8 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]" />
+                    <Globe className="text-yellow-500 w-8 h-8 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]" />
                   </div>
                   <div className="absolute -top-1 -right-1 w-5 h-5 bg-white text-black text-[10px] font-black rounded-full flex items-center justify-center shadow-lg">
-                    #1
+                    RANK
                   </div>
                 </div>
                 <div>
@@ -548,6 +588,12 @@ export default function MainMenu() {
               <div className="h-1 w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-30" />
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showLeaderboard && (
+          <Leaderboard onClose={() => setShowLeaderboard(false)} />
         )}
       </AnimatePresence>
     </div>

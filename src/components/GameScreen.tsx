@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useState } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import { useGameStore } from "../stores/useGameStore";
+import { authClient } from "../lib/auth-client";
 import { TimeBar } from "./TimeBar";
 import { ScoreDisplay } from "./ScoreDisplay";
 import {
@@ -41,6 +42,10 @@ export default function GameScreen() {
     points: number;
     id: number;
   } | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+
+  const { data: session } = authClient.useSession();
 
   // Swipe logic
   const x = useMotionValue(0);
@@ -49,6 +54,40 @@ export default function GameScreen() {
   const opacity = useTransform(x, [-200, -150, 0, 150, 200], [0, 1, 1, 1, 0]);
 
   const isGameOver = !isPlaying && currentClue !== null;
+
+  useEffect(() => {
+    const submitGlobalScore = async () => {
+      if (isGameOver && session && score > 0 && submitStatus === "idle" && !isSubmitting) {
+        setIsSubmitting(true);
+        try {
+          const response = await fetch("http://localhost:3000/api/leaderboard", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...authClient.getHeaders(),
+            },
+            body: JSON.stringify({
+              score,
+              gameMode,
+              category: selectedCategory || "all",
+            }),
+          });
+          if (response.ok) {
+            setSubmitStatus("success");
+          } else {
+            setSubmitStatus("error");
+          }
+        } catch (err) {
+          console.error("Failed to submit score:", err);
+          setSubmitStatus("error");
+        } finally {
+          setIsSubmitting(false);
+        }
+      }
+    };
+
+    submitGlobalScore();
+  }, [isGameOver, session, score, gameMode, selectedCategory, submitStatus, isSubmitting]);
 
   const handleAnswer = useCallback((answer: string, index?: number) => {
     if (feedback || !answer || !currentClue) return;
@@ -188,6 +227,21 @@ export default function GameScreen() {
                   </motion.div>
                 )}
               </div>
+            </div>
+
+            {/* Global Leaderboard Status */}
+            <div className="mb-6 py-3 px-4 bg-white/[0.02] rounded-2xl border border-white/5 flex items-center justify-center gap-2">
+                {!session ? (
+                   <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Sign in to join Global Leaderboard</p>
+                ) : submitStatus === "success" ? (
+                   <p className="text-[10px] font-black text-green-400 uppercase tracking-widest flex items-center gap-2">
+                     <CheckCircle className="w-3 h-3" /> Score Synced Globally
+                   </p>
+                ) : submitStatus === "error" ? (
+                    <p className="text-[10px] font-black text-red-400 uppercase tracking-widest">Failed to sync score</p>
+                ) : (
+                    <p className="text-[10px] font-black text-cyan-400/50 uppercase tracking-widest animate-pulse">Syncing with leaderboard...</p>
+                )}
             </div>
 
             <div className="grid grid-cols-2 gap-6 pt-6 border-t border-white/10">
