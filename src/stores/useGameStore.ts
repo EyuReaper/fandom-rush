@@ -106,8 +106,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     // Speed bonus: Under 2 sec: +30, Under 3 sec: +20
     // timeLeft is remaining, so elapsed = maxTime - timeLeft
     const elapsed = maxTime - timeLeft;
-    let speedBonus = 0;
-    
+    let speedBonus: number;
+
     if (gameMode !== "sixty-second") {
       if (elapsed < 2) speedBonus = 30;
       else if (elapsed < 3) speedBonus = 20;
@@ -215,7 +215,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 // ==================== Helper Functions ====================
 
 function getRandomClue(category?: string, previousClueIds: number[] = []) {
-  let filtered = category 
+  const filtered = category 
     ? fandomClues.filter(c => c.category === category)
     : fandomClues;
   

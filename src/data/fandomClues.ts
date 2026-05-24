@@ -46,4 +46,15 @@ export const fandomClues: FandomClue[] = [
   // Marvel
   { id: 106, fandom: "Marvel", category: "movies", difficulty: "easy", objectName: "Loki's Scepter", imagePath: "/src/assets/movies/marvel/loki's-scepter.png", correctAnswer: "Marvel" },
   { id: 107, fandom: "Marvel", category: "movies", difficulty: "medium", objectName: "Tesseract", imagePath: "/src/assets/movies/marvel/tesseract.png", correctAnswer: "Marvel" },
+
+  // Pokemon
+  { id: 13, fandom: "Pokemon", category: "anime", difficulty: "easy", objectName: "Master Ball", imagePath: "/src/assets/anime/pokemon/master-ball.png", correctAnswer: "Pokemon" },
+  { id: 14, fandom: "Pokemon", category: "anime", difficulty: "medium", objectName: "Egg Incubator", imagePath: "/src/assets/anime/pokemon/egg-incubator.png", correctAnswer: "Pokemon" },
+  { id: 15, fandom: "Pokemon", category: "anime", difficulty: "hard", objectName: "Super Potion", imagePath: "/src/assets/anime/pokemon/super-potion.png", correctAnswer: "Pokemon" },
+
+  // === CARTOONS ===
+  // Adventure Time
+  { id: 200, fandom: "Adventure Time", category: "cartoons", difficulty: "easy", objectName: "Ice Crown", imagePath: "/src/assets/cartoons/adventure-time/Ice-Crown.png", correctAnswer: "Adventure Time" },
+  { id: 201, fandom: "Adventure Time", category: "cartoons", difficulty: "medium", objectName: "Grass Sword", imagePath: "/src/assets/cartoons/adventure-time/Grass-Sword.png", correctAnswer: "Adventure Time" },
+  { id: 202, fandom: "Adventure Time", category: "cartoons", difficulty: "hard", objectName: "Scarlet", imagePath: "/src/assets/cartoons/adventure-time/scarlet.png", correctAnswer: "Adventure Time" },
 ];

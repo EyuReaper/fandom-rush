@@ -60,19 +60,15 @@ export default function GameScreen() {
       if (isGameOver && session && score > 0 && submitStatus === "idle" && !isSubmitting) {
         setIsSubmitting(true);
         try {
-          const response = await fetch("http://localhost:3000/api/leaderboard", {
+          const response = await authClient.fetch("http://localhost:3000/api/leaderboard", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify({
+            body: {
               score,
               gameMode,
               category: selectedCategory || "all",
-            }),
+            },
           });
-          if (response.ok) {
+          if (!response.error) {
             setSubmitStatus("success");
           } else {
             setSubmitStatus("error");
@@ -114,7 +110,7 @@ export default function GameScreen() {
             : 50;
       
       const elapsed = maxTime - timeLeft;
-      let speedBonus = 0;
+      let speedBonus: number;
       if (gameMode !== "sixty-second") {
         if (elapsed < 2) speedBonus = 30;
         else if (elapsed < 3) speedBonus = 20;

@@ -1,14 +1,22 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, X, Zap, Clock, LayoutGrid, Target, Loader2, Globe } from "lucide-react";
+import { motion } from "framer-motion";
+import { X, Zap, Clock, LayoutGrid, Target, Loader2, Globe, User } from "lucide-react";
+import { authClient } from "../lib/auth-client";
 
 interface Score {
+  user_id: string;
   user_name: string;
   user_image: string;
   score: number;
   game_mode: string;
   category: string;
   created_at: string;
+  rank?: number;
+}
+
+interface LeaderboardData {
+  scores: Score[];
+  userScore: (Score & { rank: number }) | null;
 }
 
 interface LeaderboardProps {
@@ -16,7 +24,8 @@ interface LeaderboardProps {
 }
 
 export default function Leaderboard({ onClose }: LeaderboardProps) {
-  const [scores, setScores] = useState<Score[]>([]);
+  const { data: session } = authClient.useSession();
+  const [data, setData] = useState<LeaderboardData>({ scores: [], userScore: null });
   const [loading, setLoading] = useState(true);
   const [activeMode, setActiveMode] = useState("endless");
 
@@ -30,9 +39,12 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
     const fetchScores = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`http://localhost:3000/api/leaderboard?mode=${activeMode}`);
-        const data = await response.json();
-        setScores(data);
+        const response = await authClient.fetch(`http://localhost:3000/api/leaderboard?mode=${activeMode}`);
+        if (response.data) {
+          setData(response.data as LeaderboardData);
+        } else if (response.error) {
+           console.error("Failed to fetch leaderboard:", response.error);
+        }
       } catch (err) {
         console.error("Failed to fetch leaderboard:", err);
       } finally {
@@ -42,6 +54,8 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
 
     fetchScores();
   }, [activeMode]);
+
+  const isUserInTop = data.scores.some(s => s.user_id === session?.user?.id);
 
   return (
     <motion.div
@@ -106,7 +120,7 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
               <Loader2 className="w-8 h-8 text-cyan-500 animate-spin" />
               <p className="text-[10px] font-black text-cyan-500/50 uppercase tracking-[0.3em]">Synchronizing data...</p>
             </div>
-          ) : scores.length === 0 ? (
+          ) : data.scores.length === 0 ? (
             <div className="h-64 flex flex-col items-center justify-center gap-4 text-center">
               <Target className="w-12 h-12 text-gray-700 mb-2" />
               <p className="text-gray-500 font-bold italic">No scores recorded yet for this mode.</p>
@@ -114,57 +128,112 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
             </div>
           ) : (
             <div className="space-y-2">
-              {scores.map((score, index) => (
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.03 }}
-                  key={index}
-                  className={`flex items-center gap-4 p-4 rounded-xl border transition-all group ${
-                    index === 0 
-                      ? "bg-yellow-500/5 border-yellow-500/20" 
-                      : index === 1 
-                      ? "bg-gray-400/5 border-gray-400/20"
-                      : index === 2
-                      ? "bg-amber-700/5 border-amber-700/20"
-                      : "bg-white/[0.02] border-white/5"
-                  }`}
-                >
-                  <div className={`w-8 text-xl font-black italic italic ${
-                    index === 0 ? "text-yellow-500" : index === 1 ? "text-gray-400" : index === 2 ? "text-amber-700" : "text-gray-600"
-                  }`}>
-                    #{index + 1}
+              {data.scores.map((score, index) => {
+                const isCurrentUser = session?.user?.id === score.user_id;
+                return (
+                  <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                    key={index}
+                    className={`flex items-center gap-4 p-4 rounded-xl border transition-all group ${
+                      isCurrentUser
+                        ? "bg-cyan-500/20 border-cyan-500/50 shadow-[0_0_20px_rgba(6,182,212,0.1)]"
+                        : index === 0 
+                        ? "bg-yellow-500/5 border-yellow-500/20" 
+                        : index === 1 
+                        ? "bg-gray-400/5 border-gray-400/20"
+                        : index === 2
+                        ? "bg-amber-700/5 border-amber-700/20"
+                        : "bg-white/[0.02] border-white/5"
+                    }`}
+                  >
+                    <div className={`w-8 text-xl font-black italic ${
+                      index === 0 ? "text-yellow-500" : index === 1 ? "text-gray-400" : index === 2 ? "text-amber-700" : isCurrentUser ? "text-cyan-400" : "text-gray-600"
+                    }`}>
+                      #{index + 1}
+                    </div>
+                    
+                    <div className={`w-10 h-10 rounded-full border overflow-hidden bg-white/5 flex-shrink-0 ${
+                      isCurrentUser ? "border-cyan-500/50" : "border-white/10"
+                    }`}>
+                      {score.user_image ? (
+                          <img src={score.user_image} alt={score.user_name} className="w-full h-full object-cover" />
+                      ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-500 font-black text-xs">
+                              {score.user_name?.charAt(0) || <User className="w-4 h-4" />}
+                          </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <p className={`font-bold truncate transition-colors uppercase tracking-tight italic ${
+                        isCurrentUser ? "text-cyan-400" : "group-hover:text-cyan-400"
+                      }`}>
+                        {score.user_name} {isCurrentUser && <span className="text-[8px] not-italic ml-2 bg-cyan-500/20 px-2 py-0.5 rounded-full border border-cyan-500/30">YOU</span>}
+                      </p>
+                      <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">
+                          {score.category !== 'all' ? `${score.category} Master` : 'Elite Fan'}
+                      </p>
+                    </div>
+
+                    <div className="text-right">
+                      <p className={`text-2xl font-black tabular-nums tracking-tighter leading-none ${
+                          isCurrentUser || index < 3 ? "text-white" : "text-gray-400"
+                      }`}>
+                        {score.score.toLocaleString()}
+                      </p>
+                      <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mt-1">Points</p>
+                    </div>
+                  </motion.div>
+                );
+              })}
+
+              {!isUserInTop && data.userScore && (
+                <>
+                  <div className="flex justify-center py-2">
+                    <div className="flex gap-1">
+                      {[1, 2, 3].map(i => <div key={i} className="w-1 h-1 rounded-full bg-gray-800" />)}
+                    </div>
                   </div>
                   
-                  <div className="w-10 h-10 rounded-full border border-white/10 overflow-hidden bg-white/5 flex-shrink-0">
-                    {score.user_image ? (
-                        <img src={score.user_image} alt={score.user_name} className="w-full h-full object-cover" />
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-500 font-black text-xs">
-                            {score.user_name.charAt(0)}
-                        </div>
-                    )}
-                  </div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-4 p-4 rounded-xl border bg-cyan-500/20 border-cyan-500/50 shadow-[0_0_20px_rgba(6,182,212,0.1)] sticky bottom-0 z-10"
+                  >
+                    <div className="w-8 text-xl font-black italic text-cyan-400">
+                      #{data.userScore.rank}
+                    </div>
+                    
+                    <div className="w-10 h-10 rounded-full border border-cyan-500/50 overflow-hidden bg-white/5 flex-shrink-0">
+                      {data.userScore.user_image ? (
+                          <img src={data.userScore.user_image} alt={data.userScore.user_name} className="w-full h-full object-cover" />
+                      ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-500 font-black text-xs">
+                              {data.userScore.user_name?.charAt(0) || <User className="w-4 h-4" />}
+                          </div>
+                      )}
+                    </div>
 
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold truncate group-hover:text-cyan-400 transition-colors uppercase tracking-tight italic">
-                      {score.user_name}
-                    </p>
-                    <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">
-                        {score.category !== 'all' ? `${score.category} Master` : 'Elite Fan'}
-                    </p>
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold truncate text-cyan-400 uppercase tracking-tight italic">
+                        {data.userScore.user_name} <span className="text-[8px] not-italic ml-2 bg-cyan-500/20 px-2 py-0.5 rounded-full border border-cyan-500/30">YOU</span>
+                      </p>
+                      <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">
+                          Personal Best
+                      </p>
+                    </div>
 
-                  <div className="text-right">
-                    <p className={`text-2xl font-black tabular-nums tracking-tighter leading-none ${
-                        index < 3 ? "text-white" : "text-gray-400"
-                    }`}>
-                      {score.score.toLocaleString()}
-                    </p>
-                    <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mt-1">Points</p>
-                  </div>
-                </motion.div>
-              ))}
+                    <div className="text-right">
+                      <p className="text-2xl font-black tabular-nums tracking-tighter leading-none text-white">
+                        {data.userScore.score.toLocaleString()}
+                      </p>
+                      <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mt-1">Points</p>
+                    </div>
+                  </motion.div>
+                </>
+              )}
             </div>
           )}
         </div>

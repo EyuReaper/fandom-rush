@@ -8,18 +8,73 @@ const router = new Hono();
 router.get('/', async (c) => {
   const mode = c.req.query('mode') || 'endless';
   const category = c.req.query('category') || 'all';
+  const session = await auth.api.getSession({ headers: c.req.raw.headers });
 
   try {
-    const query = `
-      SELECT s.score, s.game_mode, s.category, s.created_at, u.name as user_name, u.image as user_image
-      FROM scores s
-      JOIN "user" u ON s.user_id = u.id
-      WHERE s.game_mode = $1 AND (s.category = $2 OR $2 = 'all')
-      ORDER BY s.score DESC
+    // Query for top 50 unique users' best scores
+    const topScoresQuery = `
+      WITH UserBestScores AS (
+        SELECT 
+          user_id, 
+          MAX(score) as score,
+          MAX(created_at) as created_at
+        FROM scores
+        WHERE game_mode = $1 AND (category = $2 OR $2 = 'all')
+        GROUP BY user_id
+      )
+      SELECT 
+        ubs.score, 
+        ubs.created_at, 
+        u.name as user_name, 
+        u.image as user_image,
+        u.id as user_id
+      FROM UserBestScores ubs
+      JOIN "user" u ON ubs.user_id = u.id
+      ORDER BY ubs.score DESC, ubs.created_at ASC
       LIMIT 50
     `;
-    const result = await pool.query(query, [mode, category]);
-    return c.json(result.rows);
+    const topScoresResult = await pool.query(topScoresQuery, [mode, category]);
+    
+    let userScore = null;
+    if (session) {
+      // Query for the current user's best score and its rank
+      const userRankQuery = `
+        WITH UserBestScores AS (
+          SELECT 
+            user_id, 
+            MAX(score) as score,
+            MAX(created_at) as created_at
+          FROM scores
+          WHERE game_mode = $1 AND (category = $2 OR $2 = 'all')
+          GROUP BY user_id
+        ),
+        RankedScores AS (
+          SELECT 
+            user_id,
+            score,
+            RANK() OVER (ORDER BY score DESC, created_at ASC) as rank
+          FROM UserBestScores
+        )
+        SELECT 
+          rs.score, 
+          rs.rank,
+          u.name as user_name,
+          u.image as user_image,
+          u.id as user_id
+        FROM RankedScores rs
+        JOIN "user" u ON rs.user_id = u.id
+        WHERE rs.user_id = $3
+      `;
+      const userRankResult = await pool.query(userRankQuery, [mode, category, session.user.id]);
+      if (userRankResult.rows.length > 0) {
+        userScore = userRankResult.rows[0];
+      }
+    }
+
+    return c.json({
+      scores: topScoresResult.rows,
+      userScore
+    });
   } catch (err) {
     console.error('Error fetching leaderboard:', err);
     return c.json({ error: 'Failed to fetch leaderboard' }, 500);

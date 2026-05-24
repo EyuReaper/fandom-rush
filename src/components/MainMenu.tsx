@@ -6,7 +6,6 @@ import { authClient } from "../lib/auth-client";
 import LoginButton from "./LoginButton";
 import Leaderboard from "./Leaderboard";
 import {
-  Trophy,
   Zap,
   Clock,
   Tv,
@@ -17,13 +16,26 @@ import {
   Globe,
   X,
   Info,
-  Flame,
   Volume2,
   VolumeX,
 } from "lucide-react";
 
+const particles = Array.from({ length: 20 }).map((_, i) => ({
+  duration: 0.8 + Math.random(),
+  delay: Math.random() * 2,
+  x: [(i - 10) * 8, (i - 10) * 12],
+}));
+
 export default function MainMenu() {
-  const { startGame, highScore, swipeMode, toggleSwipeMode, isMuted, toggleMute, isPlaying } = useGameStore();
+  const {
+    startGame,
+    highScore,
+    swipeMode,
+    toggleSwipeMode,
+    isMuted,
+    toggleMute,
+    isPlaying,
+  } = useGameStore();
   const [showCategories, setShowCategories] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
@@ -34,23 +46,27 @@ export default function MainMenu() {
     const claimScore = async () => {
       if (session && highScore > 0) {
         // Check if we've already claimed this score to avoid redundant API calls
-        const hasClaimed = localStorage.getItem(`fandomRushClaimed_${session.user.id}`);
+        const hasClaimed = localStorage.getItem(
+          `fandomRushClaimed_${session.user.id}`,
+        );
         if (hasClaimed === highScore.toString()) return;
 
         try {
-          await fetch("http://localhost:3000/api/leaderboard/claim", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
+          await authClient.fetch(
+            "http://localhost:3000/api/leaderboard/claim",
+            {
+              method: "POST",
+              body: {
+                score: highScore,
+                gameMode: "endless", // Default for legacy high scores
+                category: "all",
+              },
             },
-            credentials: "include",
-            body: JSON.stringify({
-              score: highScore,
-              gameMode: "endless", // Default for legacy high scores
-              category: "all",
-            }),
-          });
-          localStorage.setItem(`fandomRushClaimed_${session.user.id}`, highScore.toString());
+          );
+          localStorage.setItem(
+            `fandomRushClaimed_${session.user.id}`,
+            highScore.toString(),
+          );
         } catch (err) {
           console.error("Failed to claim score:", err);
         }
@@ -190,7 +206,7 @@ export default function MainMenu() {
       {/* --- TOP HUD --- */}
       <div className="absolute top-8 left-8 right-8 z-[100] flex justify-between items-start">
         <LoginButton />
-        
+
         <motion.button
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -216,7 +232,7 @@ export default function MainMenu() {
             {/* --- HEADER --- */}
             <motion.div
               variants={itemVariants}
-              className="text-center mb-16 relative item-center"
+              className="text-center mb-8 relative item-center"
             >
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-cyan-500/10 border border-cyan-500/30 rounded-full text-cyan-400 text-[10px] font-black tracking-[0.3em] mb-6 uppercase backdrop-blur-md">
                 <Target className="w-3 h-3 animate-pulse" />
@@ -274,20 +290,20 @@ export default function MainMenu() {
               {/* Flamey Rush Animation Container */}
               <div className="relative py-4 overflow-hidden">
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  {Array.from({ length: 20 }).map((_, i) => (
+                  {particles.map((p, i) => (
                     <motion.div
                       key={i}
                       animate={{
                         y: [0, -80],
-                        x: [(i - 10) * 8, (i - 10) * 12],
+                        x: p.x,
                         opacity: [0, 0.8, 0],
                         scaleY: [1, 2, 0.5],
                         scaleX: [1, 0.5, 0],
                       }}
                       transition={{
-                        duration: 0.8 + Math.random(),
+                        duration: p.duration,
                         repeat: Infinity,
-                        delay: Math.random() * 2,
+                        delay: p.delay,
                         ease: "easeOut",
                       }}
                       className="absolute w-2 h-2 rounded-full bg-gradient-to-t from-pink-500 to-yellow-400 blur-sm"
@@ -309,7 +325,7 @@ export default function MainMenu() {
             <motion.div
               variants={itemVariants}
               onClick={() => setShowLeaderboard(true)}
-              className="group relative bg-[#10101a]  p-10 mb-20 w-full max-w-md overflow-hidden cursor-pointer active:scale-95 transition-transform"
+              className="group relative bg-[#10101a]  p-6 mb-8 w-full max-w-md overflow-hidden cursor-pointer active:scale-95 transition-transform"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/20 via-transparent to-yellow-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="bg-[#0a0a0f] rounded-[10px] p-6 flex items-center gap-6 relative z-10 border border-white/5">
@@ -333,7 +349,7 @@ export default function MainMenu() {
             </motion.div>
 
             {/* --- GAME MODES --- */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6 w-full ">
+            <div className="grid grid-cols-1 md:grid-cols-2  gap-6 w-full ">
               <MenuButton
                 className="rounded-[10px]"
                 icon={<Zap className="w-8 h-8 " />}
@@ -372,9 +388,9 @@ export default function MainMenu() {
             {/* --- FOOTER --- */}
             <motion.div
               variants={itemVariants}
-              className="mt-24 flex flex-col items-center gap-6"
+              className="mt-10 flex flex-col items-center gap-6"
             >
-              <div className="text-gray-600 text-[9px] font-black uppercase tracking-[0.5em] mt-10">
+              <div className="text-gray-600 text-[9px] font-black uppercase tracking-[0.5em] mt-4">
                 © 2026 FANDOM RUSH // an EyuReaper game
               </div>
             </motion.div>
@@ -529,7 +545,11 @@ export default function MainMenu() {
 
                   <div className="flex items-center justify-between p-4 bg-white/[0.03] border border-white/5 rounded-xl">
                     <div className="flex items-center gap-3">
-                      {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-cyan-400" />}
+                      {isMuted ? (
+                        <VolumeX className="w-4 h-4 text-red-400" />
+                      ) : (
+                        <Volume2 className="w-4 h-4 text-cyan-400" />
+                      )}
                       <span className="text-sm font-bold uppercase italic tracking-wider">
                         Audio {isMuted ? "(Muted)" : "(On)"}
                       </span>
@@ -605,7 +625,6 @@ interface MenuButtonProps {
   icon: React.ReactNode;
   title: string;
   description: string;
-  color: string;
   onClick?: () => void;
   disabled?: boolean;
   accent: string;
@@ -616,7 +635,6 @@ function MenuButton({
   icon,
   title,
   description,
-  color,
   onClick,
   disabled = false,
   accent,
@@ -647,7 +665,7 @@ function MenuButton({
       }`}
     >
       <div
-        className={`h-full w-full bg-[#0d0d14] rounded-[8px] p-8 flex flex-col relative z-10 border border-white/5 items-center text-center skew-x-[-10deg] mt-[-5px]`}
+        className={`h-full w-full bg-[#0d0d14] rounded-[8px] p-5 flex flex-col relative z-10 border border-white/5 items-center text-center skew-x-[-10deg] mt-[-5px]`}
       >
         {/* Scanner Light Effect */}
         {!disabled && (
