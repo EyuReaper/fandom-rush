@@ -39,12 +39,13 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
     const fetchScores = async () => {
       setLoading(true);
       try {
-        const response = await authClient.fetch(`http://localhost:3000/api/leaderboard?mode=${activeMode}`);
-        if (response.data) {
-          setData(response.data as LeaderboardData);
-        } else if (response.error) {
-           console.error("Failed to fetch leaderboard:", response.error);
-        }
+        const response = await fetch(`http://localhost:3000/api/leaderboard?mode=${activeMode}`, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const result = await response.json();
+        setData(result);
       } catch (err) {
         console.error("Failed to fetch leaderboard:", err);
       } finally {
