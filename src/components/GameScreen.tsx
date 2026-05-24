@@ -14,7 +14,6 @@ import {
   ArrowDown,
   ArrowLeft,
   ArrowRight,
-  Globe,
 } from "lucide-react";
 
 export default function GameScreen() {
@@ -206,25 +205,26 @@ export default function GameScreen() {
               animate={{ rotate: [0, -10, 10, -10, 10, 0] }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <Trophy className="w-24 h-24 mx-auto text-yellow-400 mb-4" />
+              <Trophy className="w-24 h-24 mx-auto text-yellow-400 mb-6 drop-shadow-[0_0_20px_rgba(250,204,21,0.4)]" />
             </motion.div>
-            <h1 className="text-7xl font-black italic text-red-500 tracking-tighter uppercase leading-none">
+            <h1 className="text-8xl md:text-9xl font-black italic text-red-500 tracking-tighter uppercase leading-none">
               Game <br/>Over
             </h1>
           </div>
 
-          <div className="bg-white/5 backdrop-blur-3xl border border-white/20 rounded-[40px] p-10 mb-10 shadow-2xl">
-            <div className="mb-6">
-              <p className="text-gray-500 text-xs font-black tracking-[0.3em] uppercase mb-2">Final Score</p>
+          <div className="bg-[#0d0d14]/80 backdrop-blur-3xl border border-white/10 rounded-[20px] p-12 mb-12 shadow-2xl relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="mb-8">
+              <p className="text-gray-500 text-[10px] font-black tracking-[0.4em] uppercase mb-4">Final Score</p>
               <div className="relative inline-block">
-                <p className="text-7xl font-black text-cyan-400 tabular-nums tracking-tighter">
+                <p className="text-8xl font-black text-white tabular-nums tracking-tighter leading-none drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]">
                   {score.toLocaleString()}
                 </p>
                 {score > 0 && score === highScore && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0, rotate: -20 }}
                     animate={{ opacity: 1, scale: 1, rotate: -10 }}
-                    className="absolute -top-6 -right-12 bg-yellow-400 text-black text-[10px] font-black px-3 py-1 rounded-full shadow-[0_5px_15px_rgba(250,204,21,0.4)] uppercase tracking-widest"
+                    className="absolute -top-10 -right-16 bg-yellow-400 text-black text-[10px] font-black px-4 py-1.5 rounded-full shadow-[0_5px_20px_rgba(250,204,21,0.4)] uppercase tracking-widest"
                   >
                     New Record!
                   </motion.div>
@@ -237,61 +237,56 @@ export default function GameScreen() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowLeaderboard(true)}
-                className="mb-6 py-4 px-6 bg-white/[0.03] hover:bg-white/[0.05] cursor-pointer rounded-2xl border border-white/10 transition-colors flex items-center justify-between group"
+                className="mb-8 py-4 px-6 bg-white/[0.03] hover:bg-white/[0.05] cursor-pointer transition-colors rounded-xl border border-white/5 flex items-center justify-between group/status"
             >
-                <div className="flex items-center gap-3">
-                    <div className="p-2 bg-yellow-500/10 rounded-lg border border-yellow-500/20 group-hover:border-yellow-500/40 transition-colors">
-                        <Globe className="w-4 h-4 text-yellow-500" />
-                    </div>
-                    <div className="text-left">
-                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest leading-tight">Global Rankings</p>
-                        {!session ? (
-                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tight mt-0.5">Sign in to compete</p>
-                        ) : submitStatus === "success" ? (
-                        <p className="text-[9px] font-bold text-green-400 uppercase tracking-tight mt-0.5 flex items-center gap-1">
-                            <CheckCircle className="w-2.5 h-2.5" /> Score Synced
-                        </p>
-                        ) : submitStatus === "error" ? (
-                            <p className="text-[9px] font-bold text-red-400 uppercase tracking-tight mt-0.5">Sync Failed</p>
-                        ) : (
-                            <p className="text-[9px] font-bold text-cyan-400/50 uppercase tracking-tight mt-0.5 animate-pulse">Syncing...</p>
-                        )}
-                    </div>
+                <div className="text-left">
+                    <p className="text-[9px] font-black text-gray-500 uppercase tracking-[0.3em] mb-1">Global Rankings</p>
+                    {!session ? (
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sign in to compete</p>
+                    ) : submitStatus === "success" ? (
+                    <p className="text-[10px] font-black text-green-400 uppercase tracking-widest flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3" /> Score Synced
+                    </p>
+                    ) : submitStatus === "error" ? (
+                        <p className="text-[10px] font-black text-red-400 uppercase tracking-widest">Sync Failed</p>
+                    ) : (
+                        <p className="text-[10px] font-black text-cyan-400/50 uppercase tracking-widest animate-pulse">Syncing...</p>
+                    )}
                 </div>
-                <div className="text-[10px] font-black text-cyan-400 uppercase tracking-widest group-hover:translate-x-1 transition-transform">
+                <div className="text-[10px] font-black text-cyan-400 uppercase tracking-widest group-hover/status:translate-x-1 transition-transform">
                     View →
                 </div>
             </motion.div>
 
-            <div className="grid grid-cols-2 gap-6 pt-6 border-t border-white/10">
+            <div className="grid grid-cols-2 gap-8 pt-8 border-t border-white/5">
               <div className="text-left">
-                <p className="text-gray-500 text-[10px] uppercase font-black tracking-widest mb-1">Max Combo</p>
-                <p className="text-3xl font-black italic">×{combo}</p>
+                <p className="text-gray-500 text-[9px] uppercase font-black tracking-[0.4em] mb-2">Max Combo</p>
+                <p className="text-4xl font-black italic">×{combo}</p>
               </div>
               <div className="text-right">
-                <p className="text-gray-500 text-[10px] uppercase font-black tracking-widest mb-1">Best Score</p>
-                <p className="text-3xl font-black italic text-white/80">
+                <p className="text-gray-500 text-[9px] uppercase font-black tracking-[0.4em] mb-2">Best Score</p>
+                <p className="text-4xl font-black italic text-white/80">
                   {highScore.toLocaleString()}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5">
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02, skewX: "-3deg" }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => startGame(gameMode, selectedCategory || undefined)}
-              className="w-full py-6 bg-cyan-500 hover:bg-cyan-400 text-black text-2xl font-black italic rounded-2xl shadow-[0_10px_30px_rgba(6,182,212,0.4)] transition-all"
+              className="w-full py-6 bg-cyan-500 hover:bg-cyan-400 text-black text-2xl font-black italic rounded-xl shadow-[0_10px_30px_rgba(6,182,212,0.3)] transition-all uppercase tracking-tighter"
             >
               PLAY AGAIN
             </motion.button>
 
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={resetGame}
-              className="w-full py-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-sm font-black uppercase tracking-widest text-gray-500"
+              className="w-full py-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.4em] text-gray-500 transition-all"
             >
               Back to Menu
             </motion.button>

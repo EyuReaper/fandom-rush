@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import type { Variants } from "framer-motion";
 import { useGameStore } from "../stores/useGameStore";
 import { audioManager } from "../lib/audioManager";
 import { authClient } from "../lib/auth-client";
@@ -144,7 +145,7 @@ export default function MainMenu() {
     },
   ];
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -153,7 +154,7 @@ export default function MainMenu() {
     exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
       y: 0,
@@ -306,9 +307,6 @@ export default function MainMenu() {
                   </p>
                   <p className="text-6xl font-black text-white tabular-nums tracking-tighter leading-none">
                     {highScore.toLocaleString()}
-                  </p>
-                  <p className="text-[8px] font-black text-cyan-400 uppercase tracking-widest mt-4 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
-                    Click to view leaderboard <Target className="w-3 h-3" />
                   </p>
                 </div>
               </div>
