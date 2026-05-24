@@ -64,8 +64,8 @@ export default function GameScreen() {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              ...authClient.getHeaders(),
             },
+            credentials: "include",
             body: JSON.stringify({
               score,
               gameMode,

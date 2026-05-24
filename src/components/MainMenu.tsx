@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore } from "../stores/useGameStore";
 import { audioManager } from "../lib/audioManager";
+import { authClient } from "../lib/auth-client";
 import LoginButton from "./LoginButton";
 import Leaderboard from "./Leaderboard";
 import {
@@ -41,8 +42,8 @@ export default function MainMenu() {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              ...authClient.getHeaders(),
             },
+            credentials: "include",
             body: JSON.stringify({
               score: highScore,
               gameMode: "endless", // Default for legacy high scores

@@ -4,6 +4,9 @@ import { serve } from '@hono/node-server';
 import { auth } from './lib/auth.js';
 import leaderboardRouter from './routes/leaderboard.js';
 import dotenv from 'dotenv';
+import dns from 'node:dns';
+
+dns.setDefaultResultOrder('ipv4first');
 
 dotenv.config();
 
