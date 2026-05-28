@@ -307,6 +307,9 @@ export default function MainMenu() {
                   <p className="text-6xl font-black text-white tabular-nums tracking-tighter leading-none">
                     {highScore.toLocaleString()}
                   </p>
+                  <p className="text-[8px] font-black text-cyan-400 uppercase tracking-widest mt-4 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                    Click to view leaderboard <Target className="w-3 h-3" />
+                  </p>
                 </div>
               </div>
             </motion.div>

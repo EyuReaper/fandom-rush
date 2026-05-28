@@ -4,6 +4,7 @@ import { useGameStore } from "../stores/useGameStore";
 import { authClient } from "../lib/auth-client";
 import { TimeBar } from "./TimeBar";
 import { ScoreDisplay } from "./ScoreDisplay";
+import Leaderboard from "./Leaderboard";
 import {
   Heart,
   CheckCircle,
@@ -13,6 +14,7 @@ import {
   ArrowDown,
   ArrowLeft,
   ArrowRight,
+  Globe,
 } from "lucide-react";
 
 export default function GameScreen() {
@@ -44,6 +46,7 @@ export default function GameScreen() {
   } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   const { data: session } = authClient.useSession();
 
@@ -230,19 +233,35 @@ export default function GameScreen() {
             </div>
 
             {/* Global Leaderboard Status */}
-            <div className="mb-6 py-3 px-4 bg-white/[0.02] rounded-2xl border border-white/5 flex items-center justify-center gap-2">
-                {!session ? (
-                   <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Sign in to join Global Leaderboard</p>
-                ) : submitStatus === "success" ? (
-                   <p className="text-[10px] font-black text-green-400 uppercase tracking-widest flex items-center gap-2">
-                     <CheckCircle className="w-3 h-3" /> Score Synced Globally
-                   </p>
-                ) : submitStatus === "error" ? (
-                    <p className="text-[10px] font-black text-red-400 uppercase tracking-widest">Failed to sync score</p>
-                ) : (
-                    <p className="text-[10px] font-black text-cyan-400/50 uppercase tracking-widest animate-pulse">Syncing with leaderboard...</p>
-                )}
-            </div>
+            <motion.div 
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowLeaderboard(true)}
+                className="mb-6 py-4 px-6 bg-white/[0.03] hover:bg-white/[0.05] cursor-pointer rounded-2xl border border-white/10 transition-colors flex items-center justify-between group"
+            >
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-yellow-500/10 rounded-lg border border-yellow-500/20 group-hover:border-yellow-500/40 transition-colors">
+                        <Globe className="w-4 h-4 text-yellow-500" />
+                    </div>
+                    <div className="text-left">
+                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest leading-tight">Global Rankings</p>
+                        {!session ? (
+                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tight mt-0.5">Sign in to compete</p>
+                        ) : submitStatus === "success" ? (
+                        <p className="text-[9px] font-bold text-green-400 uppercase tracking-tight mt-0.5 flex items-center gap-1">
+                            <CheckCircle className="w-2.5 h-2.5" /> Score Synced
+                        </p>
+                        ) : submitStatus === "error" ? (
+                            <p className="text-[9px] font-bold text-red-400 uppercase tracking-tight mt-0.5">Sync Failed</p>
+                        ) : (
+                            <p className="text-[9px] font-bold text-cyan-400/50 uppercase tracking-tight mt-0.5 animate-pulse">Syncing...</p>
+                        )}
+                    </div>
+                </div>
+                <div className="text-[10px] font-black text-cyan-400 uppercase tracking-widest group-hover:translate-x-1 transition-transform">
+                    View →
+                </div>
+            </motion.div>
 
             <div className="grid grid-cols-2 gap-6 pt-6 border-t border-white/10">
               <div className="text-left">
@@ -489,6 +508,10 @@ export default function GameScreen() {
           Control: <span className="text-cyan-400 font-black">W A S D</span> / <span className="text-cyan-400 font-black">ARROWS</span>
         </div>
       </div>
+
+      <AnimatePresence>
+        {showLeaderboard && <Leaderboard onClose={() => setShowLeaderboard(false)} />}
+      </AnimatePresence>
     </div>
   );
 }

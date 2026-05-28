@@ -43,6 +43,7 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
         });
         const result = await response.json();
         setData(result);
