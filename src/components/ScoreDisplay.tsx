@@ -9,10 +9,10 @@ export function ScoreDisplay({
 }) {
   return (
     <div className="text-right">
-      <div className="text-xs font-black text-gray-500 uppercase tracking-[0.2em] mb-1">
+      <div className="text-[9px] font-black text-gray-600 uppercase tracking-[0.4em] mb-1">
         Current Score
       </div>
-      <div className="text-5xl font-black tabular-nums tracking-tighter text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+      <div className="text-6xl font-black tabular-nums tracking-tighter text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.1)] leading-none">
         {score.toLocaleString()}
       </div>
 
@@ -21,11 +21,11 @@ export function ScoreDisplay({
           key={combo}
           initial={{ scale: 0.8, opacity: 0, x: 20 }}
           animate={{ scale: 1, opacity: 1, x: 0 }}
-          className="mt-2 flex items-center gap-2 justify-end"
+          className="mt-4 flex items-center gap-2 justify-end"
         >
-          <div className="px-3 py-1 bg-gradient-to-r from-orange-500 to-red-600 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.4)]">
-            <span className="text-white font-black italic text-sm tracking-widest uppercase">
-              ×{combo} Combo
+          <div className="px-4 py-1.5 bg-gradient-to-r from-pink-600 to-yellow-500 rounded-full shadow-[0_5px_20px_rgba(219,39,119,0.3)]">
+            <span className="text-white font-black italic text-[10px] tracking-[0.2em] uppercase">
+              ×{combo} Combo Streak
             </span>
           </div>
         </motion.div>

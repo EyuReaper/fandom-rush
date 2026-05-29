@@ -46,7 +46,9 @@ export default function MainMenu() {
   useEffect(() => {
     const claimScore = async () => {
       if (session && highScore > 0) {
-        const hasClaimed = localStorage.getItem(`fandomRushClaimed_${session.user.id}`);
+        const hasClaimed = localStorage.getItem(
+          `fandomRushClaimed_${session.user.id}`,
+        );
         if (hasClaimed === highScore.toString()) return;
 
         try {
@@ -62,7 +64,10 @@ export default function MainMenu() {
               category: "all",
             }),
           });
-          localStorage.setItem(`fandomRushClaimed_${session.user.id}`, highScore.toString());
+          localStorage.setItem(
+            `fandomRushClaimed_${session.user.id}`,
+            highScore.toString(),
+          );
         } catch (err) {
           console.error("Failed to claim score:", err);
         }
@@ -120,7 +125,7 @@ export default function MainMenu() {
       glow: "shadow-blue-500/20",
     },
     {
-      id: "tv-shows",
+      id: "tv",
       name: "TV Shows",
       icon: "📺",
       color: "from-emerald-500 to-teal-400",
@@ -133,7 +138,6 @@ export default function MainMenu() {
       icon: "🎨",
       color: "from-yellow-400 to-orange-500",
       glow: "shadow-yellow-500/20",
-      disabled: true,
     },
     {
       id: "games",
@@ -164,7 +168,7 @@ export default function MainMenu() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050508] text-white flex flex-col items-center justify-center p-12 md:p-20 relative overflow-hidden selection:bg-cyan-500 selection:text-black">
+    <div className="min-h-screen bg-[#050508] text-white flex flex-col items-center justify-center p-12 md:p-20 relative overflow-hidden selection:bg-cyan-400 selection:text-black">
       {/* --- CYBER BACKGROUND --- */}
       <div
         className="absolute inset-0 opacity-20 pointer-events-none"
@@ -172,7 +176,8 @@ export default function MainMenu() {
           backgroundImage: `linear-gradient(to right, #1a1a2e 1px, transparent 1px), linear-gradient(to bottom, #1a1a2e 1px, transparent 1px)`,
           backgroundSize: "40px 40px",
           transform: `perspective(1000px) rotateX(60deg) translateY(${mousePos.y}px) translateZ(-100px)`,
-          maskImage: "radial-gradient(ellipse at center, black, transparent 80%)",
+          maskImage:
+            "radial-gradient(ellipse at center, black, transparent 80%)",
         }}
       />
 
@@ -236,13 +241,27 @@ export default function MainMenu() {
                   <span className="text-white flex items-baseline">
                     FAND
                     <motion.span
-                      initial={{ y: -500, x: -200, opacity: 0, scale: 2, rotate: -20 }}
+                      initial={{
+                        y: -500,
+                        x: -200,
+                        opacity: 0,
+                        scale: 2,
+                        rotate: -20,
+                      }}
                       animate={{ y: 0, x: 0, opacity: 1, scale: 1, rotate: 0 }}
-                      transition={{ type: "spring", damping: 18, stiffness: 100, delay: 0.6 }}
+                      transition={{
+                        type: "spring",
+                        damping: 18,
+                        stiffness: 100,
+                        delay: 0.6,
+                      }}
                       className="inline-block w-[0.85em] h-[0.85em] self-center mx-[0.05em] relative"
                     >
                       <motion.div
-                        animate={{ height: [40, 120, 40], opacity: [0, 0.6, 0] }}
+                        animate={{
+                          height: [40, 120, 40],
+                          opacity: [0, 0.6, 0],
+                        }}
                         transition={{ duration: 0.4, repeat: Infinity }}
                         className="absolute -top-24 left-12 -translate-x-1/2 w-10 bg-gradient-to-t from-cyan-400/60 to-transparent blur-xl pointer-events-none"
                       />
@@ -254,8 +273,10 @@ export default function MainMenu() {
                     </motion.span>
                     M
                   </span>
-                  <span className="text-transparent bg-clip-text bg-gradient-to-b from-pink-600 to-yellow-300 drop-shadow-[0_0_30px_rgba(219,39,119,0.3)] ">
-                    RUSH &nbsp;
+                  <span className="drop-shadow-[0_0_30px_rgba(219,39,119,0.3)]">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-b from-pink-600 to-yellow-300">
+                      RUSH &nbsp;
+                    </span>
                   </span>
                 </h1>
                 <div className="absolute -inset-1 text-6xl md:text-9xl font-black italic tracking-tighter leading-none opacity-20 blur-[2px] text-cyan-500 -translate-x-1 group-hover:-translate-x-2 transition-transform select-none pointer-events-none">
@@ -268,8 +289,19 @@ export default function MainMenu() {
                   {particles.map((p, i) => (
                     <motion.div
                       key={i}
-                      animate={{ y: [0, -80], x: p.x, opacity: [0, 0.8, 0], scaleY: [1, 2, 0.5], scaleX: [1, 0.5, 0] }}
-                      transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: "easeOut" }}
+                      animate={{
+                        y: [0, -80],
+                        x: p.x,
+                        opacity: [0, 0.8, 0],
+                        scaleY: [1, 2, 0.5],
+                        scaleX: [1, 0.5, 0],
+                      }}
+                      transition={{
+                        duration: p.duration,
+                        repeat: Infinity,
+                        delay: p.delay,
+                        ease: "easeOut",
+                      }}
                       className="absolute w-2 h-2 rounded-full bg-gradient-to-t from-pink-500 to-yellow-400 blur-sm"
                     />
                   ))}
@@ -345,7 +377,10 @@ export default function MainMenu() {
             </div>
 
             {/* --- FOOTER --- */}
-            <motion.div variants={itemVariants} className="mt-24 flex flex-col items-center gap-6">
+            <motion.div
+              variants={itemVariants}
+              className="mt-24 flex flex-col items-center gap-6"
+            >
               <div className="text-gray-600 text-[10px] font-black uppercase tracking-[0.6em]">
                 © 2026 FANDOM RUSH // an EyuReaper game
               </div>
@@ -371,7 +406,12 @@ export default function MainMenu() {
                   to Main menu
                 </button>
                 <h2 className="text-6xl md:text-7xl font-black italic tracking-tighter leading-none">
-                  SELECT <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-500 drop-shadow-[0_0_20px_rgba(16,185,129,0.3)]">DOMAIN</span>
+                  SELECT{" "}
+                  <span className="drop-shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-500">
+                      DOMAIN
+                    </span>
+                  </span>
                 </h2>
               </div>
             </div>
@@ -381,16 +421,24 @@ export default function MainMenu() {
                 <motion.button
                   key={cat.id}
                   initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0, transition: { delay: idx * 0.05 } }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                    transition: { delay: idx * 0.05 },
+                  }}
                   whileHover={!cat.disabled ? { scale: 1.02 } : {}}
                   whileTap={!cat.disabled ? { scale: 0.98 } : {}}
                   onClick={() => !cat.disabled && startGame("category", cat.id)}
                   disabled={cat.disabled}
                   className={`relative group h-40 rounded-[48px] overflow-hidden border-2 transition-all p-1 ${cat.disabled ? "opacity-30 grayscale border-white/5 cursor-not-allowed bg-white/[0.02]" : `border-white/5 hover:border-white/20 shadow-2xl ${cat.glow}`}`}
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${cat.color} opacity-5 group-hover:opacity-20 transition-opacity`} />
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br ${cat.color} opacity-5 group-hover:opacity-20 transition-opacity`}
+                  />
                   <div className="h-full w-full bg-[#0d0d14] rounded-[40px] flex items-center p-10 relative z-10 border border-white/5 overflow-hidden">
-                    <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${cat.color} p-[1px] group-hover:rotate-6 transition-transform mr-8 flex-shrink-0`}>
+                    <div
+                      className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${cat.color} p-[1px] group-hover:rotate-6 transition-transform mr-8 flex-shrink-0`}
+                    >
                       <div className="w-full h-full bg-[#0d0d14] rounded-[15px] flex items-center justify-center text-4xl">
                         {cat.icon}
                       </div>
@@ -415,7 +463,10 @@ export default function MainMenu() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[200] flex items-center justify-center p-4"
           >
-            <div className="absolute inset-0 bg-[#050508]/60 backdrop-blur-md" onClick={() => setShowSettings(false)} />
+            <div
+              className="absolute inset-0 bg-[#050508]/60 backdrop-blur-md"
+              onClick={() => setShowSettings(false)}
+            />
             <motion.div
               initial={{ scale: 0.9, opacity: 0, rotateX: 20 }}
               animate={{ scale: 1, opacity: 1, rotateX: 0 }}
@@ -427,11 +478,18 @@ export default function MainMenu() {
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-8 bg-cyan-500 rounded-full animate-pulse" />
                   <div>
-                    <h2 className="text-2xl font-black italic tracking-tighter uppercase">Settings <span className="text-cyan-400">Config</span></h2>
-                    <p className="text-[8px] font-black text-gray-500 uppercase tracking-[0.4em]">customize your experience.</p>
+                    <h2 className="text-2xl font-black italic tracking-tighter uppercase">
+                      Settings <span className="text-cyan-400">Config</span>
+                    </h2>
+                    <p className="text-[8px] font-black text-gray-500 uppercase tracking-[0.4em]">
+                      customize your experience.
+                    </p>
                   </div>
                 </div>
-                <button onClick={() => setShowSettings(false)} className="p-2 hover:bg-white/10 rounded-lg transition-colors group">
+                <button
+                  onClick={() => setShowSettings(false)}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
+                >
                   <X className="w-5 h-5 text-gray-400 group-hover:text-white" />
                 </button>
               </div>
@@ -440,21 +498,43 @@ export default function MainMenu() {
                 <section>
                   <div className="flex items-center gap-2 mb-6">
                     <Target className="w-4 h-4 text-cyan-500" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-cyan-500/60">Input controls</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-cyan-500/60">
+                      Input controls
+                    </span>
                   </div>
                   <div className="flex items-center justify-between p-6 bg-white/[0.03] border border-white/5 rounded-xl mb-4">
-                    <span className="text-sm font-bold uppercase italic tracking-wider">Swipe Mechanics</span>
-                    <button onClick={toggleSwipeMode} className={`relative w-12 h-6 rounded-full transition-colors duration-300 border ${swipeMode ? "bg-cyan-500/20 border-cyan-500" : "bg-white/5 border-white/10"}`}>
-                      <motion.div animate={{ x: swipeMode ? 24 : 4 }} className={`absolute top-1 w-4 h-4 rounded-full ${swipeMode ? "bg-cyan-400" : "bg-gray-600"}`} />
+                    <span className="text-sm font-bold uppercase italic tracking-wider">
+                      Swipe Mechanics
+                    </span>
+                    <button
+                      onClick={toggleSwipeMode}
+                      className={`relative w-12 h-6 rounded-full transition-colors duration-300 border ${swipeMode ? "bg-cyan-500/20 border-cyan-500" : "bg-white/5 border-white/10"}`}
+                    >
+                      <motion.div
+                        animate={{ x: swipeMode ? 24 : 4 }}
+                        className={`absolute top-1 w-4 h-4 rounded-full ${swipeMode ? "bg-cyan-400" : "bg-gray-600"}`}
+                      />
                     </button>
                   </div>
                   <div className="flex items-center justify-between p-6 bg-white/[0.03] border border-white/5 rounded-xl">
                     <div className="flex items-center gap-3">
-                      {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-cyan-400" />}
-                      <span className="text-sm font-bold uppercase italic tracking-wider">Audio {isMuted ? "(Muted)" : "(On)"}</span>
+                      {isMuted ? (
+                        <VolumeX className="w-4 h-4 text-red-400" />
+                      ) : (
+                        <Volume2 className="w-4 h-4 text-cyan-400" />
+                      )}
+                      <span className="text-sm font-bold uppercase italic tracking-wider">
+                        Audio {isMuted ? "(Muted)" : "(On)"}
+                      </span>
                     </div>
-                    <button onClick={toggleMute} className={`relative w-12 h-6 rounded-full transition-colors duration-300 border ${!isMuted ? "bg-cyan-500/20 border-cyan-500" : "bg-white/5 border-white/10"}`}>
-                      <motion.div animate={{ x: !isMuted ? 24 : 4 }} className={`absolute top-1 w-4 h-4 rounded-full ${!isMuted ? "bg-cyan-400" : "bg-gray-600"}`} />
+                    <button
+                      onClick={toggleMute}
+                      className={`relative w-12 h-6 rounded-full transition-colors duration-300 border ${!isMuted ? "bg-cyan-500/20 border-cyan-500" : "bg-white/5 border-white/10"}`}
+                    >
+                      <motion.div
+                        animate={{ x: !isMuted ? 24 : 4 }}
+                        className={`absolute top-1 w-4 h-4 rounded-full ${!isMuted ? "bg-cyan-400" : "bg-gray-600"}`}
+                      />
                     </button>
                   </div>
                 </section>
@@ -462,15 +542,26 @@ export default function MainMenu() {
                 <section>
                   <div className="flex items-center gap-2 mb-6">
                     <Info className="w-4 h-4 text-pink-500" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-pink-500/60">About Game</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-pink-500/60">
+                      About Game
+                    </span>
                   </div>
                   <div className="p-6 bg-white/[0.03] border border-white/5 rounded-xl space-y-4">
                     <p className="text-xs text-gray-400 leading-relaxed">
-                      <span className="text-white font-bold italic">FANDOM RUSH</span> is an arcade game built for elite fans. Designed to make you say "hey i have seen this before". Don't forget to support the developer!
+                      <span className="text-white font-bold italic">
+                        FANDOM RUSH
+                      </span>{" "}
+                      is an arcade game built for elite fans. Designed to make
+                      you say "hey i have seen this before". Don't forget to
+                      support the developer!
                     </p>
                     <div className="pt-4 border-t border-white/5">
-                      <p className="text-[7px] font-black text-gray-600 uppercase tracking-widest mb-1">Developer</p>
-                      <p className="text-xs font-bold italic text-cyan-400/80">@EyuReaper</p>
+                      <p className="text-[7px] font-black text-gray-600 uppercase tracking-widest mb-1">
+                        Developer
+                      </p>
+                      <p className="text-xs font-bold italic text-cyan-400/80">
+                        @EyuReaper
+                      </p>
                     </div>
                   </div>
                 </section>
@@ -482,7 +573,9 @@ export default function MainMenu() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {showLeaderboard && <Leaderboard onClose={() => setShowLeaderboard(false)} />}
+        {showLeaderboard && (
+          <Leaderboard onClose={() => setShowLeaderboard(false)} />
+        )}
       </AnimatePresence>
     </div>
   );
@@ -497,35 +590,54 @@ interface MenuButtonProps {
   accent: string;
 }
 
-function MenuButton({ icon, title, description, onClick, disabled = false, accent }: MenuButtonProps) {
+function MenuButton({
+  icon,
+  title,
+  description,
+  onClick,
+  disabled = false,
+  accent,
+}: MenuButtonProps) {
   const accents = {
-    cyan: "from-cyan-500/20 to-blue-500/20 border-cyan-500/30 text-cyan-400 group-hover:border-cyan-500",
-    purple: "from-purple-500/20 to-fuchsia-500/20 border-purple-500/30 text-purple-400 group-hover:border-purple-500",
-    emerald: "from-emerald-500/20 to-teal-500/20 border-emerald-500/30 text-emerald-400 group-hover:border-emerald-500",
-    red: "from-red-500/20 to-orange-500/20 border-red-500/30 text-red-400 group-hover:border-red-500",
+    cyan: " from-cyan-500/20 to-transparent group-hover:from-cyan-500 group-hover:to-cyan-500/30 border-cyan-500/30 text-cyan-400 group-hover:border-cyan-500",
+    purple:
+      " from-purple-500/20 to-transparent group-hover:from-purple-500 group-hover:to-purple-500/30 border-purple-500/30 text-purple-400 group-hover:border-purple-500",
+    emerald:
+      " from-emerald-500/20 to-transparent group-hover:from-emerald-500 group-hover:to-emerald-500/30 border-emerald-500/30 text-emerald-400 group-hover:border-emerald-500",
+    red: " from-red-500/20 to-transparent group-hover:from-red-500 group-hover:to-red-500/30 border-red-500/30 text-red-400 group-hover:border-red-500",
   };
 
   return (
     <motion.button
-      variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }}
+      variants={{
+        hidden: { y: 20, opacity: 0 },
+        visible: { y: 0, opacity: 1 },
+      }}
       whileHover={!disabled ? { scale: 1.02, skewX: "-3deg" } : {}}
       whileTap={!disabled ? { scale: 0.98 } : {}}
       onClick={onClick}
       disabled={disabled}
-      className={`relative p-[2px] transition-all duration-300 skew-x-[5deg] ${disabled ? "opacity-20 grayscale cursor-not-allowed" : accents[accent as keyof typeof accents]}`}
+      className={`group relative p-[2px] bg-[#0d0d14] bg-gradient-to-br transition-all duration-300 skew-x-[5deg] rounded-[12px] ${disabled ? "opacity-20 grayscale cursor-not-allowed" : accents[accent as keyof typeof accents]}`}
     >
-      <div className="h-full w-full bg-[#0d0d14] rounded-[10px] p-8 flex flex-col relative z-10 border border-white/5 items-center text-center skew-x-[-10deg] mt-[-5px] overflow-hidden">
+      <div className="h-full w-full bg-[#0d0d14] rounded-[10px] p-8 flex flex-col relative z-10 border border-white/5 items-center text-center skew-x-[-10deg] overflow-hidden">
         {!disabled && (
           <motion.div
             initial={{ left: "-100%" }}
             animate={{ left: "100%" }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 3 }}
+            transition={{
+              duration: 2.5,
+              repeat: Infinity,
+              ease: "linear",
+              repeatDelay: 3,
+            }}
             className="absolute top-0 w-32 h-full bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12 pointer-events-none z-20"
           />
         )}
 
         <div className="flex items-center justify-center mb-6">
-          <div className={`p-5 rounded-2xl bg-white/[0.03] border border-white/10 transition-all ${!disabled && "group-hover:bg-white/10 group-hover:scale-110 group-hover:border-current"}`}>
+          <div
+            className={`p-5 rounded-2xl bg-white/[0.03] border border-white/10 transition-all ${!disabled && "group-hover:bg-white/10 group-hover:scale-110 group-hover:border-current"}`}
+          >
             {icon}
           </div>
         </div>

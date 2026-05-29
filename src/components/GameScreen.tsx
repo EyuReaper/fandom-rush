@@ -14,6 +14,7 @@ import {
   ArrowDown,
   ArrowLeft,
   ArrowRight,
+  Zap,
 } from "lucide-react";
 
 export default function GameScreen() {
@@ -193,102 +194,134 @@ export default function GameScreen() {
   // ====================== GAME OVER SCREEN ======================
   if (isGameOver) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center p-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-red-500/5 animate-pulse pointer-events-none" />
+      <div className="min-h-screen bg-[#050508] text-white flex items-center justify-center p-6 relative overflow-hidden selection:bg-cyan-500 selection:text-black">
+        {/* --- CYBER BACKGROUND --- */}
+        <div
+          className="absolute inset-0 opacity-20 pointer-events-none"
+          style={{
+            backgroundImage: `linear-gradient(to right, #1a1a2e 1px, transparent 1px), linear-gradient(to bottom, #1a1a2e 1px, transparent 1px)`,
+            backgroundSize: "40px 40px",
+            maskImage: "radial-gradient(ellipse at center, black, transparent 80%)",
+          }}
+        />
+        
+        {/* Dynamic Glows */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-500/5 rounded-full blur-[120px] pointer-events-none animate-pulse" />
+
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center max-w-md w-full relative z-10"
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="text-center max-w-lg w-full relative z-10"
         >
-          <div className="mb-8">
+          {/* Header */}
+          <div className="mb-12 relative">
             <motion.div
-              animate={{ rotate: [0, -10, 10, -10, 10, 0] }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+              animate={{ rotate: [0, -5, 5, -5, 0], scale: [1, 1.05, 1] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="mb-8"
             >
-              <Trophy className="w-24 h-24 mx-auto text-yellow-400 mb-6 drop-shadow-[0_0_20px_rgba(250,204,21,0.4)]" />
+              <Trophy className="w-20 h-20 mx-auto text-yellow-500 drop-shadow-[0_0_20px_rgba(234,179,8,0.4)]" />
             </motion.div>
-            <h1 className="text-8xl md:text-9xl font-black italic text-red-500 tracking-tighter uppercase leading-none">
-              Game <br/>Over
+            <div className="inline-flex items-center gap-2 px-4 py-1 bg-red-500/10 border border-red-500/20 rounded-full text-red-500 text-[10px] font-black tracking-[0.4em] mb-6 uppercase backdrop-blur-md">
+                Session Terminated
+            </div>
+            <h1 className="text-8xl md:text-9xl font-black italic text-white tracking-tighter uppercase leading-[0.8]">
+              GAME <br/>
+              <span className="drop-shadow-[0_0_30px_rgba(220,38,38,0.3)]">
+                <span className="text-transparent bg-clip-text bg-gradient-to-b from-red-600 to-orange-400">OVER</span>
+              </span>
             </h1>
           </div>
 
-          <div className="bg-[#0d0d14]/80 backdrop-blur-3xl border border-white/10 rounded-[20px] p-12 mb-12 shadow-2xl relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="mb-8">
-              <p className="text-gray-500 text-[10px] font-black tracking-[0.4em] uppercase mb-4">Final Score</p>
+          {/* Stats Card */}
+          <div className="bg-[#0d0d14]/80 backdrop-blur-3xl border border-white/10 rounded-[24px] p-10 mb-10 shadow-2xl relative overflow-hidden group text-left">
+            <div className="absolute top-0 left-0 w-1 h-full bg-red-500/50" />
+            
+            <div className="mb-10">
+              <p className="text-gray-500 text-[10px] font-black tracking-[0.4em] uppercase mb-4">Final Data Sync</p>
               <div className="relative inline-block">
-                <p className="text-8xl font-black text-white tabular-nums tracking-tighter leading-none drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+                <p className="text-8xl font-black text-white tabular-nums tracking-tighter leading-none">
                   {score.toLocaleString()}
                 </p>
                 {score > 0 && score === highScore && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0, rotate: -20 }}
                     animate={{ opacity: 1, scale: 1, rotate: -10 }}
-                    className="absolute -top-10 -right-16 bg-yellow-400 text-black text-[10px] font-black px-4 py-1.5 rounded-full shadow-[0_5px_20px_rgba(250,204,21,0.4)] uppercase tracking-widest"
+                    className="absolute -top-10 -right-20 bg-yellow-400 text-black text-[9px] font-black px-4 py-1.5 rounded-full shadow-[0_5px_20px_rgba(250,204,21,0.4)] uppercase tracking-widest"
                   >
-                    New Record!
+                    New Sector Record!
                   </motion.div>
                 )}
               </div>
             </div>
 
-            {/* Global Leaderboard Status */}
+            {/* Global Leaderboard Access */}
             <motion.div 
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowLeaderboard(true)}
-                className="mb-8 py-4 px-6 bg-white/[0.03] hover:bg-white/[0.05] cursor-pointer transition-colors rounded-xl border border-white/5 flex items-center justify-between group/status"
+                className="mb-10 py-5 px-6 bg-white/[0.03] hover:bg-white/[0.06] cursor-pointer transition-all rounded-2xl border border-white/5 flex items-center justify-between group/btn"
             >
-                <div className="text-left">
-                    <p className="text-[9px] font-black text-gray-500 uppercase tracking-[0.3em] mb-1">Global Rankings</p>
-                    {!session ? (
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sign in to compete</p>
-                    ) : submitStatus === "success" ? (
-                    <p className="text-[10px] font-black text-green-400 uppercase tracking-widest flex items-center gap-2">
-                        <CheckCircle className="w-3 h-3" /> Score Synced
-                    </p>
-                    ) : submitStatus === "error" ? (
-                        <p className="text-[10px] font-black text-red-400 uppercase tracking-widest">Sync Failed</p>
-                    ) : (
-                        <p className="text-[10px] font-black text-cyan-400/50 uppercase tracking-widest animate-pulse">Syncing...</p>
-                    )}
+                <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 group-hover/btn:border-yellow-500/40 transition-colors">
+                        <Trophy className="w-5 h-5 text-yellow-500" />
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] leading-tight">Global Rankings</p>
+                        {!session ? (
+                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tight mt-0.5">Sign in to join the elite</p>
+                        ) : submitStatus === "success" ? (
+                            <p className="text-[9px] font-bold text-green-400 uppercase tracking-tight mt-0.5 flex items-center gap-1">
+                                <CheckCircle className="w-3 h-3" /> Mission Data Uploaded
+                            </p>
+                        ) : submitStatus === "error" ? (
+                            <p className="text-[9px] font-bold text-red-400 uppercase tracking-tight mt-0.5">Upload Failed</p>
+                        ) : (
+                            <p className="text-[9px] font-bold text-cyan-400/50 uppercase tracking-tight mt-0.5 animate-pulse">Synchronizing rankings...</p>
+                        )}
+                    </div>
                 </div>
-                <div className="text-[10px] font-black text-cyan-400 uppercase tracking-widest group-hover/status:translate-x-1 transition-transform">
-                    View →
+                <div className="text-[10px] font-black text-cyan-400 uppercase tracking-widest group-hover/btn:translate-x-1 transition-transform">
+                    Expand →
                 </div>
             </motion.div>
 
-            <div className="grid grid-cols-2 gap-8 pt-8 border-t border-white/5">
-              <div className="text-left">
-                <p className="text-gray-500 text-[9px] uppercase font-black tracking-[0.4em] mb-2">Max Combo</p>
-                <p className="text-4xl font-black italic">×{combo}</p>
+            <div className="grid grid-cols-2 gap-10 pt-8 border-t border-white/5">
+              <div>
+                <p className="text-gray-500 text-[9px] uppercase font-black tracking-[0.4em] mb-3">Peak Combo</p>
+                <p className="text-4xl font-black italic text-white leading-none">×{combo}</p>
               </div>
               <div className="text-right">
-                <p className="text-gray-500 text-[9px] uppercase font-black tracking-[0.4em] mb-2">Best Score</p>
-                <p className="text-4xl font-black italic text-white/80">
+                <p className="text-gray-500 text-[9px] uppercase font-black tracking-[0.4em] mb-3">Personal Best</p>
+                <p className="text-4xl font-black italic text-white/60 leading-none">
                   {highScore.toLocaleString()}
                 </p>
               </div>
             </div>
           </div>
 
+          {/* Actions */}
           <div className="flex flex-col gap-5">
             <motion.button
               whileHover={{ scale: 1.02, skewX: "-3deg" }}
               whileTap={{ scale: 0.98 }}
               onClick={() => startGame(gameMode, selectedCategory || undefined)}
-              className="w-full py-6 bg-cyan-500 hover:bg-cyan-400 text-black text-2xl font-black italic rounded-xl shadow-[0_10px_30px_rgba(6,182,212,0.3)] transition-all uppercase tracking-tighter"
+              className="relative p-[2px] transition-all duration-300 group"
             >
-              PLAY AGAIN
+               <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity" />
+               <div className="relative py-6 bg-cyan-500 hover:bg-cyan-400 text-black text-2xl font-black italic rounded-xl shadow-2xl transition-all uppercase tracking-tighter flex items-center justify-center gap-4">
+                  <Zap className="w-6 h-6 fill-black" />
+                  INITIATE NEW RUSH
+               </div>
             </motion.button>
 
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={resetGame}
-              className="w-full py-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.4em] text-gray-500 transition-all"
+              className="w-full py-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.5em] text-gray-500 transition-all"
             >
-              Back to Menu
+              Return to Command Center
             </motion.button>
           </div>
         </motion.div>
@@ -373,7 +406,7 @@ export default function GameScreen() {
               className={`relative z-20 ${swipeMode ? 'cursor-grab' : ''}`}
             >
               <div
-                className={`bg-white/5 backdrop-blur-2xl border-2 rounded-[40px] p-8 md:p-12 flex items-center justify-center min-h-[360px] md:min-h-[460px] transition-all duration-300 shadow-2xl relative overflow-hidden group ${
+                className={`bg-[#0d0d14]/80 backdrop-blur-2xl border-2 rounded-[24px] p-8 md:p-12 flex items-center justify-center min-h-[360px] md:min-h-[460px] transition-all duration-300 shadow-2xl relative overflow-hidden group ${
                   feedback === "correct"
                     ? "border-green-500 shadow-green-500/20"
                     : feedback === "wrong"
@@ -381,6 +414,11 @@ export default function GameScreen() {
                       : "border-white/10 hover:border-white/20"
                 }`}
               >
+                {/* Background Atmosphere */}
+                <div className="absolute inset-0 opacity-[0.05] pointer-events-none">
+                    <div className="absolute inset-0 bg-[linear-gradient(to_right,#1a1a2e_1px,transparent_1px),linear-gradient(to_bottom,#1a1a2e_1px,transparent_1px)] bg-[size:20px_20px]" />
+                </div>
+                
                 {/* Object Glow */}
                 <div className="absolute inset-0 bg-cyan-500/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
                 
@@ -388,7 +426,7 @@ export default function GameScreen() {
                   src={currentClue.imagePath}
                   alt={currentClue.objectName}
                   style={{ filter: chaosModifiers.blurryClues ? "blur(10px)" : "none" }}
-                  className="max-h-[240px] md:max-h-[340px] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10 transition-all duration-500"
+                  className="max-h-[240px] md:max-h-[340px] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10 transition-all duration-500 group-hover:scale-105"
                 />
 
                 {/* Wrong Overlay */}
@@ -398,12 +436,18 @@ export default function GameScreen() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="absolute inset-0 bg-red-500/20 flex items-center justify-center z-20"
+                      className="absolute inset-0 bg-red-500/20 flex items-center justify-center z-20 backdrop-blur-sm"
                     >
-                      <XCircle className="w-32 h-32 text-red-500" />
+                      <XCircle className="w-32 h-32 text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.5)]" />
                     </motion.div>
                   )}
                 </AnimatePresence>
+                
+                {/* Tactical Corner Accents */}
+                <div className="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-white/20" />
+                <div className="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2 border-white/20" />
+                <div className="absolute bottom-4 left-4 w-4 h-4 border-b-2 border-l-2 border-white/20" />
+                <div className="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-white/20" />
               </div>
 
               {/* Swipe Direction Indicators */}
@@ -411,18 +455,18 @@ export default function GameScreen() {
                 <div className="absolute inset-0 pointer-events-none hidden md:block">
                   <div className="absolute -top-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-white/40">
                     <ArrowUp className="w-6 h-6" />
-                    <span className="text-[10px] font-black tracking-widest uppercase">{options[0]}</span>
+                    <span className="text-[10px] font-black tracking-[0.2em] uppercase">{options[0]}</span>
                   </div>
                   <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-white/40">
-                    <span className="text-[10px] font-black tracking-widest uppercase">{options[3]}</span>
+                    <span className="text-[10px] font-black tracking-[0.2em] uppercase">{options[3]}</span>
                     <ArrowDown className="w-6 h-6" />
                   </div>
                   <div className="absolute -left-12 top-1/2 -translate-y-1/2 flex items-center gap-1 text-white/40 rotate-180" style={{ writingMode: 'vertical-rl' }}>
                     <ArrowLeft className="w-6 h-6 rotate-90" />
-                    <span className="text-[10px] font-black tracking-widest uppercase">{options[1]}</span>
+                    <span className="text-[10px] font-black tracking-[0.2em] uppercase">{options[1]}</span>
                   </div>
                    <div className="absolute -right-12 top-1/2 -translate-y-1/2 flex items-center gap-1 text-white/40" style={{ writingMode: 'vertical-rl' }}>
-                    <span className="text-[10px] font-black tracking-widest uppercase">{options[2]}</span>
+                    <span className="text-[10px] font-black tracking-[0.2em] uppercase">{options[2]}</span>
                     <ArrowRight className="w-6 h-6 -rotate-90" />
                   </div>
                 </div>
@@ -441,12 +485,12 @@ export default function GameScreen() {
                 return (
                   <motion.button
                     key={option}
-                    whileHover={!feedback ? { scale: 1.05, y: -5 } : {}}
-                    whileTap={!feedback ? { scale: 0.95 } : {}}
+                    whileHover={!feedback ? { scale: 1.02, skewX: "-2deg" } : {}}
+                    whileTap={!feedback ? { scale: 0.98 } : {}}
                     animate={isPressed ? { scale: 0.95, backgroundColor: "rgba(255, 255, 255, 0.1)" } : {}}
                     onClick={() => handleAnswer(option, index)}
                     disabled={!!feedback}
-                    className={`group relative bg-white/5 backdrop-blur-xl border-2 rounded-[24px] p-6 md:p-8 text-left transition-all ${
+                    className={`group relative bg-[#0d0d14]/80 backdrop-blur-xl border-2 rounded-[12px] p-6 md:p-8 text-left transition-all ${
                       isSelected && feedback === "correct"
                         ? "border-green-500 bg-green-500/20"
                         : isSelected && feedback === "wrong"
@@ -458,10 +502,10 @@ export default function GameScreen() {
                               : "border-white/10 hover:border-cyan-400 hover:bg-white/10"
                     }`}
                   >
-                    <span className="absolute top-4 right-4 bg-white/5 text-[10px] w-6 h-6 flex items-center justify-center rounded-full border border-white/10 font-black">
+                    <span className="absolute top-4 right-4 bg-white/5 text-[9px] w-6 h-6 flex items-center justify-center rounded-sm border border-white/10 font-black">
                       {index + 1}
                     </span>
-                    <span className="block text-lg md:text-xl font-black italic tracking-tight uppercase">{option}</span>
+                    <span className="block text-xl md:text-2xl font-black italic tracking-tighter uppercase">{option}</span>
 
                     {isSelected && feedback === "correct" && (
                       <CheckCircle className="absolute bottom-4 right-4 text-green-500 w-6 h-6" />
