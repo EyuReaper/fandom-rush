@@ -122,16 +122,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const multiplier = 1 + Math.floor(newCombo / 5) * 0.3;
       const points = Math.floor((difficultyPoints + speedBonus) * multiplier);
 
-      set((state) => ({
-        score: state.score + points,
-        combo: newCombo,
-      }));
+      set((state) => {
+        const newScore = state.score + points;
+        const isNewHigh = newScore > state.highScore;
+        
+        if (isNewHigh) {
+          localStorage.setItem("fandomRushHighScore", newScore.toString());
+        }
 
-      const newScore = get().score;
-      if (newScore > get().highScore) {
-        localStorage.setItem("fandomRushHighScore", newScore.toString());
-        set({ highScore: newScore });
-      }
+        return {
+          score: newScore,
+          combo: newCombo,
+          highScore: isNewHigh ? newScore : state.highScore
+        };
+      });
     } else {
       audioManager.play('wrong', get().isMuted);
       set((state) => ({
