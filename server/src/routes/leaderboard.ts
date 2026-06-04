@@ -1,13 +1,36 @@
-import { Hono } from 'hono';
+import { Hono, Context, Next } from 'hono';
+import { z } from 'zod';
+import { zValidator } from '@hono/zod-validator';
 import { pool } from '../lib/db.js';
 import { auth } from '../lib/auth.js';
 
 const router = new Hono();
 
+// Validation Schemas
+const scoreSchema = z.object({
+  score: z.number().int().min(0),
+  gameMode: z.enum(['endless', 'sixty-second', 'category', 'chaos']),
+  category: z.string().min(1).max(50).default('all'),
+});
+
+const querySchema = z.object({
+  mode: z.enum(['endless', 'sixty-second', 'category', 'chaos']).optional().default('endless'),
+  category: z.string().min(1).max(50).optional().default('all'),
+});
+
+// Middleware to ensure authentication
+const authMiddleware = async (c: Context, next: Next) => {
+  const session = await auth.api.getSession({ headers: c.req.raw.headers });
+  if (!session) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  c.set('session', session);
+  await next();
+};
+
 // GET /api/leaderboard?mode=endless&category=all
-router.get('/', async (c) => {
-  const mode = c.req.query('mode') || 'endless';
-  const category = c.req.query('category') || 'all';
+router.get('/', zValidator('query', querySchema), async (c) => {
+  const { mode, category } = c.req.valid('query');
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
 
   try {
@@ -82,18 +105,9 @@ router.get('/', async (c) => {
 });
 
 // POST /api/scores
-router.post('/', async (c) => {
-  const session = await auth.api.getSession({ headers: c.req.raw.headers });
-  
-  if (!session) {
-    return c.json({ error: 'Unauthorized' }, 401);
-  }
-
-  const { score, gameMode, category } = await c.req.json();
-
-  if (!score || !gameMode) {
-    return c.json({ error: 'Missing required fields' }, 400);
-  }
+router.post('/', authMiddleware, zValidator('json', scoreSchema), async (c) => {
+  const session = c.get('session');
+  const { score, gameMode, category } = c.req.valid('json');
 
   try {
     const query = `
@@ -105,7 +119,7 @@ router.post('/', async (c) => {
       session.user.id,
       score,
       gameMode,
-      category || 'all'
+      category
     ]);
     return c.json(result.rows[0]);
   } catch (err) {
@@ -115,19 +129,9 @@ router.post('/', async (c) => {
 });
 
 // POST /api/claim-score
-// Used when a user logs in for the first time to sync their local high score
-router.post('/claim', async (c) => {
-    const session = await auth.api.getSession({ headers: c.req.raw.headers });
-    
-    if (!session) {
-      return c.json({ error: 'Unauthorized' }, 401);
-    }
-  
-    const { score, gameMode, category } = await c.req.json();
-  
-    if (!score || !gameMode) {
-      return c.json({ error: 'Missing required fields' }, 400);
-    }
+router.post('/claim', authMiddleware, zValidator('json', scoreSchema), async (c) => {
+    const session = c.get('session');
+    const { score, gameMode, category } = c.req.valid('json');
   
     try {
       // Check if they already have a better or equal score to avoid duplicates
@@ -139,7 +143,7 @@ router.post('/claim', async (c) => {
       const checkResult = await pool.query(checkQuery, [
         session.user.id,
         gameMode,
-        category || 'all',
+        category,
         score
       ]);
 
@@ -156,7 +160,7 @@ router.post('/claim', async (c) => {
         session.user.id,
         score,
         gameMode,
-        category || 'all'
+        category
       ]);
       return c.json(result.rows[0]);
     } catch (err) {
@@ -166,3 +170,4 @@ router.post('/claim', async (c) => {
   });
 
 export default router;
+

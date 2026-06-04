@@ -13,10 +13,12 @@
   "dependencies": {
     "@better-auth/utils": "^0.4.0",
     "@hono/node-server": "^2.0.3",
+    "@hono/zod-validator": "^0.8.0",
     "better-auth": "^1.6.11",
     "dotenv": "^17.4.2",
     "hono": "^4.12.22",
-    "pg": "^8.21.0"
+    "pg": "^8.21.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@better-auth/cli": "^1.4.21",
