@@ -25,3 +25,6 @@ dist-ssr
 
 # Backend
 server/.env
+
+# AI generated files
+AGENTS.md

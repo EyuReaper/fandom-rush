@@ -57,4 +57,83 @@ export const fandomClues: FandomClue[] = [
   { id: 200, fandom: "Adventure Time", category: "cartoons", difficulty: "easy", objectName: "Ice Crown", imagePath: "/src/assets/cartoons/adventure-time/Ice-Crown.png", correctAnswer: "Adventure Time" },
   { id: 201, fandom: "Adventure Time", category: "cartoons", difficulty: "medium", objectName: "Grass Sword", imagePath: "/src/assets/cartoons/adventure-time/Grass-Sword.png", correctAnswer: "Adventure Time" },
   { id: 202, fandom: "Adventure Time", category: "cartoons", difficulty: "hard", objectName: "Scarlet", imagePath: "/src/assets/cartoons/adventure-time/scarlet.png", correctAnswer: "Adventure Time" },
+
+  // Avatar
+  { id: 203, fandom: "Avatar", category: "cartoons", difficulty: "easy", objectName: "Sokka's Boomerang", imagePath: "/src/assets/cartoons/avatar/sokka's-boomrang.png", correctAnswer: "Avatar" },
+  { id: 204, fandom: "Avatar", category: "cartoons", difficulty: "medium", objectName: "Aang's Glider", imagePath: "/src/assets/cartoons/avatar/avatar-glider.png", correctAnswer: "Avatar" },
+  { id: 205, fandom: "Avatar", category: "cartoons", difficulty: "hard", objectName: "Blue Spirit Mask", imagePath: "/src/assets/cartoons/avatar/blue-spirit-mask.png", correctAnswer: "Avatar" },
+
+  // Ben 10
+  { id: 206, fandom: "Ben 10", category: "cartoons", difficulty: "easy", objectName: "Omnitrix", imagePath: "/src/assets/cartoons/ben-10/omnitrix.png", correctAnswer: "Ben 10" },
+
+  // === MOVIES (cont.) ===
+  // Batman
+  { id: 108, fandom: "Batman", category: "movies", difficulty: "easy", objectName: "Bat Claw", imagePath: "/src/assets/movies/batman/bat-claw.png", correctAnswer: "Batman" },
+  { id: 109, fandom: "Batman", category: "movies", difficulty: "medium", objectName: "Explosive Gel", imagePath: "/src/assets/movies/batman/explosive-gel.png", correctAnswer: "Batman" },
+  { id: 110, fandom: "Batman", category: "movies", difficulty: "hard", objectName: "Riddler's Cane", imagePath: "/src/assets/movies/batman/riddlers-cane.png", correctAnswer: "Batman" },
+
+  // Lord of the Rings
+  { id: 111, fandom: "Lord of the Rings", category: "movies", difficulty: "easy", objectName: "The One Ring", imagePath: "/src/assets/movies/lotr/The-ring.png", correctAnswer: "Lord of the Rings" },
+  { id: 112, fandom: "Lord of the Rings", category: "movies", difficulty: "medium", objectName: "Gandalf's Hat", imagePath: "/src/assets/movies/lotr/gandalf's-hat.png", correctAnswer: "Lord of the Rings" },
+  { id: 113, fandom: "Lord of the Rings", category: "movies", difficulty: "hard", objectName: "Orcrist", imagePath: "/src/assets/movies/lotr/orcrist.png", correctAnswer: "Lord of the Rings" },
+
+  // Marvel
+  { id: 114, fandom: "Marvel", category: "movies", difficulty: "medium", objectName: "Winter Soldier Arm", imagePath: "/src/assets/movies/marvel/winter-soldier-arm.png", correctAnswer: "Marvel" },
+
+  // === TV ===
+  // Breaking Bad
+  { id: 300, fandom: "Breaking Bad", category: "tv", difficulty: "easy", objectName: "Blue Meth", imagePath: "/src/assets/tv/breaking-bad/blue-meth.png", correctAnswer: "Breaking Bad" },
+  { id: 301, fandom: "Breaking Bad", category: "tv", difficulty: "medium", objectName: "Gas Mask", imagePath: "/src/assets/tv/breaking-bad/gas-mask.png", correctAnswer: "Breaking Bad" },
+  { id: 302, fandom: "Breaking Bad", category: "tv", difficulty: "hard", objectName: "Heisenberg Hat", imagePath: "/src/assets/tv/breaking-bad/heisenberg-hat.png", correctAnswer: "Breaking Bad" },
+
+  // Game of Thrones
+  { id: 303, fandom: "Game of Thrones", category: "tv", difficulty: "easy", objectName: "Dragon Egg", imagePath: "/src/assets/tv/game-of-thrones/dragon-egg.png", correctAnswer: "Game of Thrones" },
+  { id: 304, fandom: "Game of Thrones", category: "tv", difficulty: "medium", objectName: "Iron Throne", imagePath: "/src/assets/tv/game-of-thrones/iron-throne.png", correctAnswer: "Game of Thrones" },
+  { id: 305, fandom: "Game of Thrones", category: "tv", difficulty: "hard", objectName: "White Walker", imagePath: "/src/assets/tv/game-of-thrones/white-walker.png", correctAnswer: "Game of Thrones" },
+
+  // The Simpsons
+  { id: 306, fandom: "The Simpsons", category: "tv", difficulty: "easy", objectName: "Duff Beer", imagePath: "/src/assets/tv/simpsons/duff-beer.png", correctAnswer: "The Simpsons" },
+  { id: 307, fandom: "The Simpsons", category: "tv", difficulty: "medium", objectName: "Squishee", imagePath: "/src/assets/tv/simpsons/squishee.png", correctAnswer: "The Simpsons" },
+  { id: 308, fandom: "The Simpsons", category: "tv", difficulty: "hard", objectName: "Krusty Doll", imagePath: "/src/assets/tv/simpsons/krusty-doll.png", correctAnswer: "The Simpsons" },
+
+  // Stranger Things
+  { id: 309, fandom: "Stranger Things", category: "tv", difficulty: "easy", objectName: "Eggo Waffles", imagePath: "/src/assets/tv/stranger-things/eggo-waffles.png", correctAnswer: "Stranger Things" },
+  { id: 310, fandom: "Stranger Things", category: "tv", difficulty: "medium", objectName: "Demogorgon", imagePath: "/src/assets/tv/stranger-things/demogorgon.png", correctAnswer: "Stranger Things" },
+  { id: 311, fandom: "Stranger Things", category: "tv", difficulty: "hard", objectName: "Upside Down Tree", imagePath: "/src/assets/tv/stranger-things/upside-down-tree.png", correctAnswer: "Stranger Things" },
+
+  // Wednesday
+  { id: 312, fandom: "Wednesday", category: "tv", difficulty: "easy", objectName: "Typewriter", imagePath: "/src/assets/tv/wednesday/typewriter.png", correctAnswer: "Wednesday" },
+  { id: 313, fandom: "Wednesday", category: "tv", difficulty: "medium", objectName: "Thing Hand", imagePath: "/src/assets/tv/wednesday/thing-hand.png", correctAnswer: "Wednesday" },
+  { id: 314, fandom: "Wednesday", category: "tv", difficulty: "hard", objectName: "Nevermore Crest", imagePath: "/src/assets/tv/wednesday/nevermore-crest.png", correctAnswer: "Wednesday" },
+
+  // Squid Game
+  { id: 315, fandom: "Squid Game", category: "tv", difficulty: "easy", objectName: "Invitation Card", imagePath: "/src/assets/tv/squid-game/invitation-card.png", correctAnswer: "Squid Game" },
+  { id: 316, fandom: "Squid Game", category: "tv", difficulty: "medium", objectName: "Piggy Bank", imagePath: "/src/assets/tv/squid-game/piggy-bank.png", correctAnswer: "Squid Game" },
+  { id: 317, fandom: "Squid Game", category: "tv", difficulty: "hard", objectName: "Red Light Doll", imagePath: "/src/assets/tv/squid-game/red-light-doll.png", correctAnswer: "Squid Game" },
+
+  // === GAMES ===
+  // The Last of Us
+  { id: 400, fandom: "The Last of Us", category: "games", difficulty: "easy", objectName: "Clicker", imagePath: "/src/assets/games/tlou/clicker.png", correctAnswer: "The Last of Us" },
+  { id: 401, fandom: "The Last of Us", category: "games", difficulty: "medium", objectName: "Firefly Pendant", imagePath: "/src/assets/games/tlou/firefly-pendant.png", correctAnswer: "The Last of Us" },
+  { id: 402, fandom: "The Last of Us", category: "games", difficulty: "hard", objectName: "Ellie's Switchblade", imagePath: "/src/assets/games/tlou/ellies-switchblade.png", correctAnswer: "The Last of Us" },
+
+  // Zelda
+  { id: 403, fandom: "Zelda", category: "games", difficulty: "easy", objectName: "Master Sword", imagePath: "/src/assets/games/zelda/master-sword.png", correctAnswer: "Zelda" },
+  { id: 404, fandom: "Zelda", category: "games", difficulty: "medium", objectName: "Hylian Shield", imagePath: "/src/assets/games/zelda/hylian-shield.png", correctAnswer: "Zelda" },
+  { id: 405, fandom: "Zelda", category: "games", difficulty: "hard", objectName: "Triforce", imagePath: "/src/assets/games/zelda/triforce.png", correctAnswer: "Zelda" },
+
+  // Super Mario
+  { id: 406, fandom: "Super Mario", category: "games", difficulty: "easy", objectName: "Super Mushroom", imagePath: "/src/assets/games/super-mario/super-mushroom.png", correctAnswer: "Super Mario" },
+  { id: 407, fandom: "Super Mario", category: "games", difficulty: "medium", objectName: "Super Star", imagePath: "/src/assets/games/super-mario/super-star.png", correctAnswer: "Super Mario" },
+  { id: 408, fandom: "Super Mario", category: "games", difficulty: "hard", objectName: "Question Block", imagePath: "/src/assets/games/super-mario/question-block.png", correctAnswer: "Super Mario" },
+
+  // Fortnite
+  { id: 409, fandom: "Fortnite", category: "games", difficulty: "easy", objectName: "Supply Drop", imagePath: "/src/assets/games/fortnite/supply-drop.png", correctAnswer: "Fortnite" },
+  { id: 410, fandom: "Fortnite", category: "games", difficulty: "medium", objectName: "Llama Piñata", imagePath: "/src/assets/games/fortnite/llama-pinata.png", correctAnswer: "Fortnite" },
+  { id: 411, fandom: "Fortnite", category: "games", difficulty: "hard", objectName: "Pickaxe", imagePath: "/src/assets/games/fortnite/pickaxe.png", correctAnswer: "Fortnite" },
+
+  // Final Fantasy
+  { id: 412, fandom: "Final Fantasy", category: "games", difficulty: "easy", objectName: "Moogle", imagePath: "/src/assets/games/final-fantasy/moogle.png", correctAnswer: "Final Fantasy" },
+  { id: 413, fandom: "Final Fantasy", category: "games", difficulty: "medium", objectName: "Buster Sword", imagePath: "/src/assets/games/final-fantasy/buster-sword.png", correctAnswer: "Final Fantasy" },
+  { id: 414, fandom: "Final Fantasy", category: "games", difficulty: "hard", objectName: "Materia", imagePath: "/src/assets/games/final-fantasy/materia.png", correctAnswer: "Final Fantasy" },
 ];
