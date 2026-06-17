@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { X, Zap, Clock, LayoutGrid, Target, Loader2, Globe, User } from "lucide-react";
 import { authClient } from "../lib/auth-client";
+import { API_URL } from "../lib/config";
 
 interface Score {
   user_id: string;
@@ -39,7 +40,7 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
     const fetchScores = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`http://localhost:3000/api/leaderboard?mode=${activeMode}`, {
+        const response = await fetch(`${API_URL}/api/leaderboard?mode=${activeMode}`, {
           headers: {
             "Content-Type": "application/json",
           },

@@ -4,6 +4,7 @@ import type { Variants } from "framer-motion";
 import { useGameStore } from "../stores/useGameStore";
 import { audioManager } from "../lib/audioManager";
 import { authClient } from "../lib/auth-client";
+import { API_URL } from "../lib/config";
 import LoginButton from "./LoginButton";
 import Leaderboard from "./Leaderboard";
 import {
@@ -52,7 +53,7 @@ export default function MainMenu() {
         if (hasClaimed === highScore.toString()) return;
 
         try {
-          await fetch("http://localhost:3000/api/leaderboard/claim", {
+          await fetch(`${API_URL}/api/leaderboard/claim`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

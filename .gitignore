@@ -23,7 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
-# Backend
+# Environment
+.env
 server/.env
 
 # AI generated files

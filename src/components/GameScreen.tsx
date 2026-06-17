@@ -2,6 +2,7 @@ import { useEffect, useCallback, useState } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import { useGameStore } from "../stores/useGameStore";
 import { authClient } from "../lib/auth-client";
+import { API_URL } from "../lib/config";
 import { TimeBar } from "./TimeBar";
 import { ScoreDisplay } from "./ScoreDisplay";
 import Leaderboard from "./Leaderboard";
@@ -63,7 +64,7 @@ export default function GameScreen() {
       if (isGameOver && session && score > 0 && submitStatus === "idle" && !isSubmitting) {
         setIsSubmitting(true);
         try {
-          const response = await fetch("http://localhost:3000/api/leaderboard", {
+          const response = await fetch(`${API_URL}/api/leaderboard`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

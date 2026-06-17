@@ -2,6 +2,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
+import { API_URL } from '../lib/config';
+
 vi.mock('../lib/auth-client', () => ({
   authClient: {
     useSession: vi.fn(),
@@ -137,7 +139,7 @@ describe('Leaderboard', () => {
     render(<Leaderboard onClose={vi.fn()} />);
     await screen.findByText('PlayerOne');
     expect(globalThis.fetch).toHaveBeenCalledWith(
-      'http://localhost:3000/api/leaderboard?mode=endless',
+      `${API_URL}/api/leaderboard?mode=endless`,
       expect.objectContaining({ credentials: 'include' })
     );
   });
