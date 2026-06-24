@@ -116,4 +116,14 @@ npm run build    # typechecks with tsc -b, then builds with Vite
 
 ---
 
+## 🏭 Production
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build
+```
+
+Serves the built frontend via Nginx on port 80. API requests to `/api/` are proxied to the server container — no CORS needed. No source mounts, no dev servers.
+
+---
+
 *Built with ❤️ for fans everywhere.*
