@@ -1,8 +1,8 @@
 # 🎮 FANDOM RUSH
 
-**Fandom Rush** is a fast-paced, high-octane arcade fandom guessing game. Forget screenshots and emojis—identify iconic shows, anime, movies, and games through their most famous **props and objects**.
+**Fandom Rush** is a fast-paced, high-octane arcade fandom guessing game.  iconic shows, anime, movies, and games through their most famous **props and objects**.
 
-> "Identify the thing. Beat the clock. Start the rush."
+> " Start the rush. Identify the thing. Beat the clock. Know how deep you recognize the objects."
 
 ---
 
@@ -68,30 +68,50 @@ Correct streaks build a multiplier (×1.3, ×1.6, ×2.0+). One mistake resets yo
 1.  **Endless Rush:** Survive as long as you can with 3 lives.
 2.  **60-Second Rush:** Pure arcade mode—guess as many as possible in one minute.
 3.  **Category Rush:** Focus on your specialty (Anime, Movies, TV, etc.).
-4.  **Chaos Mode:** *Coming Soon* — Moving answers and speed modifiers.
+4.  **Chaos Mode:** Random modifiers every round — speed boost, moving targets, inverted controls, blurry clues. Maximum insanity.
+
+> Note: TV and Games categories are built and ready but currently disabled in the menu.
 
 ---
 
 ## 🛠️ Tech Stack
-*   **Frontend:** React 19 + TypeScript
+*   **Frontend:** React 19 + TypeScript + Vite
 *   **Styling:** Tailwind CSS 4
-*   **Animations:** Framer Motion (Smooth card physics & feedback)
-*   **State Management:** Zustand (Fast, global store)
+*   **Animations:** Framer Motion
+*   **State Management:** Zustand
 *   **Icons:** Lucide React
+*   **Backend:** Hono + BetterAuth (Google OAuth)
+*   **Database:** PostgreSQL
+*   **Infrastructure:** Docker Compose, GitHub Actions CI
 
 ---
 
 ## 🚀 Getting Started
 
+### Option A — Docker (recommended)
+
 ```bash
-# Install dependencies
-npm install
+cp .env.example .env   # fill in Google OAuth credentials
+docker compose up
+```
 
-# Run development server
-npm run dev
+Opens at `http://localhost:5173`. No Node or Postgres install required.
 
-# Build for production
-npm run build
+### Option B — Local
+
+```bash
+# Terminal 1 — backend
+cd server && cp .env.example .env   # configure DATABASE_URL + OAuth
+npm install && npm run dev
+
+# Terminal 2 — frontend
+npm install && npm run dev
+```
+
+### Build
+
+```bash
+npm run build    # typechecks with tsc -b, then builds with Vite
 ```
 
 ---
