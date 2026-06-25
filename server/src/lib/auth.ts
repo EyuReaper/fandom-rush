@@ -1,14 +1,15 @@
 import { betterAuth } from "better-auth";
 import { pool } from "./db.js";
+import { env } from "./env.js";
 
 export const auth = betterAuth({
     database: pool,
-    secret: process.env.BETTER_AUTH_SECRET,
-    trustedOrigins: [process.env.FRONTEND_URL || "http://localhost:5173"],
+    secret: env.betterAuthSecret,
+    trustedOrigins: [env.frontendUrl],
     socialProviders: {
         google: {
-            clientId: process.env.GOOGLE_CLIENT_ID!,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+            clientId: env.googleClientId,
+            clientSecret: env.googleClientSecret,
         },
     },
 });

@@ -3,9 +3,16 @@ import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { pool } from '../lib/db.js';
 import { auth } from '../lib/auth.js';
+import { rateLimiter } from 'hono-rate-limiter';
 
 const router = new Hono();
 
+const scoreLimiter = rateLimiter({
+  windowMs: 60 * 1000, // 60-second window
+  max: 10, //max 10 requests per windown
+  message: { error: 'To many requests. Slow down.' },
+
+});
 // Validation Schemas
 const scoreSchema = z.object({
   score: z.number().int().min(0),
@@ -37,18 +44,18 @@ router.get('/', zValidator('query', querySchema), async (c) => {
     // Query for top 50 unique users' best scores
     const topScoresQuery = `
       WITH UserBestScores AS (
-        SELECT 
-          user_id, 
+        SELECT
+          user_id,
           MAX(score) as score,
           MAX(created_at) as created_at
         FROM scores
         WHERE game_mode = $1 AND (category = $2 OR $2 = 'all')
         GROUP BY user_id
       )
-      SELECT 
-        ubs.score, 
-        ubs.created_at, 
-        u.name as user_name, 
+      SELECT
+        ubs.score,
+        ubs.created_at,
+        u.name as user_name,
         u.image as user_image,
         u.id as user_id
       FROM UserBestScores ubs
@@ -57,14 +64,14 @@ router.get('/', zValidator('query', querySchema), async (c) => {
       LIMIT 50
     `;
     const topScoresResult = await pool.query(topScoresQuery, [mode, category]);
-    
+
     let userScore = null;
     if (session) {
       // Query for the current user's best score and its rank
       const userRankQuery = `
         WITH UserBestScores AS (
-          SELECT 
-            user_id, 
+          SELECT
+            user_id,
             MAX(score) as score,
             MAX(created_at) as created_at
           FROM scores
@@ -72,14 +79,14 @@ router.get('/', zValidator('query', querySchema), async (c) => {
           GROUP BY user_id
         ),
         RankedScores AS (
-          SELECT 
+          SELECT
             user_id,
             score,
             RANK() OVER (ORDER BY score DESC, created_at ASC) as rank
           FROM UserBestScores
         )
-        SELECT 
-          rs.score, 
+        SELECT
+          rs.score,
           rs.rank,
           u.name as user_name,
           u.image as user_image,
@@ -105,7 +112,7 @@ router.get('/', zValidator('query', querySchema), async (c) => {
 });
 
 // POST /api/scores
-router.post('/', authMiddleware, zValidator('json', scoreSchema), async (c) => {
+router.post('/', scoreLimiter, authMiddleware, zValidator('json', scoreSchema), async (c) => {
   const session = c.get('session');
   const { score, gameMode, category } = c.req.valid('json');
 
@@ -129,14 +136,14 @@ router.post('/', authMiddleware, zValidator('json', scoreSchema), async (c) => {
 });
 
 // POST /api/claim-score
-router.post('/claim', authMiddleware, zValidator('json', scoreSchema), async (c) => {
+router.post('/claim', scoreLimiter,  authMiddleware, zValidator('json', scoreSchema), async (c) => {
     const session = c.get('session');
     const { score, gameMode, category } = c.req.valid('json');
-  
+
     try {
       // Check if they already have a better or equal score to avoid duplicates
       const checkQuery = `
-        SELECT score FROM scores 
+        SELECT score FROM scores
         WHERE user_id = $1 AND game_mode = $2 AND category = $3 AND score >= $4
         LIMIT 1
       `;
@@ -170,4 +177,3 @@ router.post('/claim', authMiddleware, zValidator('json', scoreSchema), async (c)
   });
 
 export default router;
-
