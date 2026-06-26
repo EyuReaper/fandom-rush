@@ -37,6 +37,8 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
   ];
 
   useEffect(() => {
+    const abortController = new AbortController();
+    const timeout = setTimeout(() => abortController.abort(), 10000);
     const fetchScores = async () => {
       setLoading(true);
       try {
@@ -45,17 +47,20 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
             "Content-Type": "application/json",
           },
           credentials: "include",
+          signal: abortController.signal,
         });
         const result = await response.json();
         setData(result);
       } catch (err) {
-        console.error("Failed to fetch leaderboard:", err);
+        if (!abortController.signal.aborted)
+          console.error("Failed to fetch leaderboard:", err);
       } finally {
         setLoading(false);
       }
     };
 
     fetchScores();
+    return () => { clearTimeout(timeout); abortController.abort(); };
   }, [activeMode]);
 
   const isUserInTop = data.scores.some(s => s.user_id === session?.user?.id);
@@ -148,7 +153,7 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
               {data.scores.map((score, index) => {
                 const isCurrentUser = session?.user?.id === score.user_id;
                 const isTop3 = index < 3;
-                
+
                 return (
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
@@ -165,14 +170,14 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
                   >
                     {/* Rank Indicator */}
                     <div className={`w-12 text-3xl font-black italic leading-none ${
-                      index === 0 ? "text-yellow-500 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]" : 
-                      index === 1 ? "text-gray-300" : 
-                      index === 2 ? "text-amber-600" : 
+                      index === 0 ? "text-yellow-500 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]" :
+                      index === 1 ? "text-gray-300" :
+                      index === 2 ? "text-amber-600" :
                       isCurrentUser ? "text-cyan-400" : "text-gray-700"
                     }`}>
                       {String(index + 1).padStart(2, '0')}
                     </div>
-                    
+
                     {/* User Profile */}
                     <div className={`relative group/avatar`}>
                         <div className={`w-12 h-12 rounded-xl border rotate-3 group-hover:rotate-0 transition-transform overflow-hidden bg-[#0a0a0f] ${
@@ -235,11 +240,11 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
                     className="flex items-center gap-6 p-6 rounded-[20px] border border-cyan-500/50 bg-[#0d0d14] shadow-[0_-10px_40px_rgba(6,182,212,0.15)] relative overflow-hidden"
                   >
                     <div className="absolute inset-0 bg-cyan-500/[0.03] pointer-events-none" />
-                    
+
                     <div className="w-12 text-3xl font-black italic leading-none text-cyan-400">
                       #{data.userScore.rank}
                     </div>
-                    
+
                     <div className="w-14 h-14 rounded-2xl border-2 border-cyan-500/30 overflow-hidden bg-[#050508] p-1">
                       <div className="w-full h-full rounded-xl overflow-hidden">
                         {data.userScore.user_image ? (

@@ -43,7 +43,7 @@ app.on(['POST', 'GET'], '/api/auth/*', (c) => auth.handler(c.req.raw));
 
 app.get('/', (c) => c.text('Fandom Rush API is running'));
 
-const port = 3000;
+const port = parseInt(process.env.PORT || '3000', 10);
 console.log(`Server is running on http://localhost:${port}`);
 // Error middleware - catches everything above
 app.onError((err, c) => {

@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useState, useRef } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import { useGameStore } from "../stores/useGameStore";
 import { authClient } from "../lib/auth-client";
@@ -48,6 +48,7 @@ export default function GameScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const submittedRef = useRef(false);
 
   const { data: session } = authClient.useSession();
 
@@ -60,6 +61,10 @@ export default function GameScreen() {
   const isGameOver = !isPlaying && currentClue !== null;
 
   useEffect(() => {
+    const abortController = new AbortController();
+    const timeout = setTimeout(() => abortController.abort(), 10000);
+    if (submittedRef.current) return;
+    submittedRef.current = true;
     const submitGlobalScore = async () => {
       if (isGameOver && session && score > 0 && submitStatus === "idle" && !isSubmitting) {
         setIsSubmitting(true);
@@ -70,6 +75,7 @@ export default function GameScreen() {
               "Content-Type": "application/json",
             },
             credentials: "include",
+            signal: abortController.signal,
             body: JSON.stringify({
               score,
               gameMode,
@@ -81,9 +87,8 @@ export default function GameScreen() {
           } else {
             setSubmitStatus("error");
           }
-        } catch (err) {
-          console.error("Failed to submit score:", err);
-          setSubmitStatus("error");
+        } catch  {
+          if (!abortController.signal.aborted) setSubmitStatus("error");
         } finally {
           setIsSubmitting(false);
         }
@@ -91,6 +96,8 @@ export default function GameScreen() {
     };
 
     submitGlobalScore();
+    return () => { clearTimeout(timeout); abortController.abort(); submittedRef.current = false; };
+
   }, [isGameOver, session, score, gameMode, selectedCategory, submitStatus, isSubmitting]);
 
   const handleAnswer = useCallback((answer: string, index?: number) => {
@@ -99,7 +106,7 @@ export default function GameScreen() {
     if (index !== undefined) setActiveKeyIndex(index);
 
     const isCorrect = answer === currentClue?.correctAnswer;
-    
+
     // Haptic Feedback
     if ("vibrate" in navigator) {
       if (isCorrect) navigator.vibrate(10); // Light tap for correct
@@ -108,7 +115,7 @@ export default function GameScreen() {
 
     if (isCorrect) {
       setFeedback("correct");
-      
+
       // Matching store logic for floating points
       const difficultyPoints =
         currentClue.difficulty === "easy"
@@ -116,7 +123,7 @@ export default function GameScreen() {
           : currentClue.difficulty === "medium"
             ? 25
             : 50;
-      
+
       const elapsed = maxTime - timeLeft;
       let speedBonus: number;
       if (gameMode !== "sixty-second") {
@@ -126,10 +133,10 @@ export default function GameScreen() {
       } else {
         speedBonus = 10;
       }
-      
+
       const multiplier = 1 + Math.floor((combo + 1) / 5) * 0.3;
       const points = Math.floor((difficultyPoints + speedBonus) * multiplier);
-      
+
       setFloatingPoints({ points, id: Date.now() });
     } else {
       setFeedback("wrong");
@@ -151,10 +158,10 @@ export default function GameScreen() {
   const handleKeyPress = useCallback(
     (e: KeyboardEvent) => {
       if (!isPlaying || !options.length || feedback) return;
-      
+
       const key = e.key.toLowerCase();
       const { invertedControls } = chaosModifiers;
-      
+
       // 1-4 keys (usually not inverted as they are direct labels)
       const num = parseInt(key);
       if (num >= 1 && num <= 4) {
@@ -205,7 +212,7 @@ export default function GameScreen() {
             maskImage: "radial-gradient(ellipse at center, black, transparent 80%)",
           }}
         />
-        
+
         {/* Dynamic Glows */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-500/5 rounded-full blur-[120px] pointer-events-none animate-pulse" />
 
@@ -237,7 +244,7 @@ export default function GameScreen() {
           {/* Stats Card */}
           <div className="bg-[#0d0d14]/80 backdrop-blur-3xl border border-white/10 rounded-[24px] p-10 mb-10 shadow-2xl relative overflow-hidden group text-left">
             <div className="absolute top-0 left-0 w-1 h-full bg-red-500/50" />
-            
+
             <div className="mb-10">
               <p className="text-gray-500 text-[10px] font-black tracking-[0.4em] uppercase mb-4">Final Data Sync</p>
               <div className="relative inline-block">
@@ -257,7 +264,7 @@ export default function GameScreen() {
             </div>
 
             {/* Global Leaderboard Access */}
-            <motion.div 
+            <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowLeaderboard(true)}
@@ -419,10 +426,10 @@ export default function GameScreen() {
                 <div className="absolute inset-0 opacity-[0.05] pointer-events-none">
                     <div className="absolute inset-0 bg-[linear-gradient(to_right,#1a1a2e_1px,transparent_1px),linear-gradient(to_bottom,#1a1a2e_1px,transparent_1px)] bg-[size:20px_20px]" />
                 </div>
-                
+
                 {/* Object Glow */}
                 <div className="absolute inset-0 bg-cyan-500/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                
+
                 <img
                   src={currentClue.imagePath}
                   alt={currentClue.objectName}
@@ -443,7 +450,7 @@ export default function GameScreen() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-                
+
                 {/* Tactical Corner Accents */}
                 <div className="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-white/20" />
                 <div className="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2 border-white/20" />

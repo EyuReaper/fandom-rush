@@ -45,6 +45,7 @@ export default function MainMenu() {
   const { data: session } = authClient.useSession();
 
   useEffect(() => {
+    const abortController = new AbortController();
     const claimScore = async () => {
       if (session && highScore > 0) {
         const hasClaimed = localStorage.getItem(
@@ -59,6 +60,7 @@ export default function MainMenu() {
               "Content-Type": "application/json",
             },
             credentials: "include",
+            signal: abortController.signal,
             body: JSON.stringify({
               score: highScore,
               gameMode: "endless",
@@ -76,7 +78,9 @@ export default function MainMenu() {
     };
 
     claimScore();
+    return () => abortController.abort();
   }, [session, highScore]);
+
 
   const handleInteraction = useCallback(() => {
     audioManager.playBGM(isMuted);
