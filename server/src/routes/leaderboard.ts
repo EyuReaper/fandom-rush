@@ -9,8 +9,8 @@ const router = new Hono();
 
 const scoreLimiter = rateLimiter({
   windowMs: 60 * 1000, // 60-second window
-  max: 10, //max 10 requests per windown
-  message: { error: 'To many requests. Slow down.' },
+  max: 10, // max 10 requests per window
+  message: { error: 'Too many requests. Slow down.' },
 
 });
 // Validation Schemas

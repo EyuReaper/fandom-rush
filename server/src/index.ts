@@ -15,7 +15,7 @@ const requiredEnvVars = [
   'DATABASE_URL',
   'BETTER_AUTH_SECRET',
   'GOOGLE_CLIENT_ID',
-  'GOOGLE-CLIENT_SECRET',
+  'GOOGLE_CLIENT_SECRET',
 ] as const;
 
 const missing = requiredEnvVars.filter(v => !process.env[v])
