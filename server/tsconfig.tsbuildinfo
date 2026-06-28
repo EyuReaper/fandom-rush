@@ -1,0 +1,1 @@
+{"root":["./src/index.ts","./src/lib/auth.ts","./src/lib/db.ts","./src/lib/env.ts","./src/lib/profanity.ts","./src/routes/leaderboard.ts","./src/routes/telemetry.ts"],"errors":true,"version":"6.0.3"}

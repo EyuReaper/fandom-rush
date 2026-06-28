@@ -60,10 +60,27 @@ CREATE TABLE IF NOT EXISTS scores (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+--2b. Ratings & Reviews Table
+CREATE TABLE IF NOT EXISTS ratings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  review_text TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_ratings_created_at ON ratings (created_at DESC);
+
 -- Index for fast leaderboard queries
 CREATE INDEX IF NOT EXISTS idx_scores_game_mode_score ON scores (game_mode, score DESC);
 
 -- 3. Security (RLS)
+ALTER TABLE ratings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read access to ratings" ON ratings FOR SELECT USING (true);
+CREATE POLICY "Allow users to manage their own ratings" ON ratings FOR ALL USING (true);
 -- Use double quotes for "user" table
 ALTER TABLE "user" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "session" ENABLE ROW LEVEL SECURITY;
