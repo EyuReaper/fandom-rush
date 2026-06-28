@@ -8,6 +8,7 @@ import { API_URL } from "../lib/config";
 import LoginButton from "./LoginButton";
 import Leaderboard from "./Leaderboard";
 import TelemetryDashboard from "./TelemetryDashboard";
+import StarRating from "./StarRating";
 import {
   Zap,
   Clock,
@@ -46,6 +47,21 @@ export default function MainMenu() {
   const tapTimestamps = useRef<number[]>([]);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const { data: session } = authClient.useSession();
+  const [carouselIndex, setCarouselIndex] = useState(0);
+
+  interface ReviewEntry {
+    rating: number;
+    review_text: string;
+    created_at: string;
+    user_name: string;
+    user_image: string | null;
+  }
+
+  const [ratingData, setRatingData] = useState<{
+    average: number | null;
+    total: number;
+    recent: ReviewEntry[];
+  } | null>(null);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -83,6 +99,32 @@ export default function MainMenu() {
     claimScore();
     return () => abortController.abort();
   }, [session, highScore]);
+
+  useEffect(() => {
+    if (!ratingData?.recent?.length) return;
+    const interval = setInterval(() => {
+      setCarouselIndex((prev) => (prev + 1) % ratingData.recent.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [ratingData?.recent?.length]);
+
+
+  useEffect(() => {
+    const abortController = new AbortController();
+    const timeout = setTimeout(() => abortController.abort(), 10000);
+
+    fetch(`${API_URL}/api/ratings`, {
+      signal: abortController.signal,
+    })
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (data) setRatingData({ average: data.average, total: data.total, recent: data.recent ?? [] });
+      })
+      .catch(() => { });
+
+    return () => { clearTimeout(timeout); abortController.abort(); };
+
+  }, []);
 
 
   const handleInteraction = useCallback(() => {
@@ -358,6 +400,113 @@ export default function MainMenu() {
                 </div>
               </div>
             </motion.div>
+
+            {ratingData && ratingData.total > 0 && (
+              <motion.div
+                variants={itemVariants}
+                className="mb-28 w-full max-w-lg"
+              >
+                <div className="bg-[#10101a] p-1 rounded-[16px]">
+                  <div className="bg-[#0a0a0f] rounded-[14px] p-8 flex items-center gap-10 relative z-10 border border-white/5">
+                    <div className="w-20 h-20 bg-cyan-500/10 rounded-2xl flex items-center justify-center border border-cyan-500/30">
+                      <StarRating value={ratingData.average ?? 0} variant="badge" size={36} />
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-[11px] uppercase font-black tracking-[0.3em] mb-3">
+                        Community Rating
+                      </p>
+                      <p className="text-5xl font-black text-white tabular-nums tracking-tighter leading-none">
+                        {ratingData.average ? Number(ratingData.average).toFixed(1) : "—"}
+                        <span className="text-lg text-gray-500 font-bold ml-2 align-baseline">
+                          / 5
+                        </span>
+                      </p>
+                      <p className="text-[10px] text-gray-600 font-black uppercase tracking-[0.3em] mt-1">
+                        {ratingData.total} review{ratingData.total !== 1 ? "s" : ""}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {ratingData?.recent && ratingData.recent.length > 0 && (
+              <motion.div
+                variants={itemVariants}
+                className="w-full max-w-lg mb-28"
+              >
+                <div className="bg-[#10101a] p-1 rounded-[16px]">
+                  <div className="bg-[#0a0a0f] rounded-[14px] p-8 z-10 border border-white/5 min-h-[170px]">
+                    <p className="text-gray-500 text-[10px] font-black tracking-[0.4em] uppercase mb-6 text-center">
+                      RECENT REVIEWS
+                    </p>
+
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={carouselIndex}
+                        initial={{ opacity: 0, x: 30 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -30 }}
+                        transition={{ duration: 0.3 }}
+                        className="flex items-start gap-4"
+                      >
+                        <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                          {ratingData.recent[carouselIndex].user_image ? (
+                            <img
+                              src={ratingData.recent[carouselIndex].user_image}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-cyan-400 font-black text-lg">
+                              {ratingData.recent[carouselIndex].user_name?.charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3 mb-2">
+                            <p className="text-sm font-bold text-white truncate">
+                              {ratingData.recent[carouselIndex].user_name}
+                            </p>
+                            <StarRating value={ratingData.recent[carouselIndex].rating} variant="badge" size={18} />
+                          </div>
+                          <p className="text-sm text-gray-400 leading-relaxed">
+                            &ldquo;{ratingData.recent[carouselIndex].review_text}&rdquo;
+                          </p>
+                        </div>
+                      </motion.div>
+                    </AnimatePresence>
+
+                    <div className="flex justify-center gap-2 mt-6">
+                      {ratingData.recent.map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setCarouselIndex(i)}
+                          className={`w-2 h-2 rounded-full transition-all ${
+                            i === carouselIndex ? "bg-cyan-400 w-4" : "bg-white/20 hover:bg-white/40"
+                          }`}
+                        />
+                      ))}
+                    </div>
+
+                    <div className="flex justify-center gap-4 mt-4">
+                      <button
+                        onClick={() => setCarouselIndex((p) => (p - 1 + ratingData.recent.length) % ratingData.recent.length)}
+                        className="text-[10px] font-black uppercase tracking-widest text-cyan-400/60 hover:text-cyan-400 transition-colors"
+                      >
+                        ← Prev
+                      </button>
+                      <button
+                        onClick={() => setCarouselIndex((p) => (p + 1) % ratingData.recent.length)}
+                        className="text-[10px] font-black uppercase tracking-widest text-cyan-400/60 hover:text-cyan-400 transition-colors"
+                      >
+                        Next →
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
 
             {/* --- GAME MODES --- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 w-full ">
