@@ -6,6 +6,8 @@ import { auth } from './lib/auth.js';
 import leaderboardRouter from './routes/leaderboard.js';
 import dotenv from 'dotenv';
 import dns from 'node:dns';
+import telemetryRouter from './routes/telemetry.js';
+
 
 dns.setDefaultResultOrder('ipv4first');
 
@@ -34,9 +36,10 @@ app.use('*', cors({
   allowHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
-
 // Routes
 app.route('/api/leaderboard', leaderboardRouter);
+// telemetry
+app.route('/api/telemetry', telemetryRouter);
 
 // BetterAuth handler
 app.on(['POST', 'GET'], '/api/auth/*', (c) => auth.handler(c.req.raw));

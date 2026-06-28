@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { useGameStore } from "../stores/useGameStore";
@@ -7,6 +7,7 @@ import { authClient } from "../lib/auth-client";
 import { API_URL } from "../lib/config";
 import LoginButton from "./LoginButton";
 import Leaderboard from "./Leaderboard";
+import TelemetryDashboard from "./TelemetryDashboard";
 import {
   Zap,
   Clock,
@@ -41,6 +42,8 @@ export default function MainMenu() {
   const [showCategories, setShowCategories] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showTelemetry, setShowTelemetry] = useState(false);
+  const tapTimestamps = useRef<number[]>([]);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const { data: session } = authClient.useSession();
 
@@ -242,7 +245,14 @@ export default function MainMenu() {
               </div>
 
               <div className="relative group mb-12">
-                <h1 className="text-6xl md:text-9xl font-black italic tracking-tighter leading-none relative z-10 flex items-baseline justify-center">
+                <h1 onClick={() => {
+                  const now = Date.now();
+                  tapTimestamps.current = [...tapTimestamps.current.filter(t => now - t < 3000), now];
+                  if (tapTimestamps.current.length >= 10) {
+                    tapTimestamps.current = [];
+                    setShowTelemetry(true);
+                  }
+                }} className="text-6xl md:text-9xl font-black italic tracking-tighter leading-none relative z-10 flex items-baseline justify-center cursor-pointer">
                   <span className="text-white flex items-baseline">
                     FAND
                     <motion.span
@@ -580,6 +590,12 @@ export default function MainMenu() {
       <AnimatePresence>
         {showLeaderboard && (
           <Leaderboard onClose={() => setShowLeaderboard(false)} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showTelemetry && (
+          <TelemetryDashboard onClose={() => setShowTelemetry(false)} />
         )}
       </AnimatePresence>
     </div>

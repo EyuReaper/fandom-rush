@@ -16,12 +16,12 @@ export const fandomClues: FandomClue[] = [
   { id: 1, fandom: "One Piece", category: "anime", difficulty: "easy", objectName: "Straw Hat", imagePath: "/src/assets/anime/one-piece/straw-hat.png", correctAnswer: "One Piece" },
   { id: 2, fandom: "One Piece", category: "anime", difficulty: "medium", objectName: "Wanted Poster", imagePath: "/src/assets/anime/one-piece/wanted-poster.png", correctAnswer: "One Piece" },
   { id: 3, fandom: "One Piece", category: "anime", difficulty: "hard", objectName: "Devil Fruit", imagePath: "/src/assets/anime/one-piece/devil-fruit.png", correctAnswer: "One Piece" },
-  
+
   // Naruto
   { id: 4, fandom: "Naruto", category: "anime", difficulty: "easy", objectName: "Leaf Headband", imagePath: "/src/assets/anime/naruto/leaf-headband.png", correctAnswer: "Naruto" },
   { id: 5, fandom: "Naruto", category: "anime", difficulty: "medium", objectName: "Kunai", imagePath: "/src/assets/anime/naruto/kunai.png", correctAnswer: "Naruto" },
   { id: 6, fandom: "Naruto", category: "anime", difficulty: "hard", objectName: "Uchiha Fan", imagePath: "/src/assets/anime/naruto/fan.png", correctAnswer: "Naruto" },
-  
+
   // Jujutsu Kaisen
   { id: 7, fandom: "Jujutsu Kaisen", category: "anime", difficulty: "easy", objectName: "Gojo's Blindfold", imagePath: "/src/assets/anime/jujutsu-kaizen/gojo's-blindfold.png", correctAnswer: "Jujutsu Kaisen" },
   { id: 8, fandom: "Jujutsu Kaisen", category: "anime", difficulty: "medium", objectName: "Cursed Doll", imagePath: "/src/assets/anime/jujutsu-kaizen/cursed-doll.png", correctAnswer: "Jujutsu Kaisen" },
@@ -109,7 +109,7 @@ export const fandomClues: FandomClue[] = [
   // Squid Game
   { id: 315, fandom: "Squid Game", category: "tv", difficulty: "easy", objectName: "Invitation Card", imagePath: "/src/assets/tv/squid-game/invitation-card.png", correctAnswer: "Squid Game" },
   { id: 316, fandom: "Squid Game", category: "tv", difficulty: "medium", objectName: "Piggy Bank", imagePath: "/src/assets/tv/squid-game/piggy-bank.png", correctAnswer: "Squid Game" },
-  { id: 317, fandom: "Squid Game", category: "tv", difficulty: "hard", objectName: "Red Light Doll", imagePath: "/src/assets/tv/squid-game/red-light-doll.png", correctAnswer: "Squid Game" },
+  { id: 317, fandom: "Squid Game", category: "tv", difficulty: "hard", objectName: "Mask", imagePath: "/src/assets/tv/squid-game/mask.png", correctAnswer: "Squid Game" },
 
   // === GAMES ===
   // The Last of Us
