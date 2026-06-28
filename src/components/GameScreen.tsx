@@ -6,6 +6,8 @@ import { API_URL } from "../lib/config";
 import { TimeBar } from "./TimeBar";
 import { ScoreDisplay } from "./ScoreDisplay";
 import Leaderboard from "./Leaderboard";
+import StarRating from "./StarRating";
+import { Send, CheckCircle2 } from "lucide-react";
 import {
   Heart,
   CheckCircle,
@@ -47,6 +49,10 @@ export default function GameScreen() {
   } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const [rating, setRating] = useState(0);
+  const [reviewText, setReviewText] = useState("");
+  const [ratingStatus, setRatingStatus] = useState<"idle" | "prompt" | "submitting" | "success" | "error" | "already_rated">("idle");
+  const ratingCheckedRef = useRef(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const submittedRef = useRef(false);
 
@@ -99,6 +105,59 @@ export default function GameScreen() {
     return () => { clearTimeout(timeout); abortController.abort(); submittedRef.current = false; };
 
   }, [isGameOver, session, score, gameMode, selectedCategory, submitStatus, isSubmitting]);
+
+  useEffect(() => {
+    if (!isGameOver || !session || ratingCheckedRef.current) return;
+    ratingCheckedRef.current = true;
+
+    const userId = session.user.id;
+    if (localStorage.getItem(`fandomRushRated_${userId}`)) return;
+
+    const abortController = new AbortController();
+    fetch(`${API_URL}/api/ratings/user`, {
+      credentials: "include",
+      signal: abortController.signal,
+    })
+      .then((res) => {
+        if (abortController.signal.aborted) return;
+        if (res.status === 404) setRatingStatus("prompt");
+        else if (res.ok) {
+          setRatingStatus("already_rated");
+          localStorage.setItem(`fandomRushRated_${userId}`, "true");
+        }
+      })
+      .catch(() => {});
+
+    return () => abortController.abort();
+  }, [isGameOver, session]);
+
+  const submitRating = useCallback(async () => {
+    if (!session || rating === 0) return;
+    setRatingStatus("submitting");
+
+    const abortController = new AbortController();
+    const timeout = setTimeout(() => abortController.abort(), 10000);
+
+    try {
+      const res = await fetch(`${API_URL}/api/ratings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ rating, reviewText: reviewText || undefined }),
+        signal: abortController.signal,
+      });
+      if (res.ok) {
+        setRatingStatus("success");
+        localStorage.setItem(`fandomRushRated_${session.user.id}`, "true");
+      } else {
+        setRatingStatus("error");
+      }
+    } catch {
+      if (!abortController.signal.aborted) setRatingStatus("error");
+    } finally {
+      clearTimeout(timeout);
+    }
+  }, [session, rating, reviewText]);
 
   const handleAnswer = useCallback((answer: string, index?: number) => {
     if (feedback || !answer || !currentClue) return;
@@ -262,6 +321,59 @@ export default function GameScreen() {
                 )}
               </div>
             </div>
+
+            {/* Rating Prompt */}
+            {(ratingStatus === "prompt" || ratingStatus === "submitting" || ratingStatus === "error") && (
+              <div className="bg-[#0d0d14]/80 backdrop-blur-3xl border border-white/10 rounded-[24px] p-8 mb-10 relative overflow-hidden text-left">
+                <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500/50" />
+                <p className="text-gray-500 text-[10px] font-black tracking-[0.4em] uppercase mb-6">
+                  RATE THIS MISSION
+                </p>
+                {ratingStatus !== "submitting" && (
+                  <>
+                    <div className="flex justify-center mb-6">
+                      <StarRating value={rating} variant="row" onChange={setRating} />
+                    </div>
+                    <textarea
+                      value={reviewText}
+                      onChange={(e) => setReviewText(e.target.value)}
+                      placeholder="Leave a review (optional)..."
+                      rows={3}
+                      maxLength={500}
+                      className="w-full bg-[#050508] border border-white/10 rounded-xl p-4 text-sm text-white/70 placeholder:text-gray-600 focus:outline-none focus:border-cyan-500/50 resize-none mb-4"
+                    />
+                  </>
+                )}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={submitRating}
+                  disabled={rating === 0 || ratingStatus === "submitting"}
+                  className="w-full py-4 bg-cyan-500/20 border border-cyan-500/30 rounded-xl text-cyan-400 text-xs font-black uppercase tracking-widest transition-all hover:bg-cyan-500/30 disabled:opacity-40"
+                >
+                  <Send className="w-4 h-4 inline mr-2" />
+                  {ratingStatus === "submitting" ? "TRANSMITTING..." : "TRANSMIT RATING"}
+                </motion.button>
+                {ratingStatus === "error" && (
+                  <p className="text-red-400 text-[10px] font-bold mt-3 text-center uppercase tracking-wider">
+                    Transmission failed. Try again.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {ratingStatus === "success" && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-[#0d0d14]/80 backdrop-blur-3xl border border-green-500/20 rounded-[24px] p-6 mb-10 relative overflow-hidden text-center"
+              >
+                <CheckCircle2 className="w-10 h-10 text-green-400 mx-auto mb-3" />
+                <p className="text-green-400 font-black tracking-wider uppercase text-sm">
+                  Rating Transmitted
+                </p>
+              </motion.div>
+            )}
 
             {/* Global Leaderboard Access */}
             <motion.div
