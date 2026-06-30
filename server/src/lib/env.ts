@@ -14,4 +14,7 @@ export const env = {
   googleClientSecret: requireEnv('GOOGLE_CLIENT_SECRET'),
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
+  birrjsSecretKey: requireEnv('BIRRJS_SECRET_KEY'),
+  chapaWebhookSecret: requireEnv('CHAPA_WEBHOOK_SECRET'),
+  callbackUrl: requireEnv('CALLBACK_URL')
 };

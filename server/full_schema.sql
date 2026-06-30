@@ -71,6 +71,18 @@ CREATE TABLE IF NOT EXISTS ratings (
   UNIQUE(user_id)
 );
 
+--2c. Pack Purchases Table
+CREATE TABLE IF NOT EXISTS pack_purchases (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY ,
+    user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    pack_id TEXT NOT NULL,
+    birrjs_subscription_id TEXT UNIQUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(user_id, pack_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_pack_purchase_user_id ON pack_purchases (user_id);
+
 CREATE INDEX IF NOT EXISTS idx_ratings_created_at ON ratings (created_at DESC);
 
 -- Index for fast leaderboard queries
@@ -78,6 +90,10 @@ CREATE INDEX IF NOT EXISTS idx_scores_game_mode_score ON scores (game_mode, scor
 
 -- 3. Security (RLS)
 ALTER TABLE ratings ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE pack_purchases ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view their own purchases" ON pack_purchases FOR SELECT USING (true);
+CREATE POLICY "Only server can insert" ON pack_purchases FOR insert WITH CHECK (true);
 
 CREATE POLICY "Allow public read access to ratings" ON ratings FOR SELECT USING (true);
 CREATE POLICY "Allow users to manage their own ratings" ON ratings FOR ALL USING (true);
