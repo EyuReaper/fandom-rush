@@ -8,6 +8,7 @@ import { API_URL } from "../lib/config";
 import LoginButton from "./LoginButton";
 import Leaderboard from "./Leaderboard";
 import TelemetryDashboard from "./TelemetryDashboard";
+import ShopScreen from "./ShopScreen";
 import StarRating from "./StarRating";
 import {
   Zap,
@@ -22,6 +23,8 @@ import {
   Info,
   Volume2,
   VolumeX,
+  Store,
+  Crown,
 } from "lucide-react";
 
 const particles = Array.from({ length: 20 }).map((_, i) => ({
@@ -39,11 +42,14 @@ export default function MainMenu() {
     isMuted,
     toggleMute,
     isPlaying,
+    entitlements,
+    fetchEntitlements,
   } = useGameStore();
   const [showCategories, setShowCategories] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showTelemetry, setShowTelemetry] = useState(false);
+  const [showShop, setShowShop] = useState(false);
   const tapTimestamps = useRef<number[]>([]);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const { data: session } = authClient.useSession();
@@ -99,6 +105,10 @@ export default function MainMenu() {
     claimScore();
     return () => abortController.abort();
   }, [session, highScore]);
+
+  useEffect(() => {
+    if (session) fetchEntitlements();
+  }, [session, fetchEntitlements]);
 
   useEffect(() => {
     if (!ratingData?.recent?.length) return;
@@ -264,6 +274,18 @@ export default function MainMenu() {
         >
           <Settings className="w-7 h-7 text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
         </motion.button>
+
+        <motion.button
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setShowShop(true)}
+          className="p-5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl hover:bg-white/10 transition-colors shadow-2xl"
+        >
+          <Store className="w-7 h-7 text-pink-400 drop-shadow-[0_0_8px_rgba(219,39,119,0.5)]" />
+        </motion.button>
+
       </div>
 
       <AnimatePresence mode="wait">
@@ -538,6 +560,14 @@ export default function MainMenu() {
                 onClick={() => startGame("chaos")}
                 accent="red"
               />
+              <MenuButton
+                icon={<Crown className="w-10 h-10" />}
+                title="Survival Mode"
+                description="Bank your score. 3 extra lives. Fanatic Pack required."
+                onClick={() => {}}
+                accent="amber"
+                disabled={!entitlements.includes("fanatic")}
+              />
             </div>
 
             {/* --- FOOTER --- */}
@@ -737,6 +767,10 @@ export default function MainMenu() {
       </AnimatePresence>
 
       <AnimatePresence>
+        {showShop && <ShopScreen onClose={() => setShowShop(false)} />}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {showLeaderboard && (
           <Leaderboard onClose={() => setShowLeaderboard(false)} />
         )}
@@ -775,6 +809,7 @@ function MenuButton({
     emerald:
       " from-emerald-500/20 to-transparent group-hover:from-emerald-500 group-hover:to-emerald-500/30 border-emerald-500/30 text-emerald-400 group-hover:border-emerald-500",
     red: " from-red-500/20 to-transparent group-hover:from-red-500 group-hover:to-red-500/30 border-red-500/30 text-red-400 group-hover:border-red-500",
+    amber: " from-amber-500/20 to-transparent group-hover:from-amber-500 group-hover:to-amber-500/30 border-amber-500/30 text-amber-400 group-hover:border-amber-500",
   };
 
   return (

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { fandomClues, type FandomClue } from "../data/fandomClues";
 import type { GameState, GameMode } from "../types/game";
 import { audioManager } from "../lib/audioManager";
+import { getEntitlements } from "../lib/birrjs-client";
 
 interface GameStore extends GameState {
   startGame: (mode: GameMode, category?: string) => void;
@@ -12,6 +13,8 @@ interface GameStore extends GameState {
   nextQuestion: () => void;
   toggleSwipeMode: () => void;
   toggleMute: () => void;
+  entitlements: string[];
+  fetchEntitlements: () => Promise<void>;
 }
 
 const isMobile = typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -30,8 +33,8 @@ const initialState: GameState = {
   highScore: localStorage.getItem("fandomRushHighScore")
     ? parseInt(localStorage.getItem("fandomRushHighScore")!)
     : 0,
-  swipeMode: localStorage.getItem("fandomRushSwipeMode") 
-    ? localStorage.getItem("fandomRushSwipeMode") === "true" 
+  swipeMode: localStorage.getItem("fandomRushSwipeMode")
+    ? localStorage.getItem("fandomRushSwipeMode") === "true"
     : isMobile,
   isMuted: localStorage.getItem("fandomRushMuted") === "true",
   chaosModifiers: {
@@ -41,6 +44,7 @@ const initialState: GameState = {
     blurryClues: false,
   },
   previousClueIds: [],
+  entitlements: []
 };
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -125,7 +129,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       set((state) => {
         const newScore = state.score + points;
         const isNewHigh = newScore > state.highScore;
-        
+
         if (isNewHigh) {
           localStorage.setItem("fandomRushHighScore", newScore.toString());
         }
@@ -190,7 +194,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       // Use 0.1s increments, modified by speed multiplier
       const decrement = 0.1 * chaosModifiers.speedMultiplier;
       const newTime = Math.max(0, parseFloat((timeLeft - decrement).toFixed(1)));
-      
+
       // Play tick sound every second of gameplay
       // newTime is like 7.9, 7.8... we want to trigger at 7.0, 6.0 etc.
       const isSecondBoundary = Math.floor(timeLeft) !== Math.floor(newTime);
@@ -209,6 +213,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (timerInterval) clearInterval(timerInterval);
   },
 
+  fetchEntitlements: async () => {
+    const entitlements = await getEntitlements();
+    set({ entitlements });
+  },
+
   resetGame: () => {
     if (timerInterval) clearInterval(timerInterval);
     set({ ...initialState, highScore: get().highScore });
@@ -219,27 +228,27 @@ export const useGameStore = create<GameStore>((set, get) => ({
 // ==================== Helper Functions ====================
 
 function getRandomClue(category?: string, previousClueIds: number[] = []) {
-  const filtered = category 
+  const filtered = category
     ? fandomClues.filter(c => c.category === category)
     : fandomClues;
-  
+
   // Try to avoid recently used clues
   const available = filtered.filter(c => !previousClueIds.includes(c.id));
-  
+
   // If we run out of new clues, fallback to any filtered clue
   const source = available.length > 0 ? available : filtered;
-  
+
   if (source.length === 0) return fandomClues[Math.floor(Math.random() * fandomClues.length)];
-  
+
   return source[Math.floor(Math.random() * source.length)];
 }
 
 function generateOptions(correctClue: FandomClue) {
   const correct = correctClue.correctAnswer;
-  
+
   // Get all unique fandom names
   const allFandoms = Array.from(new Set(fandomClues.map(c => c.correctAnswer)));
-  
+
   const others = allFandoms
     .filter((f) => f !== correct)
     .sort(() => Math.random() - 0.5)

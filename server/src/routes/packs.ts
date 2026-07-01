@@ -6,6 +6,7 @@ import { auth } from '../lib/auth.js';
 import { rateLimiter } from 'hono-rate-limiter';
 import { PLANS } from '../lib/birrjs-plans.js';
 import { env } from '../lib/env.js';
+import { birrjs } from '../lib/birrjs.js';
 
 const router = new Hono();
 
@@ -43,6 +44,27 @@ router.get('/entitlements', authMiddleware, async (c: any) => {
   } catch (err) {
     console.error('Error fetching entitlements:', err);
     return c.json({ error: 'Failed to fetch entitlements' }, 500);
+  }
+});
+
+// POST /api/packs/checkout — initiate BirrJs checkout session
+const checkoutSchema = z.object({ packId: z.enum(['enthusiast', 'fanatic']) });
+router.post('/checkout', authMiddleware, zValidator('json', checkoutSchema), async (c: any) => {
+  const { packId } = c.req.valid('json') as { packId: 'enthusiast' | 'fanatic' };
+  const session = c.get('session');
+  const plan = PLANS[packId];
+
+  try {
+    const checkout = await birrjs.checkout.create({
+      priceId: plan.birrjsPriceId,
+      userId: session.user.id,
+      successUrl: `${env.callbackUrl}/?checkout=success`,
+      cancelUrl: `${env.callbackUrl}/?checkout=cancelled`,
+    });
+    return c.json(checkout);
+  } catch (err) {
+    console.error('Error creating checkout:', err);
+    return c.json({ error: 'Failed to create checkout session' }, 500);
   }
 });
 

@@ -19,12 +19,13 @@ export interface GameState {
   isPlaying: boolean;
   gameMode: GameMode;
   selectedCategory: string | null;
-  maxTime: number; 
+  maxTime: number;
   highScore: number;
   swipeMode: boolean;
   isMuted: boolean;
   chaosModifiers: ChaosModifiers;
   previousClueIds: number[];
+  entitlements: string[];
 }
 
 export type GameAction =
