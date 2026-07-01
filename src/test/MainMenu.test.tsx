@@ -97,13 +97,13 @@ describe('MainMenu', () => {
     expect(screen.getByText('Games')).toBeInTheDocument();
   });
 
-  it('TV Shows and Games categories are disabled', () => {
+  it('TV Shows and Games categories are now enabled', () => {
     render(<MainMenu />);
     fireEvent.click(screen.getByText('Category Rush'));
     const tvButton = screen.getByText('TV Shows').closest('button');
     const gamesButton = screen.getByText('Games').closest('button');
-    expect(tvButton).toBeDisabled();
-    expect(gamesButton).toBeDisabled();
+    expect(tvButton).toBeEnabled();
+    expect(gamesButton).toBeEnabled();
   });
 
   it('can select a category from the category selector', () => {

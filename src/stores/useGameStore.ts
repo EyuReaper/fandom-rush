@@ -13,8 +13,7 @@ interface GameStore extends GameState {
   nextQuestion: () => void;
   toggleSwipeMode: () => void;
   toggleMute: () => void;
-  entitlements: string[];
-  fetchEntitlements: () => Promise<void>;
+  entitlements: string[]; fetchEntitlements: () => Promise<void>
 }
 
 const isMobile = typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -52,8 +51,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   startGame: (mode, category) => {
     audioManager.init();
-    const firstClue = getRandomClue(category, []);
-    const options = generateOptions(firstClue);
+    const firstClue = getRandomClue(category, [], get().entitlements);
+    const options = generateOptions(firstClue, get().entitlements);
 
     const isChaos = mode === "chaos";
     const chaosModifiers = {
@@ -169,8 +168,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       return;
     }
 
-    const nextClue = getRandomClue(selectedCategory || undefined, previousClueIds);
-    const newOptions = generateOptions(nextClue);
+    const nextClue = getRandomClue(selectedCategory || undefined, previousClueIds, get().entitlements);
+    const newOptions = generateOptions(nextClue, get().entitlements);
 
     set((state) => ({
       currentClue: nextClue,
@@ -227,27 +226,35 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
 // ==================== Helper Functions ====================
 
-function getRandomClue(category?: string, previousClueIds: number[] = []) {
+function getAccessibleClues(entitlements: string[]) {
+  const hasFanatic = entitlements.includes("fanatic");
+  const hasEnthusiast = entitlements.includes("enthusiast");
+  return fandomClues.filter(c => {
+    if (!c.premium) return true;
+    if (hasFanatic) return true;
+    if (hasEnthusiast && c.premium === "enthusiast") return true;
+    return false;
+  });
+}
+
+function getRandomClue(category?: string, previousClueIds: number[] = [], entitlements: string[] = []) {
+  const accessible = getAccessibleClues(entitlements);
   const filtered = category
-    ? fandomClues.filter(c => c.category === category)
-    : fandomClues;
+    ? accessible.filter(c => c.category === category)
+    : accessible;
 
-  // Try to avoid recently used clues
   const available = filtered.filter(c => !previousClueIds.includes(c.id));
-
-  // If we run out of new clues, fallback to any filtered clue
   const source = available.length > 0 ? available : filtered;
 
-  if (source.length === 0) return fandomClues[Math.floor(Math.random() * fandomClues.length)];
+  if (source.length === 0) return accessible[Math.floor(Math.random() * accessible.length)];
 
   return source[Math.floor(Math.random() * source.length)];
 }
 
-function generateOptions(correctClue: FandomClue) {
+function generateOptions(correctClue: FandomClue, entitlements: string[] = []) {
   const correct = correctClue.correctAnswer;
-
-  // Get all unique fandom names
-  const allFandoms = Array.from(new Set(fandomClues.map(c => c.correctAnswer)));
+  const accessible = getAccessibleClues(entitlements);
+  const allFandoms = Array.from(new Set(accessible.map(c => c.correctAnswer)));
 
   const others = allFandoms
     .filter((f) => f !== correct)
@@ -273,5 +280,5 @@ function startTimer() {
         timerInterval = null;
       }
     }
-  }, 100); // 100ms for smooth UI
+  }, 100);
 }

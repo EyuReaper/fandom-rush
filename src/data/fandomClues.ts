@@ -8,6 +8,7 @@ export interface FandomClue {
   objectName: string;
   imagePath: string;
   correctAnswer: string;
+  premium?: "enthusiast" | "fanatic";
 }
 
 export const fandomClues: FandomClue[] = [
@@ -136,4 +137,116 @@ export const fandomClues: FandomClue[] = [
   { id: 412, fandom: "Final Fantasy", category: "games", difficulty: "easy", objectName: "Moogle", imagePath: "/src/assets/games/final-fantasy/moogle.png", correctAnswer: "Final Fantasy" },
   { id: 413, fandom: "Final Fantasy", category: "games", difficulty: "medium", objectName: "Buster Sword", imagePath: "/src/assets/games/final-fantasy/buster-sword.png", correctAnswer: "Final Fantasy" },
   { id: 414, fandom: "Final Fantasy", category: "games", difficulty: "hard", objectName: "Materia", imagePath: "/src/assets/games/final-fantasy/materia.png", correctAnswer: "Final Fantasy" },
+
+  // === ENTHUSIAST PACK — Mythology ===
+  { id: 500, fandom: "Greek Mythology", category: "mythology", difficulty: "easy", premium: "enthusiast", objectName: "Thunderbolt", imagePath: "/src/assets/mythology/greek/thunderbolt.png", correctAnswer: "Greek Mythology" },
+  { id: 501, fandom: "Greek Mythology", category: "mythology", difficulty: "medium", premium: "enthusiast", objectName: "Medusa Head", imagePath: "/src/assets/mythology/greek/medusa-head.png", correctAnswer: "Greek Mythology" },
+  { id: 502, fandom: "Greek Mythology", category: "mythology", difficulty: "hard", premium: "enthusiast", objectName: "Pandora Box", imagePath: "/src/assets/mythology/greek/pandora-box.png", correctAnswer: "Greek Mythology" },
+  { id: 503, fandom: "Norse Mythology", category: "mythology", difficulty: "easy", premium: "enthusiast", objectName: "Mjolnir", imagePath: "/src/assets/mythology/norse/mjolnir.png", correctAnswer: "Norse Mythology" },
+  { id: 504, fandom: "Norse Mythology", category: "mythology", difficulty: "medium", premium: "enthusiast", objectName: "Yggdrasil", imagePath: "/src/assets/mythology/norse/yggdrasil.png", correctAnswer: "Norse Mythology" },
+  { id: 505, fandom: "Norse Mythology", category: "mythology", difficulty: "hard", premium: "enthusiast", objectName: "Valkyrie Wing", imagePath: "/src/assets/mythology/norse/valkyrie-wing.png", correctAnswer: "Norse Mythology" },
+  { id: 506, fandom: "Egyptian Mythology", category: "mythology", difficulty: "easy", premium: "enthusiast", objectName: "Ankh", imagePath: "/src/assets/mythology/egyptian/ankh.png", correctAnswer: "Egyptian Mythology" },
+  { id: 507, fandom: "Egyptian Mythology", category: "mythology", difficulty: "medium", premium: "enthusiast", objectName: "Eye of Horus", imagePath: "/src/assets/mythology/egyptian/eye-of-horus.png", correctAnswer: "Egyptian Mythology" },
+  { id: 508, fandom: "Egyptian Mythology", category: "mythology", difficulty: "hard", premium: "enthusiast", objectName: "Sarcophagus", imagePath: "/src/assets/mythology/egyptian/sarcophagus.png", correctAnswer: "Egyptian Mythology" },
+  { id: 509, fandom: "Japanese Mythology", category: "mythology", difficulty: "easy", premium: "enthusiast", objectName: "Torii Gate", imagePath: "/src/assets/mythology/japanese/torii-gate.png", correctAnswer: "Japanese Mythology" },
+  { id: 510, fandom: "Japanese Mythology", category: "mythology", difficulty: "medium", premium: "enthusiast", objectName: "Kitsune Mask", imagePath: "/src/assets/mythology/japanese/kitsune-mask.png", correctAnswer: "Japanese Mythology" },
+  { id: 511, fandom: "Japanese Mythology", category: "mythology", difficulty: "hard", premium: "enthusiast", objectName: "Oni Mask", imagePath: "/src/assets/mythology/japanese/oni-mask.png", correctAnswer: "Japanese Mythology" },
+
+  // === ENTHUSIAST PACK — Internet Culture ===
+  { id: 512, fandom: "Memes", category: "internet", difficulty: "easy", premium: "enthusiast", objectName: "Distracted Boyfriend", imagePath: "/src/assets/internet/memes/distracted-boyfriend.png", correctAnswer: "Memes" },
+  { id: 513, fandom: "Memes", category: "internet", difficulty: "medium", premium: "enthusiast", objectName: "Doge", imagePath: "/src/assets/internet/memes/doge.png", correctAnswer: "Memes" },
+  { id: 514, fandom: "Memes", category: "internet", difficulty: "hard", premium: "enthusiast", objectName: "Pepe", imagePath: "/src/assets/internet/memes/pepe.png", correctAnswer: "Memes" },
+  { id: 515, fandom: "Creepypasta", category: "internet", difficulty: "easy", premium: "enthusiast", objectName: "Slenderman", imagePath: "/src/assets/internet/creepypasta/slenderman.png", correctAnswer: "Creepypasta" },
+  { id: 516, fandom: "Creepypasta", category: "internet", difficulty: "medium", premium: "enthusiast", objectName: "Jeff the Killer", imagePath: "/src/assets/internet/creepypasta/jeff-the-killer.png", correctAnswer: "Creepypasta" },
+  { id: 517, fandom: "Creepypasta", category: "internet", difficulty: "hard", premium: "enthusiast", objectName: "Sonic.exe", imagePath: "/src/assets/internet/creepypasta/sonic-exe.png", correctAnswer: "Creepypasta" },
+  { id: 518, fandom: "Viral Games", category: "internet", difficulty: "easy", premium: "enthusiast", objectName: "Flappy Bird", imagePath: "/src/assets/internet/viral-games/flappy-bird.png", correctAnswer: "Viral Games" },
+  { id: 519, fandom: "Viral Games", category: "internet", difficulty: "medium", premium: "enthusiast", objectName: "Among Us", imagePath: "/src/assets/internet/viral-games/among-us.png", correctAnswer: "Viral Games" },
+  { id: 520, fandom: "Viral Games", category: "internet", difficulty: "hard", premium: "enthusiast", objectName: "Geometry Dash", imagePath: "/src/assets/internet/viral-games/geometry-dash.png", correctAnswer: "Viral Games" },
+  { id: 521, fandom: "Web Series", category: "internet", difficulty: "easy", premium: "enthusiast", objectName: "Salad Fingers", imagePath: "/src/assets/internet/web-series/salad-fingers.png", correctAnswer: "Web Series" },
+  { id: 522, fandom: "Web Series", category: "internet", difficulty: "medium", premium: "enthusiast", objectName: "Homestar Runner", imagePath: "/src/assets/internet/web-series/homestar-runner.png", correctAnswer: "Web Series" },
+  { id: 523, fandom: "Web Series", category: "internet", difficulty: "hard", premium: "enthusiast", objectName: "Don't Hug Me", imagePath: "/src/assets/internet/web-series/dont-hug-me.png", correctAnswer: "Web Series" },
+
+  // === ENTHUSIAST PACK — Sports ===
+  { id: 524, fandom: "Basketball", category: "sports", difficulty: "easy", premium: "enthusiast", objectName: "Basketball Ball", imagePath: "/src/assets/sports/basketball/basketball-ball.png", correctAnswer: "Basketball" },
+  { id: 525, fandom: "Basketball", category: "sports", difficulty: "medium", premium: "enthusiast", objectName: "Jersey 23", imagePath: "/src/assets/sports/basketball/jersey-23.png", correctAnswer: "Basketball" },
+  { id: 526, fandom: "Basketball", category: "sports", difficulty: "hard", premium: "enthusiast", objectName: "Championship Trophy", imagePath: "/src/assets/sports/basketball/championship-trophy.png", correctAnswer: "Basketball" },
+  { id: 527, fandom: "Soccer", category: "sports", difficulty: "easy", premium: "enthusiast", objectName: "Soccer Ball", imagePath: "/src/assets/sports/soccer/soccer-ball.png", correctAnswer: "Soccer" },
+  { id: 528, fandom: "Soccer", category: "sports", difficulty: "medium", premium: "enthusiast", objectName: "World Cup Trophy", imagePath: "/src/assets/sports/soccer/world-cup-trophy.png", correctAnswer: "Soccer" },
+  { id: 529, fandom: "Soccer", category: "sports", difficulty: "hard", premium: "enthusiast", objectName: "Red Card", imagePath: "/src/assets/sports/soccer/red-card.png", correctAnswer: "Soccer" },
+  { id: 530, fandom: "Boxing", category: "sports", difficulty: "easy", premium: "enthusiast", objectName: "Boxing Glove", imagePath: "/src/assets/sports/boxing/boxing-glove.png", correctAnswer: "Boxing" },
+  { id: 531, fandom: "Boxing", category: "sports", difficulty: "medium", premium: "enthusiast", objectName: "Heavyweight Belt", imagePath: "/src/assets/sports/boxing/heavyweight-belt.png", correctAnswer: "Boxing" },
+  { id: 532, fandom: "Boxing", category: "sports", difficulty: "hard", premium: "enthusiast", objectName: "Punching Bag", imagePath: "/src/assets/sports/boxing/punching-bag.png", correctAnswer: "Boxing" },
+  { id: 533, fandom: "Olympics", category: "sports", difficulty: "easy", premium: "enthusiast", objectName: "Gold Medal", imagePath: "/src/assets/sports/olympics/gold-medal.png", correctAnswer: "Olympics" },
+  { id: 534, fandom: "Olympics", category: "sports", difficulty: "medium", premium: "enthusiast", objectName: "Olympic Torch", imagePath: "/src/assets/sports/olympics/olympic-torch.png", correctAnswer: "Olympics" },
+  { id: 535, fandom: "Olympics", category: "sports", difficulty: "hard", premium: "enthusiast", objectName: "Laurel Wreath", imagePath: "/src/assets/sports/olympics/laurel-wreath.png", correctAnswer: "Olympics" },
+
+  // === FANATIC PACK — Music ===
+  { id: 600, fandom: "K-Pop", category: "music", difficulty: "easy", premium: "fanatic", objectName: "Light Stick", imagePath: "/src/assets/music/kpop/light-stick.png", correctAnswer: "K-Pop" },
+  { id: 601, fandom: "K-Pop", category: "music", difficulty: "medium", premium: "fanatic", objectName: "Photocard", imagePath: "/src/assets/music/kpop/photocard.png", correctAnswer: "K-Pop" },
+  { id: 602, fandom: "K-Pop", category: "music", difficulty: "hard", premium: "fanatic", objectName: "Microphone", imagePath: "/src/assets/music/kpop/microphone.png", correctAnswer: "K-Pop" },
+  { id: 603, fandom: "Rock", category: "music", difficulty: "easy", premium: "fanatic", objectName: "Electric Guitar", imagePath: "/src/assets/music/rock/electric-guitar.png", correctAnswer: "Rock" },
+  { id: 604, fandom: "Rock", category: "music", difficulty: "medium", premium: "fanatic", objectName: "Vinyl Record", imagePath: "/src/assets/music/rock/vinyl-record.png", correctAnswer: "Rock" },
+  { id: 605, fandom: "Rock", category: "music", difficulty: "hard", premium: "fanatic", objectName: "Marshall Amp", imagePath: "/src/assets/music/rock/marshall-amp.png", correctAnswer: "Rock" },
+  { id: 606, fandom: "Hip Hop", category: "music", difficulty: "easy", premium: "fanatic", objectName: "Boombox", imagePath: "/src/assets/music/hiphop/boombox.png", correctAnswer: "Hip Hop" },
+  { id: 607, fandom: "Hip Hop", category: "music", difficulty: "medium", premium: "fanatic", objectName: "Cassette Tape", imagePath: "/src/assets/music/hiphop/cassette-tape.png", correctAnswer: "Hip Hop" },
+  { id: 608, fandom: "Hip Hop", category: "music", difficulty: "hard", premium: "fanatic", objectName: "Chain Necklace", imagePath: "/src/assets/music/hiphop/chain-necklace.png", correctAnswer: "Hip Hop" },
+  { id: 609, fandom: "Classical", category: "music", difficulty: "easy", premium: "fanatic", objectName: "Violin", imagePath: "/src/assets/music/classical/violin.png", correctAnswer: "Classical" },
+  { id: 610, fandom: "Classical", category: "music", difficulty: "medium", premium: "fanatic", objectName: "Sheet Music", imagePath: "/src/assets/music/classical/sheet-music.png", correctAnswer: "Classical" },
+  { id: 611, fandom: "Classical", category: "music", difficulty: "hard", premium: "fanatic", objectName: "Conductor's Baton", imagePath: "/src/assets/music/classical/conductors-baton.png", correctAnswer: "Classical" },
+
+  // === FANATIC PACK — History ===
+  { id: 612, fandom: "Ancient Rome", category: "history", difficulty: "easy", premium: "fanatic", objectName: "Roman Helmet", imagePath: "/src/assets/history/rome/roman-helmet.png", correctAnswer: "Ancient Rome" },
+  { id: 613, fandom: "Ancient Rome", category: "history", difficulty: "medium", premium: "fanatic", objectName: "Colosseum", imagePath: "/src/assets/history/rome/colosseum.png", correctAnswer: "Ancient Rome" },
+  { id: 614, fandom: "Ancient Rome", category: "history", difficulty: "hard", premium: "fanatic", objectName: "Gladius Sword", imagePath: "/src/assets/history/rome/gladius-sword.png", correctAnswer: "Ancient Rome" },
+  { id: 615, fandom: "Feudal Japan", category: "history", difficulty: "easy", premium: "fanatic", objectName: "Katana", imagePath: "/src/assets/history/feudal-japan/katana.png", correctAnswer: "Feudal Japan" },
+  { id: 616, fandom: "Feudal Japan", category: "history", difficulty: "medium", premium: "fanatic", objectName: "Samurai Helmet", imagePath: "/src/assets/history/feudal-japan/samurai-helmet.png", correctAnswer: "Feudal Japan" },
+  { id: 617, fandom: "Feudal Japan", category: "history", difficulty: "hard", premium: "fanatic", objectName: "Shuriken", imagePath: "/src/assets/history/feudal-japan/shuriken.png", correctAnswer: "Feudal Japan" },
+  { id: 618, fandom: "Wild West", category: "history", difficulty: "easy", premium: "fanatic", objectName: "Cowboy Hat", imagePath: "/src/assets/history/wild-west/cowboy-hat.png", correctAnswer: "Wild West" },
+  { id: 619, fandom: "Wild West", category: "history", difficulty: "medium", premium: "fanatic", objectName: "Revolver", imagePath: "/src/assets/history/wild-west/revolver.png", correctAnswer: "Wild West" },
+  { id: 620, fandom: "Wild West", category: "history", difficulty: "hard", premium: "fanatic", objectName: "Wanted Poster", imagePath: "/src/assets/history/wild-west/wanted-poster-west.png", correctAnswer: "Wild West" },
+  { id: 621, fandom: "Medieval", category: "history", difficulty: "easy", premium: "fanatic", objectName: "Knight Shield", imagePath: "/src/assets/history/medieval/knight-shield.png", correctAnswer: "Medieval" },
+  { id: 622, fandom: "Medieval", category: "history", difficulty: "medium", premium: "fanatic", objectName: "Castle Tower", imagePath: "/src/assets/history/medieval/castle-tower.png", correctAnswer: "Medieval" },
+  { id: 623, fandom: "Medieval", category: "history", difficulty: "hard", premium: "fanatic", objectName: "Royal Crown", imagePath: "/src/assets/history/medieval/royal-crown.png", correctAnswer: "Medieval" },
+
+  // === FANATIC PACK — Tech ===
+  { id: 624, fandom: "Retro Gaming", category: "tech", difficulty: "easy", premium: "fanatic", objectName: "Arcade Cabinet", imagePath: "/src/assets/tech/retro-gaming/arcade-cabinet.png", correctAnswer: "Retro Gaming" },
+  { id: 625, fandom: "Retro Gaming", category: "tech", difficulty: "medium", premium: "fanatic", objectName: "Cartridge", imagePath: "/src/assets/tech/retro-gaming/cartridge.png", correctAnswer: "Retro Gaming" },
+  { id: 626, fandom: "Retro Gaming", category: "tech", difficulty: "hard", premium: "fanatic", objectName: "Joystick", imagePath: "/src/assets/tech/retro-gaming/joystick.png", correctAnswer: "Retro Gaming" },
+  { id: 627, fandom: "Sci-Fi", category: "tech", difficulty: "easy", premium: "fanatic", objectName: "Spaceship", imagePath: "/src/assets/tech/sci-fi/spaceship.png", correctAnswer: "Sci-Fi" },
+  { id: 628, fandom: "Sci-Fi", category: "tech", difficulty: "medium", premium: "fanatic", objectName: "Robot Head", imagePath: "/src/assets/tech/sci-fi/robot-head.png", correctAnswer: "Sci-Fi" },
+  { id: 629, fandom: "Sci-Fi", category: "tech", difficulty: "hard", premium: "fanatic", objectName: "Alien Blaster", imagePath: "/src/assets/tech/sci-fi/alien-blaster.png", correctAnswer: "Sci-Fi" },
+  { id: 630, fandom: "Gadgets", category: "tech", difficulty: "easy", premium: "fanatic", objectName: "Smartwatch", imagePath: "/src/assets/tech/gadgets/smartwatch.png", correctAnswer: "Gadgets" },
+  { id: 631, fandom: "Gadgets", category: "tech", difficulty: "medium", premium: "fanatic", objectName: "Drone", imagePath: "/src/assets/tech/gadgets/drone.png", correctAnswer: "Gadgets" },
+  { id: 632, fandom: "Gadgets", category: "tech", difficulty: "hard", premium: "fanatic", objectName: "VR Headset", imagePath: "/src/assets/tech/gadgets/vr-headset.png", correctAnswer: "Gadgets" },
+  { id: 633, fandom: "Cyberpunk", category: "tech", difficulty: "easy", premium: "fanatic", objectName: "Neon Glasses", imagePath: "/src/assets/tech/cyberpunk/neon-glasses.png", correctAnswer: "Cyberpunk" },
+  { id: 634, fandom: "Cyberpunk", category: "tech", difficulty: "medium", premium: "fanatic", objectName: "Cyber Arm", imagePath: "/src/assets/tech/cyberpunk/cyber-arm.png", correctAnswer: "Cyberpunk" },
+  { id: 635, fandom: "Cyberpunk", category: "tech", difficulty: "hard", premium: "fanatic", objectName: "Hologram Chip", imagePath: "/src/assets/tech/cyberpunk/hologram-chip.png", correctAnswer: "Cyberpunk" },
+
+  // === FANATIC PACK — Anime Deep Cuts ===
+  { id: 636, fandom: "Berserk", category: "anime", difficulty: "easy", premium: "fanatic", objectName: "Brand of Sacrifice", imagePath: "/src/assets/anime/berserk/brand-of-sacrifice.png", correctAnswer: "Berserk" },
+  { id: 637, fandom: "Berserk", category: "anime", difficulty: "medium", premium: "fanatic", objectName: "Dragon Slayer", imagePath: "/src/assets/anime/berserk/dragonslayer-sword.png", correctAnswer: "Berserk" },
+  { id: 638, fandom: "Berserk", category: "anime", difficulty: "hard", premium: "fanatic", objectName: "Behelit", imagePath: "/src/assets/anime/berserk/behelit.png", correctAnswer: "Berserk" },
+  { id: 639, fandom: "Evangelion", category: "anime", difficulty: "easy", premium: "fanatic", objectName: "Entry Plug", imagePath: "/src/assets/anime/evangelion/entry-plug.png", correctAnswer: "Evangelion" },
+  { id: 640, fandom: "Evangelion", category: "anime", difficulty: "medium", premium: "fanatic", objectName: "LCL Liquid", imagePath: "/src/assets/anime/evangelion/lcl-liquid.png", correctAnswer: "Evangelion" },
+  { id: 641, fandom: "Evangelion", category: "anime", difficulty: "hard", premium: "fanatic", objectName: "Spear of Longinus", imagePath: "/src/assets/anime/evangelion/spear-of-longinus.png", correctAnswer: "Evangelion" },
+  { id: 642, fandom: "Hunter x Hunter", category: "anime", difficulty: "easy", premium: "fanatic", objectName: "Hunter License", imagePath: "/src/assets/anime/hunter-x-hunter/hunter-license.png", correctAnswer: "Hunter x Hunter" },
+  { id: 643, fandom: "Hunter x Hunter", category: "anime", difficulty: "medium", premium: "fanatic", objectName: "Gon's Fishing Rod", imagePath: "/src/assets/anime/hunter-x-hunter/gons-fishing-rod.png", correctAnswer: "Hunter x Hunter" },
+  { id: 644, fandom: "Hunter x Hunter", category: "anime", difficulty: "hard", premium: "fanatic", objectName: "Spider Tattoo", imagePath: "/src/assets/anime/hunter-x-hunter/spider-tattoo.png", correctAnswer: "Hunter x Hunter" },
+  { id: 645, fandom: "Cowboy Bebop", category: "anime", difficulty: "easy", premium: "fanatic", objectName: "Swordfish II", imagePath: "/src/assets/anime/cowboy-bebop/swordfish-ii.png", correctAnswer: "Cowboy Bebop" },
+  { id: 646, fandom: "Cowboy Bebop", category: "anime", difficulty: "medium", premium: "fanatic", objectName: "Cigarette", imagePath: "/src/assets/anime/cowboy-bebop/cigarette.png", correctAnswer: "Cowboy Bebop" },
+  { id: 647, fandom: "Cowboy Bebop", category: "anime", difficulty: "hard", premium: "fanatic", objectName: "Bebop Ship", imagePath: "/src/assets/anime/cowboy-bebop/bebop-ship.png", correctAnswer: "Cowboy Bebop" },
+
+  // === FANATIC PACK — Gaming Deep Cuts ===
+  { id: 648, fandom: "Minecraft", category: "games", difficulty: "easy", premium: "fanatic", objectName: "Diamond Sword", imagePath: "/src/assets/games/minecraft/diamond-sword.png", correctAnswer: "Minecraft" },
+  { id: 649, fandom: "Minecraft", category: "games", difficulty: "medium", premium: "fanatic", objectName: "Creeper Face", imagePath: "/src/assets/games/minecraft/creeper-face.png", correctAnswer: "Minecraft" },
+  { id: 650, fandom: "Minecraft", category: "games", difficulty: "hard", premium: "fanatic", objectName: "Ender Pearl", imagePath: "/src/assets/games/minecraft/ender-pearl.png", correctAnswer: "Minecraft" },
+  { id: 651, fandom: "God of War", category: "games", difficulty: "easy", premium: "fanatic", objectName: "Leviathan Axe", imagePath: "/src/assets/games/god-of-war/leviathan-axe.png", correctAnswer: "God of War" },
+  { id: 652, fandom: "God of War", category: "games", difficulty: "medium", premium: "fanatic", objectName: "Chaos Blades", imagePath: "/src/assets/games/god-of-war/chaos-blades.png", correctAnswer: "God of War" },
+  { id: 653, fandom: "God of War", category: "games", difficulty: "hard", premium: "fanatic", objectName: "Head of Mimir", imagePath: "/src/assets/games/god-of-war/head-of-mimir.png", correctAnswer: "God of War" },
+  { id: 654, fandom: "Dark Souls", category: "games", difficulty: "easy", premium: "fanatic", objectName: "Bonfire", imagePath: "/src/assets/games/dark-souls/bonfire.png", correctAnswer: "Dark Souls" },
+  { id: 655, fandom: "Dark Souls", category: "games", difficulty: "medium", premium: "fanatic", objectName: "Sunlight Medal", imagePath: "/src/assets/games/dark-souls/sunlight-medal.png", correctAnswer: "Dark Souls" },
+  { id: 656, fandom: "Dark Souls", category: "games", difficulty: "hard", premium: "fanatic", objectName: "Estus Flask", imagePath: "/src/assets/games/dark-souls/estus-flask.png", correctAnswer: "Dark Souls" },
+  { id: 657, fandom: "DOOM", category: "games", difficulty: "easy", premium: "fanatic", objectName: "Super Shotgun", imagePath: "/src/assets/games/doom/super-shotgun.png", correctAnswer: "DOOM" },
+  { id: 658, fandom: "DOOM", category: "games", difficulty: "medium", premium: "fanatic", objectName: "BFG", imagePath: "/src/assets/games/doom/bfg.png", correctAnswer: "DOOM" },
+  { id: 659, fandom: "DOOM", category: "games", difficulty: "hard", premium: "fanatic", objectName: "Doom Slayer Helmet", imagePath: "/src/assets/games/doom/doom-slayer-helmet.png", correctAnswer: "DOOM" },
 ];

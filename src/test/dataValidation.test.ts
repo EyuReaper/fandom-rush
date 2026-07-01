@@ -5,11 +5,12 @@ import { z } from 'zod';
 const ClueSchema = z.object({
   id: z.number().int().positive(),
   fandom: z.string().min(1),
-  category: z.enum(['anime', 'movies', 'cartoons', 'tv', 'games']),
+  category: z.enum(['anime', 'movies', 'cartoons', 'tv', 'games', 'mythology', 'internet', 'sports', 'music', 'history', 'tech']),
   difficulty: z.enum(['easy', 'medium', 'hard']),
   objectName: z.string().min(1),
   imagePath: z.string().startsWith('/src/assets/'),
   correctAnswer: z.string().min(1),
+  premium: z.enum(['enthusiast', 'fanatic']).optional(),
 });
 
 describe('Fandom Clues Data Validation', () => {

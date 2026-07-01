@@ -190,7 +190,7 @@ export default function MainMenu() {
       icon: "📺",
       color: "from-emerald-500 to-teal-400",
       glow: "shadow-emerald-500/20",
-      disabled: true,
+      disabled: false,
     },
     {
       id: "cartoons",
@@ -205,7 +205,7 @@ export default function MainMenu() {
       icon: "🎮",
       color: "from-fuchsia-500 to-purple-600",
       glow: "shadow-fuchsia-500/20",
-      disabled: true,
+      disabled: false,
     },
   ];
 
