@@ -1,6 +1,6 @@
 import {  type FandomClue } from "../data/fandomClues";
 
-export type GameMode = "endless" | "sixty-second" | "category" | "chaos";
+export type GameMode = "endless" | "sixty-second" | "category" | "chaos" | "survival";
 
 export interface ChaosModifiers {
   speedMultiplier: number;
@@ -26,6 +26,10 @@ export interface GameState {
   chaosModifiers: ChaosModifiers;
   previousClueIds: number[];
   entitlements: string[];
+  bankedScore: number;
+  streak: number;
+  escalationLevel: number;
+  bestBankedScore: number;
 }
 
 export type GameAction =

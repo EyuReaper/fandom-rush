@@ -43,7 +43,11 @@ const initialState: GameState = {
     blurryClues: false,
   },
   previousClueIds: [],
-  entitlements: []
+  entitlements: [],
+  bankedScore: 0,
+  streak: 0,
+  escalationLevel: 1,
+  bestBankedScore: 0,
 };
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -70,11 +74,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
       options,
       score: 0,
       combo: 0,
-      lives: 3,
-      timeLeft: mode === "sixty-second" ? 60 : 8,
-      maxTime: mode === "sixty-second" ? 60 : 8,
+      lives: mode === "survival" ? 6 : 3,
+      timeLeft: mode === "sixty-second" ? 60 : mode === "survival" ? 8 : 8,
+      maxTime: mode === "sixty-second" ? 60 : mode === "survival" ? 8 : 8,
       chaosModifiers,
       previousClueIds: [firstClue.id],
+      ...(mode === "survival" && {
+        bankedScore: 0,
+        streak: 0,
+        escalationLevel: 1,
+        bestBankedScore: 0,
+      }),
     });
 
     audioManager.stopBGM();
@@ -119,11 +129,29 @@ export const useGameStore = create<GameStore>((set, get) => ({
       speedBonus = 10; // Flat bonus for 60-sec mode
     }
 
+    const newCombo = combo + 1;
+    const multiplier = 1 + Math.floor(newCombo / 5) * 0.3;
+    const points = Math.floor((difficultyPoints + speedBonus) * multiplier);
+
     if (isCorrect) {
+      // Survival mode: banking + escalation
+      if (gameMode === "survival") {
+        const newStreak = combo + 1;
+        let newBankedScore = get().bankedScore;
+        let newEscalation = get().escalationLevel;
+        if (newStreak > 0 && newStreak % 5 === 0) {
+          newBankedScore = get().score + points;
+          if (newBankedScore > get().bestBankedScore) {
+            set({ bestBankedScore: newBankedScore });
+          }
+          if (newStreak % 10 === 0) {
+            newEscalation = Math.min(5, newEscalation + 1);
+          }
+        }
+        set({ bankedScore: newBankedScore, escalationLevel: newEscalation, streak: newStreak });
+      }
+
       audioManager.play('correct', get().isMuted);
-      const newCombo = combo + 1;
-      const multiplier = 1 + Math.floor(newCombo / 5) * 0.3;
-      const points = Math.floor((difficultyPoints + speedBonus) * multiplier);
 
       set((state) => {
         const newScore = state.score + points;
@@ -141,10 +169,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
       });
     } else {
       audioManager.play('wrong', get().isMuted);
-      set((state) => ({
-        lives: gameMode === "sixty-second" ? state.lives : Math.max(0, state.lives - 1),
-        combo: 0,
-      }));
+      if (gameMode === "survival") {
+        set({
+          lives: Math.max(0, get().lives - 1),
+          combo: 0,
+          score: get().bankedScore,
+          streak: 0,
+        });
+      } else {
+        set((state) => ({
+          lives: gameMode === "sixty-second" ? state.lives : Math.max(0, state.lives - 1),
+          combo: 0,
+        }));
+      }
     }
 
     // Brief pause for feedback then next question
@@ -171,10 +208,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const nextClue = getRandomClue(selectedCategory || undefined, previousClueIds, get().entitlements);
     const newOptions = generateOptions(nextClue, get().entitlements);
 
+    const survivalTime = gameMode === "survival"
+      ? Math.max(3, 8 - (get().escalationLevel - 1))
+      : null;
+
     set((state) => ({
       currentClue: nextClue,
       options: newOptions,
-      timeLeft: gameMode === "sixty-second" ? timeLeft : 8,
+      timeLeft: gameMode === "sixty-second" ? timeLeft : survivalTime ?? 8,
+      maxTime: survivalTime ?? state.maxTime,
       previousClueIds: [...state.previousClueIds.slice(-10), nextClue.id],
     }));
   },
@@ -219,7 +261,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   resetGame: () => {
     if (timerInterval) clearInterval(timerInterval);
-    set({ ...initialState, highScore: get().highScore });
+    set({ ...initialState, highScore: get().highScore, bankedScore: 0, streak: 0, escalationLevel: 1, bestBankedScore: 0 });
     audioManager.playBGM(get().isMuted);
   }
 }));

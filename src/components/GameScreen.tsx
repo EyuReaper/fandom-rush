@@ -8,6 +8,7 @@ import { ScoreDisplay } from "./ScoreDisplay";
 import Leaderboard from "./Leaderboard";
 import StarRating from "./StarRating";
 import { Send, CheckCircle2 } from "lucide-react";
+import SurvivalMode from "./SurvivalMode";
 import {
   Heart,
   CheckCircle,
@@ -447,6 +448,10 @@ export default function GameScreen() {
         </motion.div>
       </div>
     );
+  }
+
+  if (gameMode === "survival" && isPlaying) {
+    return <SurvivalMode />;
   }
 
   if (!currentClue) return null;

@@ -16,12 +16,12 @@ const scoreLimiter = rateLimiter({
 // Validation Schemas
 const scoreSchema = z.object({
   score: z.number().int().min(0),
-  gameMode: z.enum(['endless', 'sixty-second', 'category', 'chaos']),
+  gameMode: z.enum(['endless', 'sixty-second', 'category', 'chaos', 'survival']),
   category: z.string().min(1).max(50).default('all'),
 });
 
 const querySchema = z.object({
-  mode: z.enum(['endless', 'sixty-second', 'category', 'chaos']).optional().default('endless'),
+  mode: z.enum(['endless', 'sixty-second', 'category', 'chaos', 'survival']).optional().default('endless'),
   category: z.string().min(1).max(50).optional().default('all'),
 });
 
@@ -57,7 +57,11 @@ router.get('/', zValidator('query', querySchema), async (c) => {
         ubs.created_at,
         u.name as user_name,
         u.image as user_image,
-        u.id as user_id
+        u.id as user_id,
+        COALESCE(
+          (SELECT string_agg(DISTINCT pack_id, ', ') FROM pack_purchases WHERE user_id = ubs.user_id),
+          ''
+        ) as pack_ids
       FROM UserBestScores ubs
       JOIN "user" u ON ubs.user_id = u.id
       ORDER BY ubs.score DESC, ubs.created_at ASC
@@ -90,7 +94,11 @@ router.get('/', zValidator('query', querySchema), async (c) => {
           rs.rank,
           u.name as user_name,
           u.image as user_image,
-          u.id as user_id
+          u.id as user_id,
+          COALESCE(
+            (SELECT string_agg(DISTINCT pack_id, ', ') FROM pack_purchases WHERE user_id = rs.user_id),
+            ''
+          ) as pack_ids
         FROM RankedScores rs
         JOIN "user" u ON rs.user_id = u.id
         WHERE rs.user_id = $3

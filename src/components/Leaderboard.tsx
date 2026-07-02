@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { X, Zap, Clock, LayoutGrid, Target, Loader2, Globe, User } from "lucide-react";
+import { X, Zap, Clock, Target, Loader2, Globe, User, Shield, Shuffle } from "lucide-react";
 import { authClient } from "../lib/auth-client";
 import { API_URL } from "../lib/config";
 
@@ -13,6 +13,7 @@ interface Score {
   category: string;
   created_at: string;
   rank?: number;
+  pack_ids?: string;
 }
 
 interface LeaderboardData {
@@ -33,7 +34,8 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
   const modes = [
     { id: "endless", label: "Endless", icon: <Zap className="w-4 h-4" /> },
     { id: "sixty-second", label: "60-Sec", icon: <Clock className="w-4 h-4" /> },
-    { id: "chaos", label: "Chaos", icon: <LayoutGrid className="w-4 h-4" /> },
+    { id: "chaos", label: "Chaos", icon: <Shuffle className="w-4 h-4" /> },
+    { id: "survival", label: "Survival", icon: <Shield className="w-4 h-4" /> }
   ];
 
   useEffect(() => {
@@ -153,6 +155,7 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
               {data.scores.map((score, index) => {
                 const isCurrentUser = session?.user?.id === score.user_id;
                 const isTop3 = index < 3;
+                const hasFanatic = score.pack_ids?.includes("fanatic");
 
                 return (
                   <motion.div
@@ -163,6 +166,8 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
                     className={`flex items-center gap-6 p-5 rounded-[15px] border transition-all group relative overflow-hidden ${
                       isCurrentUser
                         ? "bg-cyan-500/15 border-cyan-500/40 shadow-[0_0_25px_rgba(6,182,212,0.15)]"
+                        : hasFanatic
+                        ? "bg-yellow-500/10 border-yellow-500/30 shadow-[0_0_25px_rgba(234,179,8,0.15)]"
                         : isTop3
                         ? "bg-white/[0.04] border-white/10 hover:border-white/20"
                         : "bg-white/[0.01] border-white/5 hover:border-white/10"
@@ -203,12 +208,15 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1">
                         <p className={`text-lg font-black truncate uppercase tracking-tight italic ${
-                            isCurrentUser ? "text-cyan-400" : "text-white group-hover:text-cyan-400 transition-colors"
+                            isCurrentUser ? "text-cyan-400" : hasFanatic ? "text-yellow-400 group-hover:text-yellow-300 transition-colors" : "text-white group-hover:text-cyan-400 transition-colors"
                         }`}>
                             {score.user_name}
                         </p>
+                        {hasFanatic && !isCurrentUser && (
+                          <span className="text-[7px] font-black bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-500/30 tracking-widest uppercase">Fanatic</span>
+                        )}
                         {isCurrentUser && (
-                            <span className="text-[7px] font-black bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/30 tracking-widest uppercase">Operative</span>
+                          <span className="text-[7px] font-black bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/30 tracking-widest uppercase">Operative</span>
                         )}
                       </div>
                       <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.3em]">

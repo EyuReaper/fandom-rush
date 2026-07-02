@@ -564,7 +564,7 @@ export default function MainMenu() {
                 icon={<Crown className="w-10 h-10" />}
                 title="Survival Mode"
                 description="Bank your score. 3 extra lives. Fanatic Pack required."
-                onClick={() => {}}
+                onClick={() => startGame("survival")}
                 accent="amber"
                 disabled={!entitlements.includes("fanatic")}
               />
