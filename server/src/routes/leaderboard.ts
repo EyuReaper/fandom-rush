@@ -1,4 +1,4 @@
-import { Hono, Context, Next } from 'hono';
+import { Hono } from 'hono';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { pool } from '../lib/db.js';
@@ -26,7 +26,7 @@ const querySchema = z.object({
 });
 
 // Middleware to ensure authentication
-const authMiddleware = async (c: Context, next: Next) => {
+const authMiddleware = async (c: any, next: any) => {
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
   if (!session) {
     return c.json({ error: 'Unauthorized' }, 401);

@@ -13,7 +13,7 @@ interface GameStore extends GameState {
   nextQuestion: () => void;
   toggleSwipeMode: () => void;
   toggleMute: () => void;
-  entitlements: string[]; fetchEntitlements: () => Promise<void>
+  entitlements: string[]; fetchEntitlements: () => Promise<void>; setEntitlements: (ents: string[]) => void;
 }
 
 const isMobile = typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -255,9 +255,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   fetchEntitlements: async () => {
-    const entitlements = await getEntitlements();
-    set({ entitlements });
+    try {
+      const entitlements = await getEntitlements();
+      set({ entitlements });
+    } catch {
+      set({ entitlements: [] });
+    }
   },
+
+  setEntitlements: (ents: string[]) => set({ entitlements: ents }),
 
   resetGame: () => {
     if (timerInterval) clearInterval(timerInterval);
@@ -268,7 +274,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
 // ==================== Helper Functions ====================
 
-function getAccessibleClues(entitlements: string[]) {
+export function getAccessibleClues(entitlements: string[]) {
   const hasFanatic = entitlements.includes("fanatic");
   const hasEnthusiast = entitlements.includes("enthusiast");
   return fandomClues.filter(c => {
@@ -293,7 +299,7 @@ function getRandomClue(category?: string, previousClueIds: number[] = [], entitl
   return source[Math.floor(Math.random() * source.length)];
 }
 
-function generateOptions(correctClue: FandomClue, entitlements: string[] = []) {
+export function generateOptions(correctClue: FandomClue, entitlements: string[] = []) {
   const correct = correctClue.correctAnswer;
   const accessible = getAccessibleClues(entitlements);
   const allFandoms = Array.from(new Set(accessible.map(c => c.correctAnswer)));
@@ -323,4 +329,9 @@ function startTimer() {
       }
     }
   }, 100);
+}
+
+// Expose store for e2e tests
+if (typeof window !== 'undefined') {
+  (window as any).__ZUSTAND_STORE__ = useGameStore;
 }

@@ -43,4 +43,14 @@ describe('Fandom Clues Data Validation', () => {
       expect(clue.correctAnswer).toBe(clue.fandom);
     });
   });
+  it('has correct premium clue distribution', () => {
+    const free = fandomClues.filter(c => !c.premium).length;
+    const enthusiast = fandomClues.filter(c => c.premium === 'enthusiast').length;
+    const fanatic = fandomClues.filter(c => c.premium === 'fanatic').length;
+    expect(free).toBe(70);
+    expect(enthusiast).toBe(36);
+    expect(fanatic).toBe(60);
+    expect(free + enthusiast + fanatic).toBe(166);
+  });
+
 });

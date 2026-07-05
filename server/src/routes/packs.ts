@@ -7,6 +7,7 @@ import { rateLimiter } from 'hono-rate-limiter';
 import { PLANS } from '../lib/birrjs-plans.js';
 import { env } from '../lib/env.js';
 import { birrjs } from '../lib/birrjs.js';
+import { testPurchaseStore } from '../lib/purchase-store.js';
 
 const router = new Hono();
 
@@ -35,6 +36,17 @@ router.get('/plans', async (c) => {
 // GET /api/packs/entitlements — user's purchased packs (auth required)
 router.get('/entitlements', authMiddleware, async (c: any) => {
   const session = c.get('session');
+
+  if (process.env.TEST_MODE) {
+    const packs: string[] = [];
+    for (const entry of testPurchaseStore.values()) {
+      if (entry.user_id === session.user.id) {
+        packs.push(entry.pack_id);
+      }
+    }
+    return c.json(packs);
+  }
+
   try {
     const result = await pool.query(
       'SELECT pack_id FROM pack_purchases WHERE user_id = $1',
@@ -74,6 +86,14 @@ router.post('/webhook', zValidator('json', webhookSchema), async (c) => {
 
   if (event !== 'subscription.charge.completed') {
     return c.json({ message: 'Ignored event' });
+  }
+
+  if (process.env.TEST_MODE) {
+    const key = `${data.user_id}:${data.pack_id}`;
+    if (!testPurchaseStore.has(key)) {
+      testPurchaseStore.set(key, { user_id: data.user_id, pack_id: data.pack_id, subscription_id: data.subscription_id });
+    }
+    return c.json({ message: 'Purchase recorded' });
   }
 
   try {

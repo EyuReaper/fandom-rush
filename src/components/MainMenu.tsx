@@ -276,6 +276,7 @@ export default function MainMenu() {
         </motion.button>
 
         <motion.button
+          aria-label="Shop"
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
           whileHover={{ scale: 1.1 }}
