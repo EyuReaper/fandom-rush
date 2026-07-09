@@ -29,3 +29,6 @@ server/.env
 
 # AI generated files
 AGENTS.md
+
+# Test output
+test-results/

@@ -262,7 +262,7 @@ export default function GameScreen() {
   // ====================== GAME OVER SCREEN ======================
   if (isGameOver) {
     return (
-      <div className="min-h-screen bg-[#050508] text-white flex items-center justify-center p-6 relative overflow-hidden selection:bg-cyan-500 selection:text-black">
+      <div className="min-h-screen bg-[#0a0a1a] text-white flex items-center justify-center p-6 relative overflow-hidden selection:bg-cyan-500 selection:text-black">
         {/* --- CYBER BACKGROUND --- */}
         <div
           className="absolute inset-0 opacity-20 pointer-events-none"
@@ -290,14 +290,8 @@ export default function GameScreen() {
             >
               <Trophy className="w-20 h-20 mx-auto text-yellow-500 drop-shadow-[0_0_20px_rgba(234,179,8,0.4)]" />
             </motion.div>
-            <div className="inline-flex items-center gap-2 px-4 py-1 bg-red-500/10 border border-red-500/20 rounded-full text-red-500 text-[10px] font-black tracking-[0.4em] mb-6 uppercase backdrop-blur-md">
-                Session Terminated
-            </div>
-            <h1 className="text-8xl md:text-9xl font-black italic text-white tracking-tighter uppercase leading-[0.8]">
-              GAME <br/>
-              <span className="drop-shadow-[0_0_30px_rgba(220,38,38,0.3)]">
-                <span className="text-transparent bg-clip-text bg-gradient-to-b from-red-600 to-orange-400">OVER</span>
-              </span>
+            <h1 className="arcade-title text-6xl md:text-8xl tracking-[0.5em] text-white text-center leading-[1.2] mb-6" style={{ animation: 'blink 2s step-end infinite' }}>
+              GAME OVER
             </h1>
           </div>
 
@@ -306,7 +300,7 @@ export default function GameScreen() {
             <div className="absolute top-0 left-0 w-1 h-full bg-red-500/50" />
 
             <div className="mb-10">
-              <p className="text-gray-500 text-[10px] font-black tracking-[0.4em] uppercase mb-4">Final Data Sync</p>
+              <p className="text-gray-500 text-[10px] font-black tracking-[0.4em] uppercase mb-4">SCORE TALLY</p>
               <div className="relative inline-block">
                 <p className="text-8xl font-black text-white tabular-nums tracking-tighter leading-none">
                   {score.toLocaleString()}
@@ -317,7 +311,7 @@ export default function GameScreen() {
                     animate={{ opacity: 1, scale: 1, rotate: -10 }}
                     className="absolute -top-10 -right-20 bg-yellow-400 text-black text-[9px] font-black px-4 py-1.5 rounded-full shadow-[0_5px_20px_rgba(250,204,21,0.4)] uppercase tracking-widest"
                   >
-                    New Sector Record!
+                    NEW HIGH SCORE!
                   </motion.div>
                 )}
               </div>
@@ -430,9 +424,9 @@ export default function GameScreen() {
               className="relative p-[2px] transition-all duration-300 group"
             >
                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity" />
-               <div className="relative py-6 bg-cyan-500 hover:bg-cyan-400 text-black text-2xl font-black italic rounded-xl shadow-2xl transition-all uppercase tracking-tighter flex items-center justify-center gap-4">
+               <div className="relative py-6 bg-cyan-500 hover:bg-cyan-400 text-black text-xl font-black italic rounded-xl shadow-2xl transition-all uppercase tracking-tighter flex items-center justify-center gap-4">
                   <Zap className="w-6 h-6 fill-black" />
-                  INITIATE NEW RUSH
+                  INSERT COIN
                </div>
             </motion.button>
 
@@ -442,10 +436,15 @@ export default function GameScreen() {
               onClick={resetGame}
               className="w-full py-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.5em] text-gray-500 transition-all"
             >
-              Return to Command Center
+              BACK TO TITLE SCREEN
             </motion.button>
           </div>
         </motion.div>
+        {/* CRT overlay */}
+        <div className="crt-overlay fixed inset-0 opacity-[0.04]" />
+
+        {/* Vignette */}
+        <div className="fixed inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%)' }} />
       </div>
     );
   }
@@ -458,21 +457,22 @@ export default function GameScreen() {
 
   // ====================== MAIN GAME ======================
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white overflow-hidden relative selection:bg-cyan-500/30">
+    <div className="min-h-screen bg-[#0a0a1a] text-white overflow-hidden relative selection:bg-cyan-500/30">
       {/* Background Ambience */}
       <div className={`absolute inset-0 transition-colors duration-500 pointer-events-none ${
         feedback === 'correct' ? 'bg-green-500/10' : feedback === 'wrong' ? 'bg-red-500/10' : 'bg-transparent'
       }`} />
 
       {/* Top HUD */}
-      <div className="absolute top-0 left-0 right-0 z-50 px-6 py-6 flex justify-between items-center bg-gradient-to-b from-[#0a0a0f] to-transparent">
+      <div className="absolute top-0 left-0 right-0 z-50 px-6 py-6 flex justify-between items-center bg-gradient-to-b from-[#0a0a1a] to-transparent">
         <div className="flex items-center gap-6">
           {gameMode !== 'sixty-second' && (
-            <div className="flex gap-2 bg-white/5 px-4 py-2 rounded-2xl border border-white/10">
+            <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-2xl border border-white/10">
+              <span className="text-[9px] font-black uppercase tracking-[0.3em] text-gray-400">CREDITS</span>
               {Array.from({ length: 3 }).map((_, i) => (
                 <Heart
                   key={i}
-                  className={`w-6 h-6 transition-all duration-300 ${i < lives ? "text-red-500 fill-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]" : "text-gray-800"}`}
+                  className={`w-5 h-5 transition-all duration-300 ${i < lives ? "text-red-500 fill-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]" : "text-gray-800"}`}
                 />
               ))}
             </div>
@@ -623,8 +623,8 @@ export default function GameScreen() {
                           : isCorrectOption && feedback
                             ? "border-green-500/50 bg-green-500/5"
                             : isPressed
-                              ? "border-cyan-400 bg-white/10"
-                              : "border-white/10 hover:border-cyan-400 hover:bg-white/10"
+                              ? "border-cyan-400 bg-white/10 shadow-[inset_0_-4px_0_rgba(0,0,0,0.3)]"
+                              : "border-white/10 hover:border-cyan-400 hover:bg-white/10 shadow-[0_4px_0_rgba(0,0,0,0.3)]"
                     }`}
                   >
                     <span className="absolute top-4 right-4 bg-white/5 text-[9px] w-6 h-6 flex items-center justify-center rounded-sm border border-white/10 font-black">
@@ -663,19 +663,58 @@ export default function GameScreen() {
       </AnimatePresence>
 
       {/* Keyboard Help */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 px-6 py-2 bg-white/5 backdrop-blur-md rounded-full border border-white/10 text-white/30 text-[10px] font-black uppercase tracking-widest flex gap-4">
-        <div className="flex gap-2">
-          Pick: <span className="text-cyan-400 font-black">1-4</span>
-        </div>
-        <div className="w-px h-3 bg-white/10" />
-        <div className="flex gap-2">
-          Control: <span className="text-cyan-400 font-black">W A S D</span> / <span className="text-cyan-400 font-black">ARROWS</span>
-        </div>
-      </div>
+      <KeyboardHelp />
 
       <AnimatePresence>
         {showLeaderboard && <Leaderboard onClose={() => setShowLeaderboard(false)} />}
       </AnimatePresence>
+
+      {/* CRT overlay */}
+      <div className="crt-overlay fixed inset-0 opacity-[0.04]" />
+
+      {/* Vignette */}
+      <div className="fixed inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%)' }} />
     </div>
+  );
+}
+
+function KeyboardHelp() {
+  const [visible, setVisible] = useState(true);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => {
+    const show = () => {
+      setVisible(true);
+      clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => setVisible(false), 3000);
+    };
+
+    show();
+    window.addEventListener("keydown", show);
+    window.addEventListener("mousedown", show);
+    window.addEventListener("touchstart", show);
+
+    return () => {
+      clearTimeout(timerRef.current);
+      window.removeEventListener("keydown", show);
+      window.removeEventListener("mousedown", show);
+      window.removeEventListener("touchstart", show);
+    };
+  }, []);
+
+  return (
+    <motion.div
+      animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : 10 }}
+      transition={{ duration: 0.5 }}
+      className="absolute bottom-8 left-1/2 -translate-x-1/2 px-6 py-2 bg-white/5 backdrop-blur-md rounded-full border border-white/10 text-white/30 text-[10px] font-black uppercase tracking-widest flex gap-4"
+    >
+      <div className="flex gap-2">
+        Pick: <span className="text-cyan-400 font-black">1-4</span>
+      </div>
+      <div className="w-px h-3 bg-white/10" />
+      <div className="flex gap-2">
+        Control: <span className="text-cyan-400 font-black">W A S D</span> / <span className="text-cyan-400 font-black">ARROWS</span>
+      </div>
+    </motion.div>
   );
 }

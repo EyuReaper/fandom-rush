@@ -147,10 +147,10 @@ describe('GameScreen', () => {
       gameMode: "endless",
     });
     render(<GameScreen />);
-    expect(screen.getByText(/New Sector Record/i)).toBeInTheDocument();
+    expect(screen.getByText(/NEW HIGH SCORE/i)).toBeInTheDocument();
   });
 
-  it('shows INITIATE NEW RUSH button on game over', () => {
+  it('shows INSERT COIN button on game over', () => {
     useGameStore.setState({
       isPlaying: false,
       currentClue: mockClue,
@@ -161,10 +161,10 @@ describe('GameScreen', () => {
       gameMode: "endless",
     });
     render(<GameScreen />);
-    expect(screen.getByText(/INITIATE NEW RUSH/i)).toBeInTheDocument();
+    expect(screen.getByText(/INSERT COIN/i)).toBeInTheDocument();
   });
 
-  it('shows Return to Command Center button on game over', () => {
+  it('shows BACK TO TITLE SCREEN button on game over', () => {
     useGameStore.setState({
       isPlaying: false,
       currentClue: mockClue,
@@ -175,10 +175,10 @@ describe('GameScreen', () => {
       gameMode: "endless",
     });
     render(<GameScreen />);
-    expect(screen.getByText(/Return to Command Center/i)).toBeInTheDocument();
+    expect(screen.getByText(/BACK TO TITLE SCREEN/i)).toBeInTheDocument();
   });
 
-  it('INITIATE NEW RUSH restarts the same game mode', () => {
+  it('INSERT COIN restarts the same game mode', () => {
     useGameStore.setState({
       isPlaying: false,
       currentClue: mockClue,
@@ -189,12 +189,12 @@ describe('GameScreen', () => {
       gameMode: "endless",
     });
     render(<GameScreen />);
-    fireEvent.click(screen.getByText(/INITIATE NEW RUSH/i));
+    fireEvent.click(screen.getByText(/INSERT COIN/i));
     expect(useGameStore.getState().isPlaying).toBe(true);
     expect(useGameStore.getState().gameMode).toBe('endless');
   });
 
-  it('Return to Command Center resets to main menu', () => {
+  it('BACK TO TITLE SCREEN resets to main menu', () => {
     useGameStore.setState({
       isPlaying: false,
       currentClue: mockClue,
@@ -205,7 +205,7 @@ describe('GameScreen', () => {
       gameMode: "endless",
     });
     render(<GameScreen />);
-    fireEvent.click(screen.getByText(/Return to Command Center/i));
+    fireEvent.click(screen.getByText(/BACK TO TITLE SCREEN/i));
     expect(useGameStore.getState().isPlaying).toBe(false);
     expect(useGameStore.getState().currentClue).toBeNull();
   });

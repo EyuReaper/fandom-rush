@@ -3,6 +3,9 @@ FROM node:22-alpine AS dev
 WORKDIR /app
 
 COPY package.json package-lock.json ./
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm config set fetch-timeout 120000 && \
+    npm config set fetch-retries 5
 RUN npm ci
 
 COPY . .
@@ -18,6 +21,9 @@ ARG VITE_API_URL=""
 WORKDIR /app
 
 COPY package.json package-lock.json ./
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm config set fetch-timeout 120000 && \
+    npm config set fetch-retries 5
 RUN npm ci
 
 COPY . .

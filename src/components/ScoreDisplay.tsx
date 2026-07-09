@@ -12,7 +12,7 @@ export function ScoreDisplay({
       <div className="text-[9px] font-black text-gray-600 uppercase tracking-[0.4em] mb-1">
         Current Score
       </div>
-      <div className="text-6xl font-black tabular-nums tracking-tighter text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.1)] leading-none">
+      <div className="text-6xl font-black font-mono tabular-nums tracking-tighter text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.1)] leading-none">
         {score.toLocaleString()}
       </div>
 
