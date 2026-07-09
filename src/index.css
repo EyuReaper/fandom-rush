@@ -1,5 +1,15 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Press+Start+2P&display=swap");
 @import "tailwindcss";
+
+@theme {
+  --color-bg: #0a0a1a;
+  --color-surface: #12122a;
+  --color-neon: #00f0ff;
+  --color-hot-pink: #ff2d78;
+  --color-gold: #ffd700;
+  --font-display: "Bebas Neue", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-body: "Inter", sans-serif;
+}
 
 * {
     margin: 0;
@@ -8,15 +18,50 @@
 }
 
 body {
-    background: #0a0a0f;
+    background: var(--color-bg);
     color: white;
     overflow: hidden;
-    font-family: "Inter", system-ui, san-serif;
+    font-family: var(--font-body);
 }
 
 .arcade-title {
-    font-family: "Press start 2P", san-serif;
+    font-family: "Press Start 2P", sans-serif;
     letter-spacing: 2px;
+}
+
+.crt-overlay {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.06) 2px,
+    rgba(0, 0, 0, 0.06) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+@keyframes neon-pulse {
+  0%, 100% { text-shadow: 0 0 7px var(--color-neon), 0 0 10px var(--color-neon), 0 0 21px var(--color-neon), 0 0 42px var(--color-neon); }
+  50% { text-shadow: 0 0 4px var(--color-neon), 0 0 7px var(--color-neon), 0 0 14px var(--color-neon), 0 0 28px var(--color-neon); }
+}
+
+@keyframes neon-flicker {
+  0%, 100% { opacity: 1; }
+  41% { opacity: 1; }
+  42% { opacity: 0.8; }
+  43% { opacity: 1; }
+  45% { opacity: 1; }
+  46% { opacity: 0.85; }
+  47% { opacity: 1; }
+  48% { opacity: 1; }
+  49% { opacity: 0.9; }
+  50% { opacity: 1; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
 @keyframes shake {

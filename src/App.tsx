@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import GameScreen from "./components/GameScreen";
 import MainMenu from "./components/MainMenu";
 import { useGameStore } from "./stores/useGameStore";
@@ -9,16 +10,36 @@ function App() {
   const currentClue = useGameStore((state) => state.currentClue);
 
   useEffect(() => {
-    // Pre-initialize audio objects
     audioManager.init();
   }, []);
 
-  // Show GameScreen if playing or if game just ended (to show game over)
-  if (isPlaying || currentClue) {
-    return <GameScreen />;
-  }
-
-  return <MainMenu />;
+  return (
+    <AnimatePresence mode="wait">
+      {isPlaying || currentClue ? (
+        <motion.div
+          key="game"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 1.05 }}
+          transition={{ duration: 0.25 }}
+          className="w-full h-full"
+        >
+          <GameScreen />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="menu"
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.25 }}
+          className="w-full h-full"
+        >
+          <MainMenu />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 }
 
 export default App;

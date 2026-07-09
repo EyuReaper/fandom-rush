@@ -118,7 +118,7 @@ describe('MainMenu', () => {
   it('can go back to main menu from category selector', () => {
     render(<MainMenu />);
     fireEvent.click(screen.getByText('Category Rush'));
-    fireEvent.click(screen.getByText(/to Main menu/i));
+    fireEvent.click(screen.getByText(/BACK TO TITLE SCREEN/i));
     expect(screen.getByText('Endless Rush')).toBeInTheDocument();
   });
 });

@@ -18,7 +18,7 @@ import {
   ChevronLeft,
   Target,
   Settings,
-  Globe,
+  Trophy,
   X,
   Info,
   Volume2,
@@ -228,7 +228,7 @@ export default function MainMenu() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050508] text-white flex flex-col items-center justify-center p-12 md:p-20 relative overflow-hidden selection:bg-cyan-400 selection:text-black">
+    <div className="min-h-screen bg-[#0a0a1a] text-white flex flex-col items-center justify-center p-12 md:p-20 relative overflow-hidden selection:bg-cyan-400 selection:text-black">
       {/* --- CYBER BACKGROUND --- */}
       <div
         className="absolute inset-0 opacity-20 pointer-events-none"
@@ -258,7 +258,7 @@ export default function MainMenu() {
           scale: [1, 0.9, 1.1, 1],
         }}
         transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-        className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[140px] pointer-events-none"
+        className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-[#ff2d78]/10 rounded-full blur-[140px] pointer-events-none"
       />
 
       {/* --- TOP HUD --- */}
@@ -299,70 +299,76 @@ export default function MainMenu() {
             exit="exit"
             className="flex flex-col items-center w-full max-w-6xl relative z-10 py-20"
           >
-            {/* --- HEADER --- */}
-            <motion.div
-              variants={itemVariants}
-              className="text-center mb-12 relative item-center"
-            >
-              <div className="inline-flex items-center gap-2 px-6 py-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full text-cyan-400 text-[11px] font-black tracking-[0.4em] mb-12 uppercase backdrop-blur-md">
-                <Target className="w-4 h-4 animate-pulse" />
-                An arcade guessing game
-              </div>
-
-              <div className="relative group mb-12">
-                <h1 onClick={() => {
-                  const now = Date.now();
-                  tapTimestamps.current = [...tapTimestamps.current.filter(t => now - t < 3000), now];
-                  if (tapTimestamps.current.length >= 10) {
-                    tapTimestamps.current = [];
-                    setShowTelemetry(true);
-                  }
-                }} className="text-6xl md:text-9xl font-black italic tracking-tighter leading-none relative z-10 flex items-baseline justify-center cursor-pointer">
-                  <span className="text-white flex items-baseline">
-                    FAND
-                    <motion.span
-                      initial={{
-                        y: -500,
-                        x: -200,
-                        opacity: 0,
-                        scale: 2,
-                        rotate: -20,
-                      }}
-                      animate={{ y: 0, x: 0, opacity: 1, scale: 1, rotate: 0 }}
-                      transition={{
-                        type: "spring",
-                        damping: 18,
-                        stiffness: 100,
-                        delay: 0.6,
-                      }}
-                      className="inline-block w-[0.85em] h-[0.85em] self-center mx-[0.05em] relative"
-                    >
-                      <motion.div
-                        animate={{
-                          height: [40, 120, 40],
-                          opacity: [0, 0.6, 0],
-                        }}
-                        transition={{ duration: 0.4, repeat: Infinity }}
-                        className="absolute -top-24 left-12 -translate-x-1/2 w-10 bg-gradient-to-t from-cyan-400/60 to-transparent blur-xl pointer-events-none"
-                      />
-                      <img
-                        src="https://upload.wikimedia.org/wikipedia/commons/e/ee/Fandom_heart-logo.svg"
-                        alt="Fandom Logo"
-                        className="w-full h-full object-contain brightness-0 invert drop-shadow-[0_0_20px_rgba(6,182,212,0.6)]"
-                      />
-                    </motion.span>
-                    M
-                  </span>
-                  <span className="drop-shadow-[0_0_30px_rgba(219,39,119,0.3)]">
-                    <span className="text-transparent bg-clip-text bg-gradient-to-b from-pink-600 to-yellow-300">
-                      RUSH &nbsp;
-                    </span>
-                  </span>
-                </h1>
-                <div className="absolute -inset-1 text-6xl md:text-9xl font-black italic tracking-tighter leading-none opacity-20 blur-[2px] text-cyan-500 -translate-x-1 group-hover:-translate-x-2 transition-transform select-none pointer-events-none">
-                  FAND M RUSH
+              {/* --- HEADER --- */}
+              <motion.div
+                variants={itemVariants}
+                className="text-center mb-12 relative item-center"
+              >
+                <div className="inline-flex items-center gap-2 px-6 py-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full text-cyan-400 text-[11px] font-black tracking-[0.4em] mb-12 uppercase backdrop-blur-md">
+                  <Target className="w-4 h-4 animate-pulse" />
+                  An arcade guessing game
                 </div>
-              </div>
+
+                <div className="relative group mb-12">
+                  <motion.div
+                    animate={{
+                      opacity: [1, 1, 0.92, 1, 1, 1, 0.88, 1, 1, 0.95, 1],
+                    }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                  >
+                    <h1 onClick={() => {
+                      const now = Date.now();
+                      tapTimestamps.current = [...tapTimestamps.current.filter(t => now - t < 3000), now];
+                      if (tapTimestamps.current.length >= 10) {
+                        tapTimestamps.current = [];
+                        setShowTelemetry(true);
+                      }
+                    }} className="text-6xl md:text-9xl font-black tracking-tighter leading-none relative z-10 flex items-baseline justify-center cursor-pointer" style={{ fontFamily: 'var(--font-display)' }}>
+                      <span className="text-[var(--color-neon)] flex items-baseline" style={{ textShadow: '0 0 7px var(--color-neon), 0 0 10px var(--color-neon), 0 0 21px var(--color-neon), 0 0 42px var(--color-neon)' }}>
+                        FAND
+                        <motion.span
+                          initial={{
+                            y: -500,
+                            x: -200,
+                            opacity: 0,
+                            scale: 2,
+                            rotate: -20,
+                          }}
+                          animate={{ y: 0, x: 0, opacity: 1, scale: 1, rotate: 0 }}
+                          transition={{
+                            type: "spring",
+                            damping: 18,
+                            stiffness: 100,
+                            delay: 0.6,
+                          }}
+                          className="inline-block w-[0.85em] h-[0.85em] self-center mx-[0.05em] relative"
+                        >
+                          <motion.span
+                            animate={{ scale: [1, 1.05, 1] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                            className="block"
+                          >
+                            <img
+                              src="https://upload.wikimedia.org/wikipedia/commons/e/ee/Fandom_heart-logo.svg"
+                              alt="Fandom Logo"
+                              className="w-full h-full object-contain brightness-0 invert"
+                              style={{ filter: 'brightness(0) invert(1) drop-shadow(0 0 12px var(--color-neon))' }}
+                            />
+                          </motion.span>
+                        </motion.span>
+                        M
+                      </span>
+                      <span style={{ textShadow: '0 0 7px var(--color-hot-pink), 0 0 10px var(--color-hot-pink), 0 0 21px var(--color-hot-pink), 0 0 42px var(--color-hot-pink), 0 0 82px var(--color-hot-pink)' }}>
+                        <span className="text-[var(--color-hot-pink)]">
+                          RUSH &nbsp;
+                        </span>
+                      </span>
+                    </h1>
+                  </motion.div>
+                  <div className="absolute -inset-1 text-6xl md:text-9xl font-black tracking-tighter leading-none opacity-20 blur-[2px] text-[var(--color-hot-pink)] -translate-x-1 group-hover:-translate-x-2 transition-transform select-none pointer-events-none" style={{ fontFamily: 'var(--font-display)' }}>
+                    FAND M RUSH
+                  </div>
+                </div>
 
               <div className="relative py-6 overflow-hidden flex flex-col items-center">
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -407,10 +413,10 @@ export default function MainMenu() {
               <div className="bg-[#0a0a0f] rounded-[14px] p-10 flex items-center gap-10 relative z-10 border border-white/5">
                 <div className="relative">
                   <div className="w-20 h-20 bg-yellow-500/10 rounded-2xl flex items-center justify-center border border-yellow-500/30">
-                    <Globe className="text-yellow-500 w-10 h-10 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]" />
+                    <Trophy className="text-yellow-500 w-10 h-10 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]" />
                   </div>
-                  <div className="absolute -top-1 -right-1 w-8 h-8 bg-white text-black text-[12px] font-black rounded-full flex items-center justify-center shadow-lg">
-                    RANK
+                  <div className="absolute -top-1 -right-1 w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 text-white text-[11px] font-black rounded-full flex items-center justify-center shadow-lg">
+                    1ST
                   </div>
                 </div>
                 <div>
@@ -577,7 +583,7 @@ export default function MainMenu() {
               className="mt-24 flex flex-col items-center gap-6"
             >
               <div className="text-gray-600 text-[10px] font-black uppercase tracking-[0.6em]">
-                © 2026 FANDOM RUSH // an EyuReaper game
+                © 2026 FANDOM RUSH // COIN-OP REV 1.2
               </div>
             </motion.div>
           </motion.div>
@@ -598,7 +604,7 @@ export default function MainMenu() {
                   <div className="p-2 rounded-full border border-white/10 group-hover:bg-white/10 group-hover:border-white/20 transition-all">
                     <ChevronLeft className="w-4 h-4" />
                   </div>
-                  to Main menu
+                  BACK TO TITLE SCREEN
                 </button>
                 <h2 className="text-6xl md:text-7xl font-black italic tracking-tighter leading-none">
                   SELECT{" "}
@@ -659,7 +665,7 @@ export default function MainMenu() {
             className="fixed inset-0 z-[200] flex items-center justify-center p-4"
           >
             <div
-              className="absolute inset-0 bg-[#050508]/60 backdrop-blur-md"
+              className="absolute inset-0 bg-[#0a0a1a]/60 backdrop-blur-md"
               onClick={() => setShowSettings(false)}
             />
             <motion.div
@@ -674,10 +680,10 @@ export default function MainMenu() {
                   <div className="w-2 h-8 bg-cyan-500 rounded-full animate-pulse" />
                   <div>
                     <h2 className="text-2xl font-black italic tracking-tighter uppercase">
-                      Settings <span className="text-cyan-400">Config</span>
+                      DIP SWITCH <span className="text-cyan-400">SETTINGS</span>
                     </h2>
                     <p className="text-[8px] font-black text-gray-500 uppercase tracking-[0.4em]">
-                      customize your experience.
+                      ARCADE CONFIGURATION
                     </p>
                   </div>
                 </div>
@@ -694,12 +700,12 @@ export default function MainMenu() {
                   <div className="flex items-center gap-2 mb-6">
                     <Target className="w-4 h-4 text-cyan-500" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-cyan-500/60">
-                      Input controls
+                      DIP 1: CONTROLS
                     </span>
                   </div>
                   <div className="flex items-center justify-between p-6 bg-white/[0.03] border border-white/5 rounded-xl mb-4">
                     <span className="text-sm font-bold uppercase italic tracking-wider">
-                      Swipe Mechanics
+                      SWIPE
                     </span>
                     <button
                       onClick={toggleSwipeMode}
@@ -719,7 +725,7 @@ export default function MainMenu() {
                         <Volume2 className="w-4 h-4 text-cyan-400" />
                       )}
                       <span className="text-sm font-bold uppercase italic tracking-wider">
-                        Audio {isMuted ? "(Muted)" : "(On)"}
+                        AUDIO {isMuted ? "(MUTED)" : "(ON)"}
                       </span>
                     </div>
                     <button
@@ -738,7 +744,7 @@ export default function MainMenu() {
                   <div className="flex items-center gap-2 mb-6">
                     <Info className="w-4 h-4 text-pink-500" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-pink-500/60">
-                      About Game
+                      CREDITS
                     </span>
                   </div>
                   <div className="p-6 bg-white/[0.03] border border-white/5 rounded-xl space-y-4">
@@ -782,6 +788,9 @@ export default function MainMenu() {
           <TelemetryDashboard onClose={() => setShowTelemetry(false)} />
         )}
       </AnimatePresence>
+
+      {/* CRT overlay */}
+      <div className="crt-overlay fixed inset-0 opacity-[0.04]" />
     </div>
   );
 }
@@ -823,7 +832,8 @@ function MenuButton({
       whileTap={!disabled ? { scale: 0.98 } : {}}
       onClick={onClick}
       disabled={disabled}
-      className={`group relative p-[2px] bg-[#0d0d14] bg-gradient-to-br transition-all duration-300 skew-x-[5deg] rounded-[12px] ${disabled ? "opacity-20 grayscale cursor-not-allowed" : accents[accent as keyof typeof accents]}`}
+      style={!disabled ? { boxShadow: '4px 4px 0 #080812' } : undefined}
+      className={`group relative p-[2px] bg-[#0d0d14] bg-gradient-to-br transition-all duration-300 skew-x-[5deg] rounded-[12px] ${disabled ? "cursor-not-allowed" : accents[accent as keyof typeof accents]}`}
     >
       <div className="h-full w-full bg-[#0d0d14] rounded-[10px] p-8 flex flex-col relative z-10 border border-white/5 items-center text-center skew-x-[-10deg] overflow-hidden">
         {!disabled && (
@@ -831,10 +841,10 @@ function MenuButton({
             initial={{ left: "-100%" }}
             animate={{ left: "100%" }}
             transition={{
-              duration: 2.5,
+              duration: 1.5,
               repeat: Infinity,
               ease: "linear",
-              repeatDelay: 3,
+              repeatDelay: 1.5,
             }}
             className="absolute top-0 w-32 h-full bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12 pointer-events-none z-20"
           />
@@ -862,6 +872,11 @@ function MenuButton({
           </div>
         )}
       </div>
+      {disabled && (
+        <div className="absolute inset-0 rounded-[10px] bg-[#0a0a1a]/80 flex items-center justify-center z-30 pointer-events-none backdrop-blur-sm">
+          <span className="arcade-title text-[8px] text-yellow-500" style={{ textShadow: '0 0 10px rgba(255,215,0,0.5)', animation: 'blink 1.5s step-end infinite' }}>INSERT COIN</span>
+        </div>
+      )}
     </motion.button>
   );
 }
