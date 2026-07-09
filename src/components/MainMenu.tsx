@@ -50,6 +50,7 @@ export default function MainMenu() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showTelemetry, setShowTelemetry] = useState(false);
   const [showShop, setShowShop] = useState(false);
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
   const tapTimestamps = useRef<number[]>([]);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const { data: session } = authClient.useSession();
@@ -264,29 +265,42 @@ export default function MainMenu() {
       {/* --- TOP HUD --- */}
       <div className="absolute top-16 left-12 right-12 z-[100] flex justify-between items-start">
         <LoginButton />
-        <motion.button
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          whileHover={{ rotate: 90, scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setShowSettings(true)}
-          className="p-5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl hover:bg-white/10 transition-colors shadow-2xl"
-        >
-          <Settings className="w-7 h-7 text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
-        </motion.button>
+        <div className="flex gap-3">
+          <motion.button
+            aria-label="Shop"
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setShowShop(true)}
+            className="p-5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl hover:bg-white/10 transition-colors shadow-2xl"
+          >
+            <Store className="w-7 h-7 text-pink-400 drop-shadow-[0_0_8px_rgba(219,39,119,0.5)]" />
+          </motion.button>
 
-        <motion.button
-          aria-label="Shop"
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setShowShop(true)}
-          className="p-5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl hover:bg-white/10 transition-colors shadow-2xl"
-        >
-          <Store className="w-7 h-7 text-pink-400 drop-shadow-[0_0_8px_rgba(219,39,119,0.5)]" />
-        </motion.button>
+          <motion.button
+            aria-label="How to Play"
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setShowHowToPlay(true)}
+            className="p-5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl hover:bg-white/10 transition-colors shadow-2xl"
+          >
+            <Info className="w-7 h-7 text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+          </motion.button>
 
+          <motion.button
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileHover={{ rotate: 90, scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setShowSettings(true)}
+            className="p-5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl hover:bg-white/10 transition-colors shadow-2xl"
+          >
+            <Settings className="w-7 h-7 text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+          </motion.button>
+        </div>
       </div>
 
       <AnimatePresence mode="wait">
@@ -302,20 +316,34 @@ export default function MainMenu() {
               {/* --- HEADER --- */}
               <motion.div
                 variants={itemVariants}
-                className="text-center mb-12 relative item-center"
+                className="text-center mb-24 relative item-center"
               >
                 <div className="inline-flex items-center gap-2 px-6 py-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full text-cyan-400 text-[11px] font-black tracking-[0.4em] mb-12 uppercase backdrop-blur-md">
                   <Target className="w-4 h-4 animate-pulse" />
                   An arcade guessing game
                 </div>
 
-                <div className="relative group mb-12">
+                <div className="relative group mb-12 pb-16">
                   <motion.div
                     animate={{
                       opacity: [1, 1, 0.92, 1, 1, 1, 0.88, 1, 1, 0.95, 1],
                     }}
                     transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                    className="relative"
                   >
+                    {/* Background neon glow */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0">
+                      <span className="text-6xl md:text-9xl font-black leading-none blur-2xl opacity-50" style={{ fontFamily: 'var(--font-display)', letterSpacing: '0.04em' }}>
+                        <span className="text-[var(--color-neon)]" style={{ textShadow: '0 0 21px var(--color-neon), 0 0 42px var(--color-neon), 0 0 82px var(--color-neon)' }}>
+                          FAND ♥ M
+                        </span>
+                        <span className="text-[var(--color-hot-pink)]" style={{ textShadow: '0 0 21px var(--color-hot-pink), 0 0 42px var(--color-hot-pink), 0 0 82px var(--color-hot-pink)' }}>
+                          RUSH
+                        </span>
+                      </span>
+                    </div>
+
+                    {/* Foreground crisp text */}
                     <h1 onClick={() => {
                       const now = Date.now();
                       tapTimestamps.current = [...tapTimestamps.current.filter(t => now - t < 3000), now];
@@ -323,51 +351,34 @@ export default function MainMenu() {
                         tapTimestamps.current = [];
                         setShowTelemetry(true);
                       }
-                    }} className="text-6xl md:text-9xl font-black tracking-tighter leading-none relative z-10 flex items-baseline justify-center cursor-pointer" style={{ fontFamily: 'var(--font-display)' }}>
-                      <span className="text-[var(--color-neon)] flex items-baseline" style={{ textShadow: '0 0 7px var(--color-neon), 0 0 10px var(--color-neon), 0 0 21px var(--color-neon), 0 0 42px var(--color-neon)' }}>
+                    }} className="text-6xl md:text-9xl font-black leading-none relative z-10 flex items-baseline justify-center cursor-pointer" style={{ fontFamily: 'var(--font-display)', letterSpacing: '0.04em' }}>
+                      <span className="flex items-baseline">
                         FAND
                         <motion.span
-                          initial={{
-                            y: -500,
-                            x: -200,
-                            opacity: 0,
-                            scale: 2,
-                            rotate: -20,
-                          }}
-                          animate={{ y: 0, x: 0, opacity: 1, scale: 1, rotate: 0 }}
-                          transition={{
-                            type: "spring",
-                            damping: 18,
-                            stiffness: 100,
-                            delay: 0.6,
-                          }}
-                          className="inline-block w-[0.85em] h-[0.85em] self-center mx-[0.05em] relative"
+                          initial={{ y: -300, x: -150, opacity: 0, rotate: -15 }}
+                          animate={{ y: 0, x: 0, opacity: 1, rotate: 0 }}
+                          transition={{ type: "spring", damping: 14, stiffness: 100, delay: 0.4 }}
+                          className="inline-flex items-center justify-center w-[0.75em] h-[0.75em] self-center mx-[0.06em] relative"
                         >
                           <motion.span
                             animate={{ scale: [1, 1.05, 1] }}
                             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                            className="block"
                           >
                             <img
                               src="https://upload.wikimedia.org/wikipedia/commons/e/ee/Fandom_heart-logo.svg"
                               alt="Fandom Logo"
                               className="w-full h-full object-contain brightness-0 invert"
-                              style={{ filter: 'brightness(0) invert(1) drop-shadow(0 0 12px var(--color-neon))' }}
+                              style={{ filter: 'brightness(0) invert(1)' }}
                             />
                           </motion.span>
                         </motion.span>
                         M
                       </span>
-                      <span style={{ textShadow: '0 0 7px var(--color-hot-pink), 0 0 10px var(--color-hot-pink), 0 0 21px var(--color-hot-pink), 0 0 42px var(--color-hot-pink), 0 0 82px var(--color-hot-pink)' }}>
-                        <span className="text-[var(--color-hot-pink)]">
-                          RUSH &nbsp;
-                        </span>
+                      <span>
+                        RUSH
                       </span>
                     </h1>
                   </motion.div>
-                  <div className="absolute -inset-1 text-6xl md:text-9xl font-black tracking-tighter leading-none opacity-20 blur-[2px] text-[var(--color-hot-pink)] -translate-x-1 group-hover:-translate-x-2 transition-transform select-none pointer-events-none" style={{ fontFamily: 'var(--font-display)' }}>
-                    FAND M RUSH
-                  </div>
                 </div>
 
               <div className="relative py-6 overflow-hidden flex flex-col items-center">
@@ -392,22 +403,17 @@ export default function MainMenu() {
                     />
                   ))}
                 </div>
-                <p className="text-gray-400 text-2xl font-medium max-w-2xl leading-relaxed relative z-10 text-center">
-                  Identify iconic objects at lightning speed. <br />
-                  <span className="text-cyan-500/80 text-sm font-black uppercase tracking-[0.4em] italic flex items-center justify-center gap-6 mt-10">
-                    <span className="w-16 h-[1px] bg-cyan-500/40" />
-                    you think you're a fan? lets put that to test!
-                    <span className="w-16 h-[1px] bg-cyan-500/40" />
-                  </span>
-                </p>
+
               </div>
             </motion.div>
+
+            <div className="h-16" />
 
             {/* --- TOP STATS --- */}
             <motion.div
               variants={itemVariants}
               onClick={() => setShowLeaderboard(true)}
-              className="group relative bg-[#10101a] p-1 mb-28 w-full max-w-lg overflow-hidden cursor-pointer active:scale-95 transition-transform rounded-[16px] mt-8"
+              className="group relative bg-[#10101a] p-1 w-full max-w-lg overflow-hidden cursor-pointer active:scale-95 transition-transform rounded-[16px] mt-8"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/20 via-transparent to-yellow-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="bg-[#0a0a0f] rounded-[14px] p-10 flex items-center gap-10 relative z-10 border border-white/5">
@@ -537,8 +543,11 @@ export default function MainMenu() {
               </motion.div>
             )}
 
+            {/* spacer */}
+            <div className="h-16" />
+
             {/* --- GAME MODES --- */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 w-full ">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
               <MenuButton
                 icon={<Zap className="w-10 h-10 " />}
                 title="Endless Rush"
@@ -767,6 +776,95 @@ export default function MainMenu() {
                   </div>
                 </section>
               </div>
+              <div className="h-1 w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-30" />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showHowToPlay && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+          >
+            <div
+              className="absolute inset-0 bg-[#0a0a1a]/60 backdrop-blur-md"
+              onClick={() => setShowHowToPlay(false)}
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, rotateX: 20 }}
+              animate={{ scale: 1, opacity: 1, rotateX: 0 }}
+              exit={{ scale: 0.9, opacity: 0, rotateX: 10 }}
+              className="relative w-full max-w-xl bg-[#0d0d14]/80 border border-cyan-500/20 rounded-[10px] shadow-[0_0_50px_rgba(6,182,212,0.1)] overflow-hidden"
+            >
+              <div className="flex items-center justify-between p-6 border-b border-white/5 bg-white/[0.02]">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-8 bg-cyan-500 rounded-full animate-pulse" />
+                  <div>
+                    <h2 className="text-2xl font-black italic tracking-tighter uppercase">
+                      HOW TO <span className="text-cyan-400">PLAY</span>
+                    </h2>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowHowToPlay(false)}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
+                >
+                  <X className="w-5 h-5 text-gray-400 group-hover:text-white" />
+                </button>
+              </div>
+
+              <div className="p-8 space-y-6 text-sm text-gray-300 leading-relaxed">
+                <section>
+                  <h3 className="text-cyan-400 font-black uppercase tracking-wider text-xs mb-2">
+                    BASICS
+                  </h3>
+                  <p>
+                    You'll see an iconic object from pop culture. Your job? Guess
+                    which fandom it's from. Four choices — pick right, score
+                    points. That's it.
+                  </p>
+                </section>
+
+                <section>
+                  <h3 className="text-cyan-400 font-black uppercase tracking-wider text-xs mb-2">
+                    CONTROLS
+                  </h3>
+                  <ul className="space-y-1 list-disc list-inside text-gray-400">
+                    <li>Tap an option to answer</li>
+                    <li>Swipe left/right to navigate options</li>
+                    <li>Press <kbd className="px-1.5 py-0.5 bg-white/10 rounded text-[10px] font-mono text-white">1</kbd>–<kbd className="px-1.5 py-0.5 bg-white/10 rounded text-[10px] font-mono text-white">4</kbd> to answer with keyboard</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h3 className="text-cyan-400 font-black uppercase tracking-wider text-xs mb-2">
+                    SCORING
+                  </h3>
+                  <ul className="space-y-1 list-disc list-inside text-gray-400">
+                    <li>Each correct answer = <span className="text-white font-bold">100 points</span></li>
+                    <li>Chain correct answers for a <span className="text-pink-400 font-bold">combo multiplier</span></li>
+                    <li>Wrong answers break your combo</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h3 className="text-cyan-400 font-black uppercase tracking-wider text-xs mb-2">
+                    GAME MODES
+                  </h3>
+                  <ul className="space-y-2 text-gray-400">
+                    <li><span className="text-cyan-300 font-bold">Rush</span> — 60 seconds. Max score wins. 3 lives.</li>
+                    <li><span className="text-purple-300 font-bold">Endless</span> — No timer. Play till you lose all lives.</li>
+                    <li><span className="text-emerald-300 font-bold">Blitz</span> — 10 rounds with a tight timer. Fast and intense.</li>
+                    <li><span className="text-red-300 font-bold">Chaos</span> — Random mode every round. Adapt or die.</li>
+                    <li><span className="text-amber-300 font-bold">Survival</span> — Bank your score. One wrong answer and it resets to zero.</li>
+                  </ul>
+                </section>
+              </div>
+
               <div className="h-1 w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-30" />
             </motion.div>
           </motion.div>

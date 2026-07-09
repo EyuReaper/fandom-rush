@@ -100,7 +100,7 @@ export default function ShopScreen({ onClose }: ShopScreenProps) {
           </div>
           <div>
             <h2 className="text-3xl font-black italic tracking-tight text-white">
-              POWER-UPS // <span className="text-hot-pink">CHARACTER UNLOCKS</span>
+              GAME PACKS // <span className="text-hot-pink">EXTRA CONTENT</span>
             </h2>
             <p className="text-sm text-gray-400 mt-1">
               Insert coin to expand your trivia arsenal
@@ -165,7 +165,7 @@ export default function ShopScreen({ onClose }: ShopScreenProps) {
                   </p>
 
                   <div className="text-3xl font-black text-white mb-6">
-                    {plan.price}<span className="text-sm font-medium text-gold">¢</span>
+                    {plan.price}<span className="text-sm font-medium text-gold"> birr</span>
                   </div>
 
                   <button

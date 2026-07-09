@@ -1,3 +1,4 @@
+
 export const PLANS = {
   enthusiast: {
     birrjsPriceId: 'price_enthusiast',

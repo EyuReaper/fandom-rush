@@ -76,7 +76,7 @@ describe('LoginButton', () => {
 
     render(<LoginButton />);
     expect(screen.getByText('NoImgUser')).toBeInTheDocument();
-    expect(screen.getByText(/Logged in as/i)).toBeInTheDocument();
+    expect(screen.getByText(/PLAYER/i)).toBeInTheDocument();
   });
 
   it('calls signIn.social when Sign In button is clicked', () => {
