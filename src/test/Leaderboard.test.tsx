@@ -35,13 +35,13 @@ describe('Leaderboard', () => {
     expect(screen.getByText(/Decrypting mission logs/i)).toBeInTheDocument();
   });
 
-  it('renders the Global Rankings title', async () => {
+  it('renders the Top Scores heading', async () => {
     vi.mocked(globalThis.fetch).mockResolvedValue({
       json: () => Promise.resolve({ scores: mockScores, userScore: null }),
       ok: true,
     } as any);
     render(<Leaderboard onClose={vi.fn()} />);
-    expect(await screen.findByRole('heading', { name: /Global Rankings/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Top Scores/i })).toBeInTheDocument();
   });
 
   it('renders three mode tabs', async () => {
@@ -77,13 +77,13 @@ describe('Leaderboard', () => {
     expect(screen.getByText('1,000')).toBeInTheDocument();
   });
 
-  it('shows "No Operatives Found" when empty', async () => {
+  it('shows "NO SCORES YET // BE THE FIRST" when empty', async () => {
     vi.mocked(globalThis.fetch).mockResolvedValue({
       json: () => Promise.resolve({ scores: [], userScore: null }),
       ok: true,
     } as any);
     render(<Leaderboard onClose={vi.fn()} />);
-    expect(await screen.findByText(/No Operatives Found/i)).toBeInTheDocument();
+    expect(await screen.findByText(/NO SCORES YET \/\/ BE THE FIRST/i)).toBeInTheDocument();
   });
 
   it('calls onClose when close button is clicked', async () => {
@@ -128,7 +128,7 @@ describe('Leaderboard', () => {
     } as any);
     render(<Leaderboard onClose={vi.fn()} />);
     expect(await screen.findByText('PlayerOne')).toBeInTheDocument();
-    expect(screen.getByText(/Operative/i)).toBeInTheDocument();
+    expect(screen.getByText('PLAYER', { exact: true })).toBeInTheDocument();
   });
 
   it('fetches scores with the selected mode', async () => {

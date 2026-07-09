@@ -150,7 +150,7 @@ describe('GameScreen', () => {
     expect(screen.getByText(/NEW HIGH SCORE/i)).toBeInTheDocument();
   });
 
-  it('shows INSERT COIN button on game over', () => {
+  it('shows PLAY AGAIN button on game over', () => {
     useGameStore.setState({
       isPlaying: false,
       currentClue: mockClue,
@@ -161,7 +161,7 @@ describe('GameScreen', () => {
       gameMode: "endless",
     });
     render(<GameScreen />);
-    expect(screen.getByText(/INSERT COIN/i)).toBeInTheDocument();
+    expect(screen.getByText(/PLAY AGAIN/i)).toBeInTheDocument();
   });
 
   it('shows BACK TO TITLE SCREEN button on game over', () => {
@@ -178,7 +178,7 @@ describe('GameScreen', () => {
     expect(screen.getByText(/BACK TO TITLE SCREEN/i)).toBeInTheDocument();
   });
 
-  it('INSERT COIN restarts the same game mode', () => {
+  it('PLAY AGAIN restarts the same game mode', () => {
     useGameStore.setState({
       isPlaying: false,
       currentClue: mockClue,
@@ -189,7 +189,7 @@ describe('GameScreen', () => {
       gameMode: "endless",
     });
     render(<GameScreen />);
-    fireEvent.click(screen.getByText(/INSERT COIN/i));
+    fireEvent.click(screen.getByText(/PLAY AGAIN/i));
     expect(useGameStore.getState().isPlaying).toBe(true);
     expect(useGameStore.getState().gameMode).toBe('endless');
   });

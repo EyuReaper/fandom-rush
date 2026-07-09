@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { X, Zap, Clock, Target, Loader2, Globe, User, Shield, Shuffle } from "lucide-react";
+import { X, Zap, Clock, Target, Loader2, Trophy, User, Shield, Shuffle } from "lucide-react";
 import { authClient } from "../lib/auth-client";
 import { API_URL } from "../lib/config";
 
@@ -72,7 +72,7 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-[#050508]/95 backdrop-blur-2xl selection:bg-cyan-500 selection:text-black"
+      className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-[#0a0a1a]/95 backdrop-blur-2xl selection:bg-cyan-500 selection:text-black"
     >
       {/* Background Ambience */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
@@ -86,19 +86,19 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
         exit={{ scale: 0.95, opacity: 0, y: 20 }}
         className="relative w-full max-w-3xl bg-[#0d0d14]/90 border border-white/10 rounded-[20px] shadow-[0_0_60px_rgba(0,0,0,0.5)] flex flex-col max-h-[90vh] overflow-hidden"
       >
-        {/* Header - Tactical Style */}
+        {/* Header — Arcade Style */}
         <div className="flex items-center justify-between p-8 border-b border-white/5 bg-white/[0.02]">
           <div className="flex items-center gap-6">
-            <div className="p-4 bg-yellow-500/10 rounded-2xl border border-yellow-500/30 shadow-[0_0_20px_rgba(234,179,8,0.2)]">
-                <Globe className="w-8 h-8 text-yellow-500" />
+            <div className="p-4 bg-gold/10 rounded-2xl border border-gold/30 shadow-[0_0_20px_rgba(255,215,0,0.2)]">
+                <Trophy className="w-8 h-8 text-gold" />
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
-                <p className="text-[10px] font-black text-cyan-500/60 uppercase tracking-[0.4em]">Live Database Connection</p>
+                <div className="w-1.5 h-1.5 rounded-full bg-neon animate-pulse" />
+                <p className="text-[10px] font-black text-neon/60 uppercase tracking-[0.4em]">HIGH SCORE TABLE</p>
               </div>
               <h2 className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase leading-none text-white">
-                Global <span className="text-cyan-400">Rankings</span>
+                Top <span className="text-neon">Scores</span>
               </h2>
             </div>
           </div>
@@ -146,8 +146,7 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
                 <Target className="w-10 h-10 text-gray-700" />
               </div>
               <div>
-                <p className="text-gray-500 text-xl font-bold italic mb-2 tracking-tight">No Operatives Found</p>
-                <p className="text-[10px] font-black text-gray-600 uppercase tracking-[0.3em]">Be the first to establish a presence</p>
+                <p className="text-gray-500 text-xl font-bold italic mb-2 tracking-tight">NO SCORES YET // BE THE FIRST</p>
               </div>
             </div>
           ) : (
@@ -216,7 +215,7 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
                           <span className="text-[7px] font-black bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-500/30 tracking-widest uppercase">Fanatic</span>
                         )}
                         {isCurrentUser && (
-                          <span className="text-[7px] font-black bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/30 tracking-widest uppercase">Operative</span>
+                          <span className="text-[7px] font-black bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/30 tracking-widest uppercase">PLAYER</span>
                         )}
                       </div>
                       <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.3em]">
@@ -270,10 +269,10 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
                         <p className="text-xl font-black truncate text-cyan-400 uppercase tracking-tight italic">
                             {data.userScore.user_name}
                         </p>
-                        <span className="text-[8px] font-black bg-cyan-500/20 text-cyan-400 px-3 py-1 rounded-full border border-cyan-500/40 tracking-[0.2em] uppercase">Current Active State</span>
+                        <span className="text-[8px] font-black bg-cyan-500/20 text-cyan-400 px-3 py-1 rounded-full border border-cyan-500/40 tracking-[0.2em] uppercase">CURRENT RANK</span>
                       </div>
                       <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em]">
-                          Personal Dossier Record
+                          SCORE ATTACHED
                       </p>
                     </div>
 
@@ -293,7 +292,7 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
         {/* Footer Dossier Info */}
         <div className="px-8 py-5 border-t border-white/5 bg-white/[0.02] flex items-center justify-between">
            <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.6em]">
-              Data retrieval: TOP 50 Contenders
+               TOP 50 HIGH SCORES
            </p>
            <div className="flex items-center gap-4">
               <div className="flex gap-1">
@@ -301,7 +300,7 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
                   <div className="w-1 h-1 rounded-full bg-cyan-500/40 animate-pulse [animation-delay:0.2s]" />
                   <div className="w-1 h-1 rounded-full bg-cyan-500/40 animate-pulse [animation-delay:0.4s]" />
               </div>
-              <p className="text-[9px] font-black text-cyan-500/40 uppercase tracking-widest">v1.2 // Secure Session</p>
+              <p className="text-[9px] font-black text-cyan-500/40 uppercase tracking-widest">v1.2</p>
            </div>
         </div>
       </motion.div>

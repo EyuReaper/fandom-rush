@@ -18,7 +18,7 @@ import {
   ArrowDown,
   ArrowLeft,
   ArrowRight,
-  Zap,
+  Play,
 } from "lucide-react";
 
 export default function GameScreen() {
@@ -418,23 +418,20 @@ export default function GameScreen() {
           {/* Actions */}
           <div className="flex flex-col gap-5">
             <motion.button
-              whileHover={{ scale: 1.02, skewX: "-3deg" }}
+              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => startGame(gameMode, selectedCategory || undefined)}
-              className="relative p-[2px] transition-all duration-300 group"
+              className="w-full py-6 bg-neon hover:bg-cyan-400 text-black text-xl font-black rounded-xl shadow-lg transition-all uppercase tracking-tighter flex items-center justify-center gap-4"
             >
-               <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity" />
-               <div className="relative py-6 bg-cyan-500 hover:bg-cyan-400 text-black text-xl font-black italic rounded-xl shadow-2xl transition-all uppercase tracking-tighter flex items-center justify-center gap-4">
-                  <Zap className="w-6 h-6 fill-black" />
-                  INSERT COIN
-               </div>
+               <Play className="w-6 h-6 fill-black" />
+               PLAY AGAIN
             </motion.button>
 
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={resetGame}
-              className="w-full py-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.5em] text-gray-500 transition-all"
+              className="w-full py-5 bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl text-sm font-black uppercase tracking-[0.3em] text-gray-400 hover:text-white transition-all"
             >
               BACK TO TITLE SCREEN
             </motion.button>
@@ -610,7 +607,7 @@ export default function GameScreen() {
                 return (
                   <motion.button
                     key={option}
-                    whileHover={!feedback ? { scale: 1.02, skewX: "-2deg" } : {}}
+                    whileHover={!feedback ? { scale: 1.02 } : {}}
                     whileTap={!feedback ? { scale: 0.98 } : {}}
                     animate={isPressed ? { scale: 0.95, backgroundColor: "rgba(255, 255, 255, 0.1)" } : {}}
                     onClick={() => handleAnswer(option, index)}
@@ -623,8 +620,8 @@ export default function GameScreen() {
                           : isCorrectOption && feedback
                             ? "border-green-500/50 bg-green-500/5"
                             : isPressed
-                              ? "border-cyan-400 bg-white/10 shadow-[inset_0_-4px_0_rgba(0,0,0,0.3)]"
-                              : "border-white/10 hover:border-cyan-400 hover:bg-white/10 shadow-[0_4px_0_rgba(0,0,0,0.3)]"
+                              ? "border-cyan-400 bg-white/10 shadow-md"
+                              : "border-white/10 hover:border-cyan-400 hover:bg-white/10 shadow-md"
                     }`}
                   >
                     <span className="absolute top-4 right-4 bg-white/5 text-[9px] w-6 h-6 flex items-center justify-center rounded-sm border border-white/10 font-black">

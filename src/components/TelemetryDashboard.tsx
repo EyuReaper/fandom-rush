@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { X, Users, Gamepad2, TrendingUp, Activity, Loader2, Star } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { authClient } from "../lib/auth-client";
 import { API_URL } from "../lib/config";
 import confetti from "canvas-confetti";
@@ -22,6 +22,18 @@ interface TelemetryData {
 
 interface TelemetryDashboardProps {
   onClose: () => void;
+}
+
+const G = "#00ff41";
+const GD = "#00aa22";
+
+function greenBar(value: number, max: number) {
+  const pct = max > 0 ? (value / max) * 100 : 0;
+  return (
+    <div className="h-3 bg-[#003300] border border-[#00ff41]/20 rounded overflow-hidden">
+      <div className="h-full transition-all duration-500" style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${GD}, ${G})` }} />
+    </div>
+  );
 }
 
 export default function TelemetryDashboard({ onClose }: TelemetryDashboardProps) {
@@ -59,177 +71,162 @@ export default function TelemetryDashboard({ onClose }: TelemetryDashboardProps)
     return () => { mounted = false; clearInterval(interval); };
   }, []);
 
-  const ratingColor = (val: number) => {
-    if (val >= 4.5) return "#22c55e";
-    if (val >= 3.5) return "#84cc16";
-    if (val >= 2.5) return "#eab308";
-    if (val >= 1.5) return "#f97316";
-    return "#ef4444";
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-[#050508]/95 backdrop-blur-2xl selection:bg-cyan-500 selection:text-black"
+      className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black font-mono selection:bg-[#00ff41] selection:text-black"
     >
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1a1a2e_1px,transparent_1px),linear-gradient(to_bottom,#1a1a2e_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_80%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(transparent_0%,rgba(6,182,212,0.05)_50%,transparent_100%)] bg-[length:100%_4px] animate-[pulse_4s_infinite]" />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.03]">
+        <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(0,255,65,0.15)_2px,rgba(0,255,65,0.15)_4px)]" />
       </div>
 
       <motion.div
-        initial={{ scale: 0.95, opacity: 0, y: 30 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.95, opacity: 0, y: 20 }}
-        className="relative w-full max-w-4xl bg-[#0d0d14]/90 border border-white/10 rounded-[20px] shadow-[0_0_60px_rgba(0,0,0,0.5)] flex flex-col max-h-[90vh] overflow-hidden"
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        className="relative w-full max-w-4xl border border-[#00ff41]/30 bg-black shadow-[0_0_60px_rgba(0,255,65,0.1)] flex flex-col max-h-[90vh] overflow-hidden"
+        style={{ boxShadow: `0 0 40px rgba(0,255,65,0.08), inset 0 0 80px rgba(0,255,65,0.02)` }}
       >
-        <div className="flex items-center justify-between p-8 border-b border-white/5 bg-white/[0.02]">
+        {/* Header */}
+        <div className="flex items-center justify-between px-8 py-5 border-b border-[#00ff41]/20">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-purple-500/10 rounded-2xl border border-purple-500/30">
-              <Activity className="w-6 h-6 text-purple-400" />
-            </div>
+            <span className="text-[#00ff41] text-xl leading-none" style={{ fontFamily: "monospace", fontWeight: 700 }}>{">"}_</span>
             <div>
-              <p className="text-[10px] font-black text-purple-500/60 uppercase tracking-[0.4em]">Classified Access</p>
-              <h2 className="text-2xl font-black italic tracking-tighter uppercase text-white">
-                Secret <span className="text-purple-400">Telemetry</span>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-[#00aa22]">// CLASSIFIED //</p>
+              <h2 className="text-xl font-bold tracking-tight text-[#00ff41]">
+                TELEMETRY TERMINAL
               </h2>
             </div>
           </div>
-          <button onClick={onClose} className="p-3 hover:bg-white/10 rounded-xl transition-all group">
-            <X className="w-6 h-6 text-gray-500 group-hover:text-white" />
+          <button onClick={onClose} className="p-2 border border-[#00ff41]/30 hover:bg-[#00ff41]/10 transition-colors" style={{ color: G }}>
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {toastVisible && session?.user?.email !== "eyureaper@gmail.com" && (
-          <div className="absolute top-24 left-1/2 -translate-x-1/2 z-50 bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 px-6 py-3 rounded-xl text-sm font-bold backdrop-blur-md animate-bounce whitespace-nowrap">
-            🎉 You found the secret telemetry room!
+          <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 border border-[#00ff41]/40 bg-black text-[#00ff41] px-6 py-3 text-sm font-bold whitespace-nowrap"
+            style={{ boxShadow: `0 0 20px rgba(0,255,65,0.2)` }}>
+            &gt;&gt; YOU FOUND THE SECRET TELEMETRY ROOM! &lt;&lt;
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-6">
+        <div className="flex-1 overflow-y-auto p-6 space-y-5">
           {loading && !data ? (
             <div className="h-96 flex flex-col items-center justify-center gap-6">
-              <div className="relative">
-                <Loader2 className="w-12 h-12 text-purple-500 animate-spin" />
-                <div className="absolute inset-0 blur-xl bg-purple-500/20 animate-pulse" />
-              </div>
-              <p className="text-[11px] font-black text-purple-500/50 uppercase tracking-[0.5em] animate-pulse">
-                Decrypting intelligence data...
-              </p>
+              <Loader2 className="w-10 h-10 animate-spin" style={{ color: G }} />
+              <p className="text-[11px] uppercase tracking-[0.5em] text-[#00aa22] animate-pulse">ACCESSING TERMINAL...</p>
             </div>
           ) : error ? (
             <div className="h-96 flex flex-col items-center justify-center gap-6 text-center">
-              <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/30">
-                <X className="w-10 h-10 text-red-500" />
+              <div className="w-16 h-16 border border-red-500/50 flex items-center justify-center">
+                <X className="w-8 h-8 text-red-500" />
               </div>
               <div>
-                <p className="text-gray-500 text-xl font-bold italic mb-2 tracking-tight">Failed to Load Telemetry</p>
-                <p className="text-[10px] font-black text-gray-600 uppercase tracking-[0.3em]">Connection to intelligence feed lost</p>
+                <p className="text-red-500 text-lg font-bold mb-1">CONNECTION FAILED</p>
+                <p className="text-[10px] uppercase tracking-[0.3em] text-[#005500]">LINK TO TELEMETRY FEED LOST</p>
               </div>
             </div>
           ) : data ? (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
-                  { label: "Total Players", value: data.totals.totalPlayers.toLocaleString(), icon: <Users className="w-5 h-5" />, color: "cyan", border: "border-cyan-500/30", bg: "bg-cyan-500/10", text: "text-cyan-400" },
-                  { label: "Games Played", value: data.totals.totalGamesPlayed.toLocaleString(), icon: <Gamepad2 className="w-5 h-5" />, color: "yellow", border: "border-yellow-500/30", bg: "bg-yellow-500/10", text: "text-yellow-400" },
-                  { label: "Today", value: data.totals.gamesToday.toLocaleString(), icon: <Activity className="w-5 h-5" />, color: "emerald", border: "border-emerald-500/30", bg: "bg-emerald-500/10", text: "text-emerald-400" },
-                  { label: "Active / Week", value: data.totals.activeUsers7d.toLocaleString(), icon: <TrendingUp className="w-5 h-5" />, color: "purple", border: "border-purple-500/30", bg: "bg-purple-500/10", text: "text-purple-400" },
+                  { label: "TOTAL PLAYERS", value: data.totals.totalPlayers.toLocaleString() },
+                  { label: "GAMES PLAYED", value: data.totals.totalGamesPlayed.toLocaleString() },
+                  { label: "GAMES TODAY", value: data.totals.gamesToday.toLocaleString() },
+                  { label: "ACTIVE / WEEK", value: data.totals.activeUsers7d.toLocaleString() },
                 ].map((stat) => (
-                  <div key={stat.label} className="bg-white/[0.03] border border-white/10 rounded-[16px] p-5 text-center">
-                    <div className={`inline-flex p-3 rounded-xl ${stat.bg} ${stat.border} mb-3`}>
-                      <div className={stat.text}>{stat.icon}</div>
-                    </div>
-                    <p className="text-3xl font-black text-white tabular-nums tracking-tighter">{stat.value}</p>
-                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mt-1">{stat.label}</p>
+                  <div key={stat.label} className="border border-[#00ff41]/20 p-4 text-center bg-[#000800]">
+                    <p className="text-2xl font-bold text-[#00ff41] tabular-nums">{stat.value}</p>
+                    <p className="text-[9px] uppercase tracking-[0.2em] text-[#008800] mt-1">{stat.label}</p>
                   </div>
                 ))}
               </div>
 
-              <div className="bg-white/[0.03] border border-white/5 rounded-[16px] p-6 space-y-4">
-                <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em]">Games Per Mode</h3>
+              {/* Per Mode */}
+              <div className="border border-[#00ff41]/20 p-5 bg-[#000800]">
+                <h3 className="text-[10px] uppercase tracking-[0.3em] text-[#00aa22] mb-4">// GAMES PER MODE</h3>
                 {(() => {
                   const modes = Object.entries(data.perMode);
                   const maxCount = Math.max(...modes.map(([, v]) => v.count), 1);
-                  const labels: Record<string, string> = { endless: "Endless", "sixty-second": "60-Sec", chaos: "Chaos", category: "Category" };
+                  const labels: Record<string, string> = { endless: "ENDLESS", "sixty-second": "60-SEC", chaos: "CHAOS", category: "CATEGORY" };
                   return modes.map(([key, val]) => (
-                    <div key={key} className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-300 font-bold uppercase tracking-wide">{labels[key] || key}</span>
-                        <span className="text-gray-500 tabular-nums">
-                          {val.count.toLocaleString()} <span className="text-[10px] text-gray-600">| Avg: {val.avgScore.toLocaleString()}</span>
+                    <div key={key} className="mb-3">
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-[#00ff41] font-bold">{labels[key] || key}</span>
+                        <span className="text-[#008800] tabular-nums">
+                          {val.count} <span className="text-[9px]">| AVG {val.avgScore.toLocaleString()}</span>
                         </span>
                       </div>
-                      <div className="h-3 bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full bg-purple-500 rounded-full transition-all" style={{ width: `${(val.count / maxCount) * 100}%` }} />
-                      </div>
+                      {greenBar(val.count, maxCount)}
                     </div>
                   ));
                 })()}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white/[0.03] border border-white/5 rounded-[16px] p-6 text-center">
-                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-3">Global Average Score</p>
-                  <p className="text-5xl font-black text-white tabular-nums tracking-tighter">
+              {/* Score stats */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="border border-[#00ff41]/20 p-5 text-center bg-[#000800]">
+                  <p className="text-[9px] uppercase tracking-[0.3em] text-[#008800] mb-2">GLOBAL AVERAGE SCORE</p>
+                  <p className="text-4xl font-bold text-[#00ff41] tabular-nums">
                     {data.leaderboard.globalAvgScore?.toLocaleString() || "—"}
                   </p>
                 </div>
-                <div className="bg-white/[0.03] border border-white/5 rounded-[16px] p-6 text-center">
-                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-3">Highest Score Ever</p>
-                  <p className="text-5xl font-black text-yellow-400 tabular-nums tracking-tighter drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]">
+                <div className="border border-[#00ff41]/20 p-5 text-center bg-[#000800]">
+                  <p className="text-[9px] uppercase tracking-[0.3em] text-[#008800] mb-2">HIGHEST SCORE EVER</p>
+                  <p className="text-4xl font-bold text-[#00ff41] tabular-nums" style={{ textShadow: `0 0 10px ${G}` }}>
                     {data.leaderboard.highestScoreEver?.toLocaleString() || "—"}
                   </p>
                 </div>
               </div>
 
-              <div className="bg-white/[0.03] border border-white/5 rounded-[16px] p-6 space-y-4">
-                <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em]">Category Popularity</h3>
+              {/* Category Popularity */}
+              <div className="border border-[#00ff41]/20 p-5 bg-[#000800]">
+                <h3 className="text-[10px] uppercase tracking-[0.3em] text-[#00aa22] mb-4">// CATEGORY POPULARITY</h3>
                 {(() => {
                   const cats = Object.entries(data.popularity.perCategory);
                   const maxCat = Math.max(...cats.map(([, v]) => v), 1);
                   return cats.map(([key, val]) => (
-                    <div key={key} className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-300 font-bold uppercase tracking-wide">{key}</span>
-                        <span className="text-gray-500 tabular-nums">{val.toLocaleString()}</span>
+                    <div key={key} className="mb-3">
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-[#00ff41] font-bold uppercase">{key}</span>
+                        <span className="text-[#008800] tabular-nums">{val.toLocaleString()}</span>
                       </div>
-                      <div className="h-2.5 bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full bg-cyan-500 rounded-full transition-all" style={{ width: `${(val / maxCat) * 100}%` }} />
-                      </div>
+                      {greenBar(val, maxCat)}
                     </div>
                   ));
                 })()}
               </div>
 
+              {/* Ratings */}
               {data.ratings.totalRatings > 0 && (
-                <div className="bg-white/[0.03] border border-white/5 rounded-[16px] p-6 space-y-4">
-                  <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em]">Community Rating</h3>
+                <div className="border border-[#00ff41]/20 p-5 bg-[#000800]">
+                  <h3 className="text-[10px] uppercase tracking-[0.3em] text-[#00aa22] mb-3">// COMMUNITY RATING</h3>
                   <div className="flex items-center gap-4">
-                    <div className="relative inline-flex items-center justify-center">
-                      <Star className="w-10 h-10" fill={ratingColor(data.ratings.averageRating ?? 0)} color={ratingColor(data.ratings.averageRating ?? 0)} />
-                      <span className="absolute text-[10px] font-black text-white">{Math.round(data.ratings.averageRating ?? 0)}</span>
-                    </div>
+                    <span className="text-4xl font-bold text-[#00ff41]" style={{ textShadow: `0 0 15px ${G}` }}>
+                      {data.ratings.averageRating?.toFixed(1) || "—"}
+                    </span>
                     <div>
-                      <p className="text-2xl font-black text-white">{data.ratings.averageRating?.toFixed(1)}</p>
-                      <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">{data.ratings.totalRatings} ratings</p>
+                      <p className="text-sm font-bold text-[#00ff41]">{data.ratings.averageRating?.toFixed(1)} / 5.0</p>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#008800]">{data.ratings.totalRatings} RATINGS</p>
                     </div>
                   </div>
                 </div>
               )}
 
-              <div className="bg-white/[0.03] border border-white/5 rounded-[16px] p-6 space-y-4">
-                <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em]">Server</h3>
-                <div className="grid grid-cols-2 gap-6">
+              {/* Server */}
+              <div className="border border-[#00ff41]/20 p-5 bg-[#000800]">
+                <h3 className="text-[10px] uppercase tracking-[0.3em] text-[#00aa22] mb-3">// SERVER</h3>
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-[10px] font-black text-gray-600 uppercase tracking-[0.3em] mb-1">Uptime</p>
-                    <p className="text-xl font-black text-white">{data.server.uptimeHours}h</p>
+                    <p className="text-[9px] uppercase tracking-[0.2em] text-[#008800] mb-1">UPTIME</p>
+                    <p className="text-lg font-bold text-[#00ff41]">{data.server.uptimeHours}h</p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-gray-600 uppercase tracking-[0.3em] mb-1">Since</p>
-                    <p className="text-xl font-black text-white">{new Date(data.server.startTime).toLocaleDateString()}</p>
+                    <p className="text-[9px] uppercase tracking-[0.2em] text-[#008800] mb-1">SINCE</p>
+                    <p className="text-lg font-bold text-[#00ff41]">{new Date(data.server.startTime).toLocaleDateString()}</p>
                   </div>
                 </div>
               </div>
@@ -237,16 +234,10 @@ export default function TelemetryDashboard({ onClose }: TelemetryDashboardProps)
           ) : null}
         </div>
 
-        <div className="px-8 py-5 border-t border-white/5 bg-white/[0.02] flex items-center justify-between">
-          <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.6em]">Live Data &bull; Refreshes every 30s</p>
-          <div className="flex items-center gap-4">
-            <div className="flex gap-1">
-              <div className="w-1 h-1 rounded-full bg-purple-500/40 animate-pulse" />
-              <div className="w-1 h-1 rounded-full bg-purple-500/40 animate-pulse [animation-delay:0.2s]" />
-              <div className="w-1 h-1 rounded-full bg-purple-500/40 animate-pulse [animation-delay:0.4s]" />
-            </div>
-            <p className="text-[9px] font-black text-purple-500/40 uppercase tracking-widest">v{data?.server.version || "?.?.?"}</p>
-          </div>
+        {/* Footer */}
+        <div className="px-8 py-4 border-t border-[#00ff41]/20 bg-black flex items-center justify-between">
+          <p className="text-[8px] uppercase tracking-[0.5em] text-[#005500]">LIVE DATA // REFRESH 30S</p>
+          <p className="text-[8px] uppercase tracking-widest text-[#005500]">v{data?.server.version || "?.?.?"}</p>
         </div>
       </motion.div>
     </motion.div>

@@ -583,7 +583,7 @@ export default function MainMenu() {
               className="mt-24 flex flex-col items-center gap-6"
             >
               <div className="text-gray-600 text-[10px] font-black uppercase tracking-[0.6em]">
-                © 2026 FANDOM RUSH // COIN-OP REV 1.2
+                © 2026 FANDOM RUSH
               </div>
             </motion.div>
           </motion.div>
@@ -813,13 +813,11 @@ function MenuButton({
   accent,
 }: MenuButtonProps) {
   const accents = {
-    cyan: " from-cyan-500/20 to-transparent group-hover:from-cyan-500 group-hover:to-cyan-500/30 border-cyan-500/30 text-cyan-400 group-hover:border-cyan-500",
-    purple:
-      " from-purple-500/20 to-transparent group-hover:from-purple-500 group-hover:to-purple-500/30 border-purple-500/30 text-purple-400 group-hover:border-purple-500",
-    emerald:
-      " from-emerald-500/20 to-transparent group-hover:from-emerald-500 group-hover:to-emerald-500/30 border-emerald-500/30 text-emerald-400 group-hover:border-emerald-500",
-    red: " from-red-500/20 to-transparent group-hover:from-red-500 group-hover:to-red-500/30 border-red-500/30 text-red-400 group-hover:border-red-500",
-    amber: " from-amber-500/20 to-transparent group-hover:from-amber-500 group-hover:to-amber-500/30 border-amber-500/30 text-amber-400 group-hover:border-amber-500",
+    cyan: "border-cyan-500/30 text-cyan-400 hover:border-cyan-500",
+    purple: "border-purple-500/30 text-purple-400 hover:border-purple-500",
+    emerald: "border-emerald-500/30 text-emerald-400 hover:border-emerald-500",
+    red: "border-red-500/30 text-red-400 hover:border-red-500",
+    amber: "border-amber-500/30 text-amber-400 hover:border-amber-500",
   };
 
   return (
@@ -828,14 +826,13 @@ function MenuButton({
         hidden: { y: 20, opacity: 0 },
         visible: { y: 0, opacity: 1 },
       }}
-      whileHover={!disabled ? { scale: 1.02, skewX: "-3deg" } : {}}
+      whileHover={!disabled ? { scale: 1.02 } : {}}
       whileTap={!disabled ? { scale: 0.98 } : {}}
       onClick={onClick}
       disabled={disabled}
-      style={!disabled ? { boxShadow: '4px 4px 0 #080812' } : undefined}
-      className={`group relative p-[2px] bg-[#0d0d14] bg-gradient-to-br transition-all duration-300 skew-x-[5deg] rounded-[12px] ${disabled ? "cursor-not-allowed" : accents[accent as keyof typeof accents]}`}
+      className={`group relative p-[2px] bg-[#0d0d14] transition-all duration-300 rounded-[12px] shadow-lg ${disabled ? "cursor-not-allowed" : accents[accent as keyof typeof accents]}`}
     >
-      <div className="h-full w-full bg-[#0d0d14] rounded-[10px] p-8 flex flex-col relative z-10 border border-white/5 items-center text-center skew-x-[-10deg] overflow-hidden">
+      <div className="h-full w-full bg-[#0d0d14] rounded-[10px] p-8 flex flex-col relative z-10 border border-white/5 items-center text-center overflow-hidden">
         {!disabled && (
           <motion.div
             initial={{ left: "-100%" }}

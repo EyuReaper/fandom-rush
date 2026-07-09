@@ -95,15 +95,15 @@ export default function ShopScreen({ onClose }: ShopScreenProps) {
         </button>
 
         <div className="flex items-center gap-3 mb-8">
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-pink-500/20 to-purple-500/20 border border-pink-500/30">
-            <Crown className="w-6 h-6 text-pink-400" />
+          <div className="p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-hot-pink/20 border border-gold/30">
+            <Crown className="w-6 h-6 text-gold" />
           </div>
           <div>
             <h2 className="text-3xl font-black italic tracking-tight text-white">
-              Game Packs
+              POWER-UPS // <span className="text-hot-pink">CHARACTER UNLOCKS</span>
             </h2>
             <p className="text-sm text-gray-400 mt-1">
-              Unlock premium clues and exclusive modes
+              Insert coin to expand your trivia arsenal
             </p>
           </div>
         </div>
@@ -145,7 +145,7 @@ export default function ShopScreen({ onClose }: ShopScreenProps) {
                   {owned && (
                     <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
                       <Check className="w-3 h-3" />
-                      Owned
+                      CLEARED
                     </div>
                   )}
 
@@ -165,10 +165,7 @@ export default function ShopScreen({ onClose }: ShopScreenProps) {
                   </p>
 
                   <div className="text-3xl font-black text-white mb-6">
-                    {plan.price / 100}{" "}
-                    <span className="text-sm font-medium text-gray-400">
-                      {plan.currency}
-                    </span>
+                    {plan.price}<span className="text-sm font-medium text-gold">¢</span>
                   </div>
 
                   <button
@@ -188,12 +185,12 @@ export default function ShopScreen({ onClose }: ShopScreenProps) {
                     ) : owned ? (
                       <>
                         <Check className="w-4 h-4" />
-                        Purchased
+                        CLEARED
                       </>
                     ) : (
                       <>
                         <Lock className="w-4 h-4" />
-                        Unlock Now
+                        INSERT COIN
                       </>
                     )}
                   </button>
