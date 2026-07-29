@@ -3,6 +3,7 @@ import { fandomClues, type FandomClue } from "../data/fandomClues";
 import type { GameState, GameMode } from "../types/game";
 import { audioManager } from "../lib/audioManager";
 import { getEntitlements } from "../lib/birrjs-client";
+import { showRewardedVideo } from "../lib/adManager";
 
 interface GameStore extends GameState {
   startGame: (mode: GameMode, category?: string) => void;
@@ -11,6 +12,9 @@ interface GameStore extends GameState {
   resetGame: () => void;
   endGame: () => void;
   nextQuestion: () => void;
+  revive: () => Promise<void>;
+  claimDailyBonus: () => boolean;
+  unlockChaosPreview: () => Promise<void>;
   toggleSwipeMode: () => void;
   toggleMute: () => void;
   entitlements: string[]; fetchEntitlements: () => Promise<void>; setEntitlements: (ents: string[]) => void;
@@ -48,6 +52,11 @@ const initialState: GameState = {
   streak: 0,
   escalationLevel: 1,
   bestBankedScore: 0,
+  reviveUsedThisGame: false,
+  showRevivePrompt: false,
+  chaosAdUnlocked: localStorage.getItem("fandomRushChaosAdUnlocked") === "true",
+  scoreMultiplier: 1,
+  dailyBonusDate: localStorage.getItem("fandomRushDailyBonusDate"),
 };
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -84,6 +93,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         streak: 0,
         escalationLevel: 1,
         bestBankedScore: 0,
+        reviveUsedThisGame: false,
+        showRevivePrompt: false,
       }),
     });
 
@@ -131,7 +142,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     const newCombo = combo + 1;
     const multiplier = 1 + Math.floor(newCombo / 5) * 0.3;
-    const points = Math.floor((difficultyPoints + speedBonus) * multiplier);
+    const points = Math.floor((difficultyPoints + speedBonus) * multiplier * get().scoreMultiplier);
 
     if (isCorrect) {
       // Survival mode: banking + escalation
@@ -191,12 +202,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   nextQuestion: () => {
-    const { lives, gameMode, timeLeft, isPlaying, selectedCategory, previousClueIds } = get();
+    const { lives, gameMode, timeLeft, isPlaying, selectedCategory, previousClueIds, reviveUsedThisGame, showRevivePrompt } = get();
 
     if (!isPlaying) return;
 
+    if (showRevivePrompt) return;
+
     if (lives <= 0 && gameMode !== "sixty-second") {
-      get().endGame();
+      if (!reviveUsedThisGame) {
+        set({ showRevivePrompt: true });
+      } else {
+        get().endGame();
+      }
       return;
     }
 
@@ -222,8 +239,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   tickTimer: () => {
-    const { timeLeft, isPlaying, gameMode, chaosModifiers } = get();
+    const { timeLeft, isPlaying, gameMode, chaosModifiers, showRevivePrompt } = get();
     if (!isPlaying) return;
+    if (showRevivePrompt) return;
 
     if (timeLeft <= 0) {
       if (gameMode !== "sixty-second") {
@@ -248,7 +266,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   endGame: () => {
-    set({ isPlaying: false });
+    set({ isPlaying: false, showRevivePrompt: false });
     audioManager.stopBGM();
     audioManager.play('game-over', get().isMuted);
     if (timerInterval) clearInterval(timerInterval);
@@ -265,9 +283,49 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   setEntitlements: (ents: string[]) => set({ entitlements: ents }),
 
+  revive: async () => {
+    const { isPlaying, lives, reviveUsedThisGame, showRevivePrompt } = get();
+    if (!isPlaying || !showRevivePrompt || lives > 0 || reviveUsedThisGame) return;
+
+    const rewarded = await showRewardedVideo();
+    if (rewarded && get().isPlaying && get().showRevivePrompt) {
+      set({ lives: 1, reviveUsedThisGame: true, showRevivePrompt: false });
+      get().nextQuestion();
+    }
+  },
+
+  claimDailyBonus: () => {
+    const today = new Date().toISOString().slice(0, 10);
+    if (get().dailyBonusDate === today) return false;
+
+    localStorage.setItem("fandomRushDailyBonusDate", today);
+    set({ dailyBonusDate: today, scoreMultiplier: 2 });
+    return true;
+  },
+
+  unlockChaosPreview: async () => {
+    if (get().chaosAdUnlocked) return;
+
+    const rewarded = await showRewardedVideo();
+    if (rewarded) {
+      localStorage.setItem("fandomRushChaosAdUnlocked", "true");
+      set({ chaosAdUnlocked: true });
+    }
+  },
+
   resetGame: () => {
     if (timerInterval) clearInterval(timerInterval);
-    set({ ...initialState, highScore: get().highScore, bankedScore: 0, streak: 0, escalationLevel: 1, bestBankedScore: 0 });
+    set({
+      ...initialState,
+      highScore: get().highScore,
+      entitlements: get().entitlements,
+      chaosAdUnlocked: get().chaosAdUnlocked,
+      dailyBonusDate: get().dailyBonusDate,
+      bankedScore: 0,
+      streak: 0,
+      escalationLevel: 1,
+      bestBankedScore: 0,
+    });
     audioManager.playBGM(get().isMuted);
   }
 }));
@@ -333,5 +391,5 @@ function startTimer() {
 
 // Expose store for e2e tests
 if (typeof window !== 'undefined') {
-  (window as any).__ZUSTAND_STORE__ = useGameStore;
+  (window as unknown as { __ZUSTAND_STORE__?: typeof useGameStore }).__ZUSTAND_STORE__ = useGameStore;
 }

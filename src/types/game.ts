@@ -30,6 +30,11 @@ export interface GameState {
   streak: number;
   escalationLevel: number;
   bestBankedScore: number;
+  reviveUsedThisGame: boolean;
+  showRevivePrompt: boolean;
+  chaosAdUnlocked: boolean;
+  scoreMultiplier: number;
+  dailyBonusDate: string | null;
 }
 
 export type GameAction =

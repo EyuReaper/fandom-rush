@@ -68,7 +68,7 @@ describe('useGameStore', () => {
     expect(stateAfter.lives).toBe(2);
   });
 
-  it('should end the game when lives reach 0 after nextQuestion is called', () => {
+  it('should show the revive prompt when lives reach 0 after nextQuestion is called', () => {
     useGameStore.getState().startGame('endless');
 
     // Fail 3 times
@@ -83,7 +83,8 @@ describe('useGameStore', () => {
 
     const state = useGameStore.getState();
     expect(state.lives).toBe(0);
-    expect(state.isPlaying).toBe(false);
+    expect(state.isPlaying).toBe(true);
+    expect(state.showRevivePrompt).toBe(true);
   });
 
   it('should persist high score to localStorage', async () => {

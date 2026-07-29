@@ -1,0 +1,59 @@
+export interface RewardedVideoProvider {
+  show(): Promise<boolean>;
+}
+
+const DEFAULT_MOCK_TIMEOUT = 5_000;
+
+function getMockTimeout() {
+  const configuredTimeout = Number(import.meta.env.VITE_AD_MOCK_TIMEOUT);
+  return Number.isFinite(configuredTimeout) && configuredTimeout >= 0
+    ? configuredTimeout
+    : DEFAULT_MOCK_TIMEOUT;
+}
+
+/** A deterministic provider for local development and automated tests. */
+export class MockRewardedProvider implements RewardedVideoProvider {
+  show(): Promise<boolean> {
+    return new Promise((resolve) => {
+      window.setTimeout(() => resolve(true), getMockTimeout());
+    });
+  }
+}
+
+export class AdManager {
+  private rewardedProvider: RewardedVideoProvider = new MockRewardedProvider();
+
+  setRewardedProvider(provider: RewardedVideoProvider) {
+    this.rewardedProvider = provider;
+  }
+
+  showRewardedVideo() {
+    return this.rewardedProvider.show();
+  }
+
+  showBanner(containerId = "banner-ad-container") {
+    if (typeof document === "undefined") return;
+
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.hidden = false;
+    container.dataset.adState = "visible";
+  }
+
+  hideBanner(containerId = "banner-ad-container") {
+    if (typeof document === "undefined") return;
+
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.hidden = true;
+    container.dataset.adState = "hidden";
+  }
+}
+
+export const adManager = new AdManager();
+
+export const showRewardedVideo = () => adManager.showRewardedVideo();
+export const showBanner = (containerId?: string) => adManager.showBanner(containerId);
+export const hideBanner = (containerId?: string) => adManager.hideBanner(containerId);
