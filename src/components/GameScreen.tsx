@@ -7,6 +7,8 @@ import { TimeBar } from "./TimeBar";
 import { ScoreDisplay } from "./ScoreDisplay";
 import Leaderboard from "./Leaderboard";
 import StarRating from "./StarRating";
+import BannerAd from "./BannerAd";
+import ReviveModal from "./ReviveModal";
 import { Send, CheckCircle2 } from "lucide-react";
 import SurvivalMode from "./SurvivalMode";
 import {
@@ -39,6 +41,7 @@ export default function GameScreen() {
     startGame,
     resetGame,
     chaosModifiers,
+    showRevivePrompt,
   } = useGameStore();
 
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
@@ -259,6 +262,10 @@ export default function GameScreen() {
     }
   };
 
+  if (showRevivePrompt) {
+    return <ReviveModal />;
+  }
+
   // ====================== GAME OVER SCREEN ======================
   if (isGameOver) {
     return (
@@ -414,6 +421,8 @@ export default function GameScreen() {
               </div>
             </div>
           </div>
+
+          <BannerAd />
 
           {/* Actions */}
           <div className="flex flex-col gap-5">

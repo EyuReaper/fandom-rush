@@ -74,6 +74,7 @@ describe('MainMenu', () => {
   });
 
   it('starts chaos game when Chaos Mode is clicked', () => {
+    useGameStore.setState({ chaosAdUnlocked: true });
     render(<MainMenu />);
     fireEvent.click(screen.getByText('Chaos Mode'));
     expect(useGameStore.getState().isPlaying).toBe(true);

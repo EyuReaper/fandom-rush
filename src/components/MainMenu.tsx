@@ -25,6 +25,8 @@ import {
   VolumeX,
   Store,
   Crown,
+  Gift,
+  LockKeyhole,
 } from "lucide-react";
 
 const particles = Array.from({ length: 20 }).map((_, i) => ({
@@ -44,6 +46,10 @@ export default function MainMenu() {
     isPlaying,
     entitlements,
     fetchEntitlements,
+    dailyBonusDate,
+    claimDailyBonus,
+    chaosAdUnlocked,
+    unlockChaosPreview,
   } = useGameStore();
   const [showCategories, setShowCategories] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -543,6 +549,43 @@ export default function MainMenu() {
               </motion.div>
             )}
 
+            {/* --- DAILY BONUS --- */}
+            <motion.div
+              variants={itemVariants}
+              className="mb-16 w-full max-w-lg"
+            >
+              <div className="bg-[#10101a] p-1 rounded-[16px]">
+                <div className="bg-[#0a0a0f] rounded-[14px] p-6 flex items-center gap-5 relative z-10 border border-pink-500/20">
+                  <div className="w-14 h-14 rounded-2xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center shrink-0">
+                    <Gift className="w-7 h-7 text-pink-400" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-gray-500 text-[10px] uppercase font-black tracking-[0.3em] mb-1">
+                      Daily Bonus
+                    </p>
+                    <p className="text-white font-black uppercase tracking-tight">
+                      {dailyBonusDate === new Date().toISOString().slice(0, 10)
+                        ? "Bonus claimed"
+                        : "Claim 2× score"}
+                    </p>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-1">
+                      {dailyBonusDate === new Date().toISOString().slice(0, 10)
+                        ? "Come back tomorrow for another boost"
+                        : "One claim per day · doubles your points"}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={claimDailyBonus}
+                    disabled={dailyBonusDate === new Date().toISOString().slice(0, 10)}
+                    className="shrink-0 rounded-xl border border-pink-400/40 bg-pink-500/15 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-pink-300 transition-colors hover:bg-pink-500/25 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/5 disabled:text-gray-600"
+                  >
+                    {dailyBonusDate === new Date().toISOString().slice(0, 10) ? "Claimed" : "Claim"}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+
             {/* spacer */}
             <div className="h-16" />
 
@@ -570,11 +613,12 @@ export default function MainMenu() {
                 accent="emerald"
               />
               <MenuButton
-                icon={<LayoutGrid className="w-10 h-10" />}
+                icon={chaosAdUnlocked ? <LayoutGrid className="w-10 h-10" /> : <LockKeyhole className="w-10 h-10" />}
                 title="Chaos Mode"
-                description="Random modifiers. Moving targets. Pure insanity."
-                onClick={() => startGame("chaos")}
+                description={chaosAdUnlocked ? "Random modifiers. Moving targets. Pure insanity." : "Watch Ad to Try"}
+                onClick={() => chaosAdUnlocked ? startGame("chaos") : unlockChaosPreview()}
                 accent="red"
+                locked={!chaosAdUnlocked}
               />
               <MenuButton
                 icon={<Crown className="w-10 h-10" />}
@@ -899,6 +943,7 @@ interface MenuButtonProps {
   description: string;
   onClick?: () => void;
   disabled?: boolean;
+  locked?: boolean;
   accent: string;
 }
 
@@ -908,6 +953,7 @@ function MenuButton({
   description,
   onClick,
   disabled = false,
+  locked = false,
   accent,
 }: MenuButtonProps) {
   const accents = {
@@ -928,7 +974,7 @@ function MenuButton({
       whileTap={!disabled ? { scale: 0.98 } : {}}
       onClick={onClick}
       disabled={disabled}
-      className={`group relative p-[2px] bg-[#0d0d14] transition-all duration-300 rounded-[12px] shadow-lg ${disabled ? "cursor-not-allowed" : accents[accent as keyof typeof accents]}`}
+      className={`group relative p-[2px] bg-[#0d0d14] transition-all duration-300 rounded-[12px] shadow-lg ${disabled ? "cursor-not-allowed" : accents[accent as keyof typeof accents]} ${locked ? "ring-1 ring-red-500/20" : ""}`}
     >
       <div className="h-full w-full bg-[#0d0d14] rounded-[10px] p-8 flex flex-col relative z-10 border border-white/5 items-center text-center overflow-hidden">
         {!disabled && (
