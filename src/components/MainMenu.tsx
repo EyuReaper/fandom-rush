@@ -10,6 +10,7 @@ import Leaderboard from "./Leaderboard";
 import TelemetryDashboard from "./TelemetryDashboard";
 import ShopScreen from "./ShopScreen";
 import StarRating from "./StarRating";
+import fandomHeartLogo from "../assets/fandom-heart-logo.svg";
 import {
   Zap,
   Clock,
@@ -34,6 +35,44 @@ const particles = Array.from({ length: 20 }).map((_, i) => ({
   delay: Math.random() * 2,
   x: [(i - 10) * 8, (i - 10) * 12],
 }));
+
+const FOCUSABLE_SELECTOR =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+function useModalA11y(isOpen: boolean, onClose: () => void) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const node = ref.current;
+    const focusable = node?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+    (focusable?.[0] ?? node)?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab" || !focusable || focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
+  return ref;
+}
 
 export default function MainMenu() {
   const {
@@ -62,6 +101,10 @@ export default function MainMenu() {
   const { data: session } = authClient.useSession();
   const [carouselIndex, setCarouselIndex] = useState(0);
   const shouldReduceMotion = useReducedMotion();
+  const closeSettings = useCallback(() => setShowSettings(false), []);
+  const closeHowToPlay = useCallback(() => setShowHowToPlay(false), []);
+  const settingsModalRef = useModalA11y(showSettings, closeSettings);
+  const howToPlayModalRef = useModalA11y(showHowToPlay, closeHowToPlay);
 
   interface ReviewEntry {
     rating: number;
@@ -380,8 +423,10 @@ export default function MainMenu() {
                             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                           >
                             <img
-                              src="https://upload.wikimedia.org/wikipedia/commons/e/ee/Fandom_heart-logo.svg"
+                              src={fandomHeartLogo}
                               alt="Fandom Logo"
+                              width={174}
+                              height={242}
                               className="w-full h-full object-contain brightness-0 invert"
                               style={{ filter: 'brightness(0) invert(1)' }}
                             />
@@ -598,7 +643,7 @@ export default function MainMenu() {
             <div className="h-16" />
 
             {/* --- GAME MODES --- */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full">
               <MenuButton
                 icon={<Zap className="w-10 h-10 " />}
                 title="Endless Rush"
@@ -638,10 +683,12 @@ export default function MainMenu() {
               />
             </div>
 
+            <div className="h-16" />
+
             {/* --- FOOTER --- */}
             <motion.div
               variants={itemVariants}
-              className="mt-24 flex flex-col items-center gap-6"
+              className="flex flex-col items-center gap-6"
             >
               <div className="text-gray-600 text-[10px] font-black uppercase tracking-[0.6em]">
                 © 2026 FANDOM RUSH
@@ -692,12 +739,12 @@ export default function MainMenu() {
                   whileTap={!cat.disabled ? { scale: 0.98 } : {}}
                   onClick={() => !cat.disabled && startGame("category", cat.id)}
                   disabled={cat.disabled}
-                  className={`relative group h-40 rounded-[48px] overflow-hidden border-2 transition-all p-1 ${cat.disabled ? "opacity-30 grayscale border-white/5 cursor-not-allowed bg-white/[0.02]" : `border-white/5 hover:border-white/20 shadow-2xl ${cat.glow}`}`}
+                  className={`relative group h-40 rounded-[16px] overflow-hidden border-2 transition-all p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg)] ${cat.disabled ? "opacity-30 grayscale border-white/5 cursor-not-allowed bg-white/[0.02]" : `border-white/5 hover:border-white/20 shadow-2xl ${cat.glow}`}`}
                 >
                   <div
                     className={`absolute inset-0 bg-gradient-to-br ${cat.color} opacity-5 group-hover:opacity-20 transition-opacity`}
                   />
-                  <div className="h-full w-full bg-[var(--color-card)] rounded-[40px] flex items-center p-10 relative z-10 border border-white/5 overflow-hidden">
+                  <div className="h-full w-full bg-[var(--color-card)] rounded-[14px] flex items-center p-10 relative z-10 border border-white/5 overflow-hidden">
                     <div
                       className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${cat.color} p-[1px] group-hover:rotate-6 transition-transform mr-8 flex-shrink-0`}
                     >
@@ -730,10 +777,15 @@ export default function MainMenu() {
               onClick={() => setShowSettings(false)}
             />
             <motion.div
+              ref={settingsModalRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="settings-title"
+              tabIndex={-1}
               initial={{ scale: 0.9, opacity: 0, rotateX: 20 }}
               animate={{ scale: 1, opacity: 1, rotateX: 0 }}
               exit={{ scale: 0.9, opacity: 0, rotateX: 10 }}
-              className="relative w-full max-w-xl bg-[var(--color-card)]/80 border border-cyan-500/20 rounded-[10px] shadow-[0_0_50px_rgba(6,182,212,0.1)] overflow-hidden"
+              className="relative w-full max-w-xl bg-[var(--color-card)]/80 border border-cyan-500/20 rounded-[10px] shadow-[0_0_50px_rgba(6,182,212,0.1)] overflow-hidden focus:outline-none"
             >
               <div
                 className={`absolute inset-0 pointer-events-none opacity-20 bg-[linear-gradient(transparent_0%,rgba(6,182,212,0.05)_50%,transparent_100%)] bg-[length:100%_4px] ${shouldReduceMotion ? "" : "animate-[pulse_4s_infinite]"}`}
@@ -742,7 +794,7 @@ export default function MainMenu() {
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-8 bg-cyan-500 rounded-full animate-pulse" />
                   <div>
-                    <h2 className="text-2xl font-black italic tracking-tighter uppercase">
+                    <h2 id="settings-title" className="text-2xl font-black italic tracking-tighter uppercase">
                       DIP SWITCH <span className="text-cyan-400">SETTINGS</span>
                     </h2>
                     <p className="text-[8px] font-black text-gray-500 uppercase tracking-[0.4em]">
@@ -849,16 +901,21 @@ export default function MainMenu() {
               onClick={() => setShowHowToPlay(false)}
             />
             <motion.div
+              ref={howToPlayModalRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="how-to-play-title"
+              tabIndex={-1}
               initial={{ scale: 0.9, opacity: 0, rotateX: 20 }}
               animate={{ scale: 1, opacity: 1, rotateX: 0 }}
               exit={{ scale: 0.9, opacity: 0, rotateX: 10 }}
-              className="relative w-full max-w-xl bg-[var(--color-card)]/80 border border-cyan-500/20 rounded-[10px] shadow-[0_0_50px_rgba(6,182,212,0.1)] overflow-hidden"
+              className="relative w-full max-w-xl bg-[var(--color-card)]/80 border border-cyan-500/20 rounded-[10px] shadow-[0_0_50px_rgba(6,182,212,0.1)] overflow-hidden focus:outline-none"
             >
               <div className="flex items-center justify-between p-6 border-b border-white/5 bg-white/[0.02]">
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-8 bg-cyan-500 rounded-full animate-pulse" />
                   <div>
-                    <h2 className="text-2xl font-black italic tracking-tighter uppercase">
+                    <h2 id="how-to-play-title" className="text-2xl font-black italic tracking-tighter uppercase">
                       HOW TO <span className="text-cyan-400">PLAY</span>
                     </h2>
                   </div>
@@ -986,11 +1043,11 @@ function MenuButton({
 }: MenuButtonProps) {
   const shouldReduceMotion = useReducedMotion();
   const accents = {
-    cyan: "border-cyan-500/30 text-cyan-400 hover:border-cyan-500",
-    purple: "border-purple-500/30 text-purple-400 hover:border-purple-500",
-    emerald: "border-emerald-500/30 text-emerald-400 hover:border-emerald-500",
-    red: "border-red-500/30 text-red-400 hover:border-red-500",
-    amber: "border-amber-500/30 text-amber-400 hover:border-amber-500",
+    cyan: "border-cyan-500/30 text-cyan-400 hover:border-cyan-500 focus-visible:ring-cyan-500",
+    purple: "border-purple-500/30 text-purple-400 hover:border-purple-500 focus-visible:ring-purple-500",
+    emerald: "border-emerald-500/30 text-emerald-400 hover:border-emerald-500 focus-visible:ring-emerald-500",
+    red: "border-red-500/30 text-red-400 hover:border-red-500 focus-visible:ring-red-500",
+    amber: "border-amber-500/30 text-amber-400 hover:border-amber-500 focus-visible:ring-amber-500",
   };
 
   return (
@@ -1003,7 +1060,7 @@ function MenuButton({
       whileTap={!disabled ? { scale: 0.98 } : {}}
       onClick={onClick}
       disabled={disabled}
-      className={`group relative p-[2px] bg-[var(--color-card)] transition-all duration-300 rounded-[12px] shadow-lg ${disabled ? "cursor-not-allowed" : accents[accent as keyof typeof accents]} ${locked ? "ring-1 ring-red-500/20" : ""}`}
+      className={`group relative p-[2px] bg-[var(--color-card)] transition-all duration-300 rounded-[12px] shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg)] ${disabled ? "cursor-not-allowed" : accents[accent as keyof typeof accents]} ${locked ? "ring-1 ring-red-500/20" : ""}`}
     >
       <div className="h-full w-full bg-[var(--color-card)] rounded-[10px] p-8 flex flex-col relative z-10 border border-white/5 items-center text-center overflow-hidden">
         {!disabled && !shouldReduceMotion && (
