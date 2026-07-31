@@ -3,6 +3,9 @@
 @theme {
   --color-bg: #0a0a1a;
   --color-surface: #12122a;
+  --color-panel-outer: #10101a;
+  --color-panel-inner: #0a0a0f;
+  --color-card: #0d0d14;
   --color-neon: #00f0ff;
   --color-hot-pink: #ff2d78;
   --color-gold: #ffd700;

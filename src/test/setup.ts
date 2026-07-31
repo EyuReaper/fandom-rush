@@ -41,6 +41,7 @@ vi.mock('framer-motion', () => {
     useMotionValue: (val: any) => ({ get: () => val, set: vi.fn(), onChange: vi.fn() }),
     useTransform: () => '',
     useDragControls: () => ({}),
+    useReducedMotion: () => false,
   };
 });
 /* eslint-enable @typescript-eslint/no-explicit-any */

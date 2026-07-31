@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { useGameStore } from "../stores/useGameStore";
 import { audioManager } from "../lib/audioManager";
@@ -61,6 +61,7 @@ export default function MainMenu() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const { data: session } = authClient.useSession();
   const [carouselIndex, setCarouselIndex] = useState(0);
+  const shouldReduceMotion = useReducedMotion();
 
   interface ReviewEntry {
     rating: number;
@@ -235,7 +236,7 @@ export default function MainMenu() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a] text-white flex flex-col items-center justify-center p-12 md:p-20 relative overflow-hidden selection:bg-cyan-400 selection:text-black">
+    <div className="min-h-screen bg-[var(--color-bg)] text-white flex flex-col items-center justify-center p-12 md:p-20 relative overflow-hidden selection:bg-cyan-400 selection:text-black">
       {/* --- CYBER BACKGROUND --- */}
       <div
         className="absolute inset-0 opacity-20 pointer-events-none"
@@ -250,20 +251,28 @@ export default function MainMenu() {
 
       {/* Dynamic Glows */}
       <motion.div
-        animate={{
-          x: [0, 100, -100, 0],
-          y: [0, -100, 100, 0],
-          scale: [1, 1.2, 0.8, 1],
-        }}
+        animate={
+          shouldReduceMotion
+            ? undefined
+            : {
+                x: [0, 100, -100, 0],
+                y: [0, -100, 100, 0],
+                scale: [1, 1.2, 0.8, 1],
+              }
+        }
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
         className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none"
       />
       <motion.div
-        animate={{
-          x: [0, -120, 120, 0],
-          y: [0, 120, -120, 0],
-          scale: [1, 0.9, 1.1, 1],
-        }}
+        animate={
+          shouldReduceMotion
+            ? undefined
+            : {
+                x: [0, -120, 120, 0],
+                y: [0, 120, -120, 0],
+                scale: [1, 0.9, 1.1, 1],
+              }
+        }
         transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
         className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-[#ff2d78]/10 rounded-full blur-[140px] pointer-events-none"
       />
@@ -388,28 +397,29 @@ export default function MainMenu() {
                 </div>
 
               <div className="relative py-6 overflow-hidden flex flex-col items-center">
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  {particles.map((p, i) => (
-                    <motion.div
-                      key={i}
-                      animate={{
-                        y: [0, -80],
-                        x: p.x,
-                        opacity: [0, 0.8, 0],
-                        scaleY: [1, 2, 0.5],
-                        scaleX: [1, 0.5, 0],
-                      }}
-                      transition={{
-                        duration: p.duration,
-                        repeat: Infinity,
-                        delay: p.delay,
-                        ease: "easeOut",
-                      }}
-                      className="absolute w-2 h-2 rounded-full bg-gradient-to-t from-pink-500 to-yellow-400 blur-sm"
-                    />
-                  ))}
-                </div>
-
+                {!shouldReduceMotion && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    {particles.map((p, i) => (
+                      <motion.div
+                        key={i}
+                        animate={{
+                          y: [0, -80],
+                          x: p.x,
+                          opacity: [0, 0.8, 0],
+                          scaleY: [1, 2, 0.5],
+                          scaleX: [1, 0.5, 0],
+                        }}
+                        transition={{
+                          duration: p.duration,
+                          repeat: Infinity,
+                          delay: p.delay,
+                          ease: "easeOut",
+                        }}
+                        className="absolute w-2 h-2 rounded-full bg-gradient-to-t from-pink-500 to-yellow-400 blur-sm"
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             </motion.div>
 
@@ -419,10 +429,14 @@ export default function MainMenu() {
             <motion.div
               variants={itemVariants}
               onClick={() => setShowLeaderboard(true)}
-              className="group relative bg-[#10101a] p-1 w-full max-w-lg overflow-hidden cursor-pointer active:scale-95 transition-transform rounded-[16px] mt-8"
+              className="group w-full max-w-lg cursor-pointer active:scale-95 transition-transform mt-8"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/20 via-transparent to-yellow-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="bg-[#0a0a0f] rounded-[14px] p-10 flex items-center gap-10 relative z-10 border border-white/5">
+              <Panel
+                className="p-10 flex items-center gap-10"
+                overlay={
+                  <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/20 via-transparent to-yellow-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                }
+              >
                 <div className="relative">
                   <div className="w-20 h-20 bg-yellow-500/10 rounded-2xl flex items-center justify-center border border-yellow-500/30">
                     <Trophy className="text-yellow-500 w-10 h-10 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]" />
@@ -439,7 +453,7 @@ export default function MainMenu() {
                     {highScore.toLocaleString()}
                   </p>
                 </div>
-              </div>
+              </Panel>
             </motion.div>
 
             {ratingData && ratingData.total > 0 && (
@@ -447,27 +461,25 @@ export default function MainMenu() {
                 variants={itemVariants}
                 className="mb-28 w-full max-w-lg"
               >
-                <div className="bg-[#10101a] p-1 rounded-[16px]">
-                  <div className="bg-[#0a0a0f] rounded-[14px] p-8 flex items-center gap-10 relative z-10 border border-white/5">
-                    <div className="w-20 h-20 bg-cyan-500/10 rounded-2xl flex items-center justify-center border border-cyan-500/30">
-                      <StarRating value={ratingData.average ?? 0} variant="badge" size={36} />
-                    </div>
-                    <div>
-                      <p className="text-gray-500 text-[11px] uppercase font-black tracking-[0.3em] mb-3">
-                        Community Rating
-                      </p>
-                      <p className="text-5xl font-black text-white tabular-nums tracking-tighter leading-none">
-                        {ratingData.average ? Number(ratingData.average).toFixed(1) : "—"}
-                        <span className="text-lg text-gray-500 font-bold ml-2 align-baseline">
-                          / 5
-                        </span>
-                      </p>
-                      <p className="text-[10px] text-gray-600 font-black uppercase tracking-[0.3em] mt-1">
-                        {ratingData.total} review{ratingData.total !== 1 ? "s" : ""}
-                      </p>
-                    </div>
+                <Panel className="p-8 flex items-center gap-10">
+                  <div className="w-20 h-20 bg-cyan-500/10 rounded-2xl flex items-center justify-center border border-cyan-500/30">
+                    <StarRating value={ratingData.average ?? 0} variant="badge" size={36} />
                   </div>
-                </div>
+                  <div>
+                    <p className="text-gray-500 text-[11px] uppercase font-black tracking-[0.3em] mb-3">
+                      Community Rating
+                    </p>
+                    <p className="text-5xl font-black text-white tabular-nums tracking-tighter leading-none">
+                      {ratingData.average ? Number(ratingData.average).toFixed(1) : "—"}
+                      <span className="text-lg text-gray-500 font-bold ml-2 align-baseline">
+                        / 5
+                      </span>
+                    </p>
+                    <p className="text-[10px] text-gray-600 font-black uppercase tracking-[0.3em] mt-1">
+                      {ratingData.total} review{ratingData.total !== 1 ? "s" : ""}
+                    </p>
+                  </div>
+                </Panel>
               </motion.div>
             )}
 
@@ -476,76 +488,74 @@ export default function MainMenu() {
                 variants={itemVariants}
                 className="w-full max-w-lg mb-28"
               >
-                <div className="bg-[#10101a] p-1 rounded-[16px]">
-                  <div className="bg-[#0a0a0f] rounded-[14px] p-8 z-10 border border-white/5 min-h-[170px]">
-                    <p className="text-gray-500 text-[10px] font-black tracking-[0.4em] uppercase mb-6 text-center">
-                      RECENT REVIEWS
-                    </p>
+                <Panel className="p-8 min-h-[170px]">
+                  <p className="text-gray-500 text-[10px] font-black tracking-[0.4em] uppercase mb-6 text-center">
+                    RECENT REVIEWS
+                  </p>
 
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key={carouselIndex}
-                        initial={{ opacity: 0, x: 30 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -30 }}
-                        transition={{ duration: 0.3 }}
-                        className="flex items-start gap-4"
-                      >
-                        <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                          {ratingData.recent[carouselIndex].user_image ? (
-                            <img
-                              src={ratingData.recent[carouselIndex].user_image}
-                              alt=""
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <span className="text-cyan-400 font-black text-lg">
-                              {ratingData.recent[carouselIndex].user_name?.charAt(0).toUpperCase()}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3 mb-2">
-                            <p className="text-sm font-bold text-white truncate">
-                              {ratingData.recent[carouselIndex].user_name}
-                            </p>
-                            <StarRating value={ratingData.recent[carouselIndex].rating} variant="badge" size={18} />
-                          </div>
-                          <p className="text-sm text-gray-400 leading-relaxed">
-                            &ldquo;{ratingData.recent[carouselIndex].review_text}&rdquo;
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={carouselIndex}
+                      initial={{ opacity: 0, x: 30 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -30 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex items-start gap-4"
+                    >
+                      <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                        {ratingData.recent[carouselIndex].user_image ? (
+                          <img
+                            src={ratingData.recent[carouselIndex].user_image}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-cyan-400 font-black text-lg">
+                            {ratingData.recent[carouselIndex].user_name?.charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-2">
+                          <p className="text-sm font-bold text-white truncate">
+                            {ratingData.recent[carouselIndex].user_name}
                           </p>
+                          <StarRating value={ratingData.recent[carouselIndex].rating} variant="badge" size={18} />
                         </div>
-                      </motion.div>
-                    </AnimatePresence>
+                        <p className="text-sm text-gray-400 leading-relaxed">
+                          &ldquo;{ratingData.recent[carouselIndex].review_text}&rdquo;
+                        </p>
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
 
-                    <div className="flex justify-center gap-2 mt-6">
-                      {ratingData.recent.map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setCarouselIndex(i)}
-                          className={`w-2 h-2 rounded-full transition-all ${
-                            i === carouselIndex ? "bg-cyan-400 w-4" : "bg-white/20 hover:bg-white/40"
-                          }`}
-                        />
-                      ))}
-                    </div>
-
-                    <div className="flex justify-center gap-4 mt-4">
+                  <div className="flex justify-center gap-2 mt-6">
+                    {ratingData.recent.map((_, i) => (
                       <button
-                        onClick={() => setCarouselIndex((p) => (p - 1 + ratingData.recent.length) % ratingData.recent.length)}
-                        className="text-[10px] font-black uppercase tracking-widest text-cyan-400/60 hover:text-cyan-400 transition-colors"
-                      >
-                        ← Prev
-                      </button>
-                      <button
-                        onClick={() => setCarouselIndex((p) => (p + 1) % ratingData.recent.length)}
-                        className="text-[10px] font-black uppercase tracking-widest text-cyan-400/60 hover:text-cyan-400 transition-colors"
-                      >
-                        Next →
-                      </button>
-                    </div>
+                        key={i}
+                        onClick={() => setCarouselIndex(i)}
+                        className={`w-2 h-2 rounded-full transition-all ${
+                          i === carouselIndex ? "bg-cyan-400 w-4" : "bg-white/20 hover:bg-white/40"
+                        }`}
+                      />
+                    ))}
                   </div>
-                </div>
+
+                  <div className="flex justify-center gap-4 mt-4">
+                    <button
+                      onClick={() => setCarouselIndex((p) => (p - 1 + ratingData.recent.length) % ratingData.recent.length)}
+                      className="text-[10px] font-black uppercase tracking-widest text-cyan-400/60 hover:text-cyan-400 transition-colors"
+                    >
+                      ← Prev
+                    </button>
+                    <button
+                      onClick={() => setCarouselIndex((p) => (p + 1) % ratingData.recent.length)}
+                      className="text-[10px] font-black uppercase tracking-widest text-cyan-400/60 hover:text-cyan-400 transition-colors"
+                    >
+                      Next →
+                    </button>
+                  </div>
+                </Panel>
               </motion.div>
             )}
 
@@ -554,36 +564,34 @@ export default function MainMenu() {
               variants={itemVariants}
               className="mb-16 w-full max-w-lg"
             >
-              <div className="bg-[#10101a] p-1 rounded-[16px]">
-                <div className="bg-[#0a0a0f] rounded-[14px] p-6 flex items-center gap-5 relative z-10 border border-pink-500/20">
-                  <div className="w-14 h-14 rounded-2xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center shrink-0">
-                    <Gift className="w-7 h-7 text-pink-400" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-gray-500 text-[10px] uppercase font-black tracking-[0.3em] mb-1">
-                      Daily Bonus
-                    </p>
-                    <p className="text-white font-black uppercase tracking-tight">
-                      {dailyBonusDate === new Date().toISOString().slice(0, 10)
-                        ? "Bonus claimed"
-                        : "Claim 2× score"}
-                    </p>
-                    <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-1">
-                      {dailyBonusDate === new Date().toISOString().slice(0, 10)
-                        ? "Come back tomorrow for another boost"
-                        : "One claim per day · doubles your points"}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={claimDailyBonus}
-                    disabled={dailyBonusDate === new Date().toISOString().slice(0, 10)}
-                    className="shrink-0 rounded-xl border border-pink-400/40 bg-pink-500/15 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-pink-300 transition-colors hover:bg-pink-500/25 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/5 disabled:text-gray-600"
-                  >
-                    {dailyBonusDate === new Date().toISOString().slice(0, 10) ? "Claimed" : "Claim"}
-                  </button>
+              <Panel className="p-6 flex items-center gap-5" border="border-pink-500/20">
+                <div className="w-14 h-14 rounded-2xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center shrink-0">
+                  <Gift className="w-7 h-7 text-pink-400" />
                 </div>
-              </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-gray-500 text-[10px] uppercase font-black tracking-[0.3em] mb-1">
+                    Daily Bonus
+                  </p>
+                  <p className="text-white font-black uppercase tracking-tight">
+                    {dailyBonusDate === new Date().toISOString().slice(0, 10)
+                      ? "Bonus claimed"
+                      : "Claim 2× score"}
+                  </p>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-1">
+                    {dailyBonusDate === new Date().toISOString().slice(0, 10)
+                      ? "Come back tomorrow for another boost"
+                      : "One claim per day · doubles your points"}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={claimDailyBonus}
+                  disabled={dailyBonusDate === new Date().toISOString().slice(0, 10)}
+                  className="shrink-0 rounded-xl border border-pink-400/40 bg-pink-500/15 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-pink-300 transition-colors hover:bg-pink-500/25 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/5 disabled:text-gray-600"
+                >
+                  {dailyBonusDate === new Date().toISOString().slice(0, 10) ? "Claimed" : "Claim"}
+                </button>
+              </Panel>
             </motion.div>
 
             {/* spacer */}
@@ -689,11 +697,11 @@ export default function MainMenu() {
                   <div
                     className={`absolute inset-0 bg-gradient-to-br ${cat.color} opacity-5 group-hover:opacity-20 transition-opacity`}
                   />
-                  <div className="h-full w-full bg-[#0d0d14] rounded-[40px] flex items-center p-10 relative z-10 border border-white/5 overflow-hidden">
+                  <div className="h-full w-full bg-[var(--color-card)] rounded-[40px] flex items-center p-10 relative z-10 border border-white/5 overflow-hidden">
                     <div
                       className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${cat.color} p-[1px] group-hover:rotate-6 transition-transform mr-8 flex-shrink-0`}
                     >
-                      <div className="w-full h-full bg-[#0d0d14] rounded-[15px] flex items-center justify-center text-4xl">
+                      <div className="w-full h-full bg-[var(--color-card)] rounded-[15px] flex items-center justify-center text-4xl">
                         {cat.icon}
                       </div>
                     </div>
@@ -718,16 +726,18 @@ export default function MainMenu() {
             className="fixed inset-0 z-[200] flex items-center justify-center p-4"
           >
             <div
-              className="absolute inset-0 bg-[#0a0a1a]/60 backdrop-blur-md"
+              className="absolute inset-0 bg-[var(--color-bg)]/60 backdrop-blur-md"
               onClick={() => setShowSettings(false)}
             />
             <motion.div
               initial={{ scale: 0.9, opacity: 0, rotateX: 20 }}
               animate={{ scale: 1, opacity: 1, rotateX: 0 }}
               exit={{ scale: 0.9, opacity: 0, rotateX: 10 }}
-              className="relative w-full max-w-xl bg-[#0d0d14]/80 border border-cyan-500/20 rounded-[10px] shadow-[0_0_50px_rgba(6,182,212,0.1)] overflow-hidden"
+              className="relative w-full max-w-xl bg-[var(--color-card)]/80 border border-cyan-500/20 rounded-[10px] shadow-[0_0_50px_rgba(6,182,212,0.1)] overflow-hidden"
             >
-              <div className="absolute inset-0 pointer-events-none opacity-20 bg-[linear-gradient(transparent_0%,rgba(6,182,212,0.05)_50%,transparent_100%)] bg-[length:100%_4px] animate-[pulse_4s_infinite]" />
+              <div
+                className={`absolute inset-0 pointer-events-none opacity-20 bg-[linear-gradient(transparent_0%,rgba(6,182,212,0.05)_50%,transparent_100%)] bg-[length:100%_4px] ${shouldReduceMotion ? "" : "animate-[pulse_4s_infinite]"}`}
+              />
               <div className="flex items-center justify-between p-6 border-b border-white/5 bg-white/[0.02]">
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-8 bg-cyan-500 rounded-full animate-pulse" />
@@ -835,14 +845,14 @@ export default function MainMenu() {
             className="fixed inset-0 z-[200] flex items-center justify-center p-4"
           >
             <div
-              className="absolute inset-0 bg-[#0a0a1a]/60 backdrop-blur-md"
+              className="absolute inset-0 bg-[var(--color-bg)]/60 backdrop-blur-md"
               onClick={() => setShowHowToPlay(false)}
             />
             <motion.div
               initial={{ scale: 0.9, opacity: 0, rotateX: 20 }}
               animate={{ scale: 1, opacity: 1, rotateX: 0 }}
               exit={{ scale: 0.9, opacity: 0, rotateX: 10 }}
-              className="relative w-full max-w-xl bg-[#0d0d14]/80 border border-cyan-500/20 rounded-[10px] shadow-[0_0_50px_rgba(6,182,212,0.1)] overflow-hidden"
+              className="relative w-full max-w-xl bg-[var(--color-card)]/80 border border-cyan-500/20 rounded-[10px] shadow-[0_0_50px_rgba(6,182,212,0.1)] overflow-hidden"
             >
               <div className="flex items-center justify-between p-6 border-b border-white/5 bg-white/[0.02]">
                 <div className="flex items-center gap-3">
@@ -937,6 +947,24 @@ export default function MainMenu() {
   );
 }
 
+interface PanelProps {
+  children: React.ReactNode;
+  className?: string;
+  border?: string;
+  overlay?: React.ReactNode;
+}
+
+function Panel({ children, className = "", border = "border-white/5", overlay }: PanelProps) {
+  return (
+    <div className="relative bg-[var(--color-panel-outer)] p-1 rounded-[16px] overflow-hidden">
+      {overlay}
+      <div className={`bg-[var(--color-panel-inner)] rounded-[14px] relative z-10 border ${border} ${className}`}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 interface MenuButtonProps {
   icon: React.ReactNode;
   title: string;
@@ -956,6 +984,7 @@ function MenuButton({
   locked = false,
   accent,
 }: MenuButtonProps) {
+  const shouldReduceMotion = useReducedMotion();
   const accents = {
     cyan: "border-cyan-500/30 text-cyan-400 hover:border-cyan-500",
     purple: "border-purple-500/30 text-purple-400 hover:border-purple-500",
@@ -974,10 +1003,10 @@ function MenuButton({
       whileTap={!disabled ? { scale: 0.98 } : {}}
       onClick={onClick}
       disabled={disabled}
-      className={`group relative p-[2px] bg-[#0d0d14] transition-all duration-300 rounded-[12px] shadow-lg ${disabled ? "cursor-not-allowed" : accents[accent as keyof typeof accents]} ${locked ? "ring-1 ring-red-500/20" : ""}`}
+      className={`group relative p-[2px] bg-[var(--color-card)] transition-all duration-300 rounded-[12px] shadow-lg ${disabled ? "cursor-not-allowed" : accents[accent as keyof typeof accents]} ${locked ? "ring-1 ring-red-500/20" : ""}`}
     >
-      <div className="h-full w-full bg-[#0d0d14] rounded-[10px] p-8 flex flex-col relative z-10 border border-white/5 items-center text-center overflow-hidden">
-        {!disabled && (
+      <div className="h-full w-full bg-[var(--color-card)] rounded-[10px] p-8 flex flex-col relative z-10 border border-white/5 items-center text-center overflow-hidden">
+        {!disabled && !shouldReduceMotion && (
           <motion.div
             initial={{ left: "-100%" }}
             animate={{ left: "100%" }}
@@ -1014,7 +1043,7 @@ function MenuButton({
         )}
       </div>
       {disabled && (
-        <div className="absolute inset-0 rounded-[10px] bg-[#0a0a1a]/80 flex items-center justify-center z-30 pointer-events-none backdrop-blur-sm">
+        <div className="absolute inset-0 rounded-[10px] bg-[var(--color-bg)]/80 flex items-center justify-center z-30 pointer-events-none backdrop-blur-sm">
           <span className="arcade-title text-[8px] text-yellow-500" style={{ textShadow: '0 0 10px rgba(255,215,0,0.5)', animation: 'blink 1.5s step-end infinite' }}>INSERT COIN</span>
         </div>
       )}
