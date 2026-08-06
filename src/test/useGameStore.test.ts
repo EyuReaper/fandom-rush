@@ -2,9 +2,14 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { useGameStore, getAccessibleClues, generateOptions } from '../stores/useGameStore';
 import { fandomClues } from '../data/fandomClues';
 import { getEntitlements } from '../lib/birrjs-client';
+import { showRewardedVideo } from '../lib/adManager';
 
 vi.mock('../lib/birrjs-client', () => ({
   getEntitlements: vi.fn(),
+}))
+
+vi.mock('../lib/adManager', () => ({
+  showRewardedVideo: vi.fn(),
 }))
 
 describe('useGameStore', () => {
@@ -169,6 +174,130 @@ describe('useGameStore', () => {
       const clue = allFreeClues[0]
       const options = generateOptions(clue, [])
       expect(options.every(o => freeFandoms.has(o))).toBe(true)
+    })
+  })
+
+  describe('ads & monetization edge cases', () => {
+    describe('revive', () => {
+      beforeEach(() => {
+        useGameStore.setState({
+          isPlaying: true,
+          lives: 0,
+          showRevivePrompt: true,
+          reviveUsedThisGame: false,
+        })
+      })
+
+      it('grants 1 life and clears the prompt when the ad completes', async () => {
+        vi.mocked(showRewardedVideo).mockResolvedValue(true)
+
+        await useGameStore.getState().revive()
+
+        const state = useGameStore.getState()
+        expect(state.lives).toBe(1)
+        expect(state.reviveUsedThisGame).toBe(true)
+        expect(state.showRevivePrompt).toBe(false)
+      })
+
+      it('leaves the prompt open and grants nothing when the ad fails or is skipped', async () => {
+        vi.mocked(showRewardedVideo).mockResolvedValue(false)
+
+        await useGameStore.getState().revive()
+
+        const state = useGameStore.getState()
+        expect(state.lives).toBe(0)
+        expect(state.reviveUsedThisGame).toBe(false)
+        expect(state.showRevivePrompt).toBe(true)
+      })
+
+      it('does not request another ad once revive has already been used this game', async () => {
+        useGameStore.setState({ reviveUsedThisGame: true })
+
+        await useGameStore.getState().revive()
+
+        expect(showRewardedVideo).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('claimDailyBonus', () => {
+      beforeEach(() => {
+        useGameStore.setState({ dailyBonusDate: null, scoreMultiplier: 1 })
+      })
+
+      it('grants a 2x multiplier on the first claim of the day', () => {
+        const today = new Date().toISOString().slice(0, 10)
+
+        const result = useGameStore.getState().claimDailyBonus()
+
+        expect(result).toBe(true)
+        const state = useGameStore.getState()
+        expect(state.scoreMultiplier).toBe(2)
+        expect(state.dailyBonusDate).toBe(today)
+        expect(localStorage.getItem('fandomRushDailyBonusDate')).toBe(today)
+      })
+
+      it('rejects a second claim on the same day', () => {
+        useGameStore.getState().claimDailyBonus()
+
+        const result = useGameStore.getState().claimDailyBonus()
+
+        expect(result).toBe(false)
+      })
+    })
+
+    describe('unlockChaosPreview', () => {
+      beforeEach(() => {
+        useGameStore.setState({ chaosAdUnlocked: false })
+      })
+
+      it('unlocks chaos mode when the ad completes', async () => {
+        vi.mocked(showRewardedVideo).mockResolvedValue(true)
+
+        await useGameStore.getState().unlockChaosPreview()
+
+        expect(useGameStore.getState().chaosAdUnlocked).toBe(true)
+        expect(localStorage.getItem('fandomRushChaosAdUnlocked')).toBe('true')
+      })
+
+      it('stays locked when the ad fails or is skipped', async () => {
+        vi.mocked(showRewardedVideo).mockResolvedValue(false)
+
+        await useGameStore.getState().unlockChaosPreview()
+
+        expect(useGameStore.getState().chaosAdUnlocked).toBe(false)
+      })
+
+      it('does not request another ad once already unlocked', async () => {
+        useGameStore.setState({ chaosAdUnlocked: true })
+
+        await useGameStore.getState().unlockChaosPreview()
+
+        expect(showRewardedVideo).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('module initial state resilience to localStorage', () => {
+    beforeEach(() => {
+      vi.resetModules()
+    })
+
+    it('defaults to safe values when localStorage is empty (fresh install / cleared)', async () => {
+      localStorage.clear()
+      const { useGameStore: freshStore } = await import('../stores/useGameStore')
+
+      const state = freshStore.getState()
+      expect(state.highScore).toBe(0)
+      expect(state.chaosAdUnlocked).toBe(false)
+      expect(state.dailyBonusDate).toBeNull()
+    })
+
+    it('falls back to 0 when a stored high score is corrupted (non-numeric)', async () => {
+      localStorage.clear()
+      localStorage.setItem('fandomRushHighScore', 'not-a-number')
+      const { useGameStore: freshStore } = await import('../stores/useGameStore')
+
+      expect(freshStore.getState().highScore).toBe(0)
     })
   })
 

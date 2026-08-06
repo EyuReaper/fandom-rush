@@ -1,21 +1,14 @@
+import { AD_MOCK_TIMEOUT } from "./config";
+
 export interface RewardedVideoProvider {
   show(): Promise<boolean>;
-}
-
-const DEFAULT_MOCK_TIMEOUT = 5_000;
-
-function getMockTimeout() {
-  const configuredTimeout = Number(import.meta.env.VITE_AD_MOCK_TIMEOUT);
-  return Number.isFinite(configuredTimeout) && configuredTimeout >= 0
-    ? configuredTimeout
-    : DEFAULT_MOCK_TIMEOUT;
 }
 
 /** A deterministic provider for local development and automated tests. */
 export class MockRewardedProvider implements RewardedVideoProvider {
   show(): Promise<boolean> {
     return new Promise((resolve) => {
-      window.setTimeout(() => resolve(true), getMockTimeout());
+      window.setTimeout(() => resolve(true), AD_MOCK_TIMEOUT);
     });
   }
 }
