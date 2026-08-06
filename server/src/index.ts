@@ -46,7 +46,14 @@ app.route('/api/packs', packRouter);
 app.route('/api/telemetry', telemetryRouter);
 
 // BetterAuth handler
-app.on(['POST', 'GET'], '/api/auth/*', (c) => auth.handler(c.req.raw));
+app.on(['POST', 'GET'], '/api/auth/*', async (c) => {
+  try {
+    return await auth.handler(c.req.raw);
+  } catch (err) {
+    console.error('BetterAuth handler error:', err);
+    return c.json({ error: 'Authentication error' }, 500);
+  }
+});
 
 app.get('/', (c) => c.text('Fandom Rush API is running'));
 

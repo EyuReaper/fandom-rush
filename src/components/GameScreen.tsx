@@ -451,6 +451,8 @@ export default function GameScreen() {
 
         {/* Vignette */}
         <div className="fixed inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%)' }} />
+
+        {showLeaderboard && <Leaderboard onClose={() => setShowLeaderboard(false)} />}
       </div>
     );
   }

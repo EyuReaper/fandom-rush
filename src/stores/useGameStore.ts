@@ -22,6 +22,13 @@ interface GameStore extends GameState {
 
 const isMobile = typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
+function getStoredHighScore(): number {
+  const stored = localStorage.getItem("fandomRushHighScore");
+  if (!stored) return 0;
+  const parsed = parseInt(stored, 10);
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
 const initialState: GameState = {
   currentClue: null,
   options: [],
@@ -33,9 +40,7 @@ const initialState: GameState = {
   gameMode: "endless",
   selectedCategory: null,
   maxTime: 8,
-  highScore: localStorage.getItem("fandomRushHighScore")
-    ? parseInt(localStorage.getItem("fandomRushHighScore")!)
-    : 0,
+  highScore: getStoredHighScore(),
   swipeMode: localStorage.getItem("fandomRushSwipeMode")
     ? localStorage.getItem("fandomRushSwipeMode") === "true"
     : isMobile,
@@ -63,8 +68,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
   ...initialState,
 
   startGame: (mode, category) => {
-    audioManager.init();
     const firstClue = getRandomClue(category, [], get().entitlements);
+    if (!firstClue) {
+      console.error('No accessible clues available to start the game.');
+      return;
+    }
+
+    audioManager.init();
     const options = generateOptions(firstClue, get().entitlements);
 
     const isChaos = mode === "chaos";
@@ -223,6 +233,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     const nextClue = getRandomClue(selectedCategory || undefined, previousClueIds, get().entitlements);
+    if (!nextClue) {
+      get().endGame();
+      return;
+    }
     const newOptions = generateOptions(nextClue, get().entitlements);
 
     const survivalTime = gameMode === "survival"
@@ -269,7 +283,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({ isPlaying: false, showRevivePrompt: false });
     audioManager.stopBGM();
     audioManager.play('game-over', get().isMuted);
-    if (timerInterval) clearInterval(timerInterval);
+    stopTimer();
   },
 
   fetchEntitlements: async () => {
@@ -314,7 +328,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   resetGame: () => {
-    if (timerInterval) clearInterval(timerInterval);
+    stopTimer();
     set({
       ...initialState,
       highScore: get().highScore,
@@ -343,21 +357,24 @@ export function getAccessibleClues(entitlements: string[]) {
   });
 }
 
-function getRandomClue(category?: string, previousClueIds: number[] = [], entitlements: string[] = []) {
+function getRandomClue(category?: string, previousClueIds: number[] = [], entitlements: string[] = []): FandomClue | null {
   const accessible = getAccessibleClues(entitlements);
+  if (accessible.length === 0) return null;
+
   const filtered = category
     ? accessible.filter(c => c.category === category)
     : accessible;
 
-  const available = filtered.filter(c => !previousClueIds.includes(c.id));
-  const source = available.length > 0 ? available : filtered;
-
-  if (source.length === 0) return accessible[Math.floor(Math.random() * accessible.length)];
+  const pool = filtered.length > 0 ? filtered : accessible;
+  const available = pool.filter(c => !previousClueIds.includes(c.id));
+  const source = available.length > 0 ? available : pool;
 
   return source[Math.floor(Math.random() * source.length)];
 }
 
-export function generateOptions(correctClue: FandomClue, entitlements: string[] = []) {
+export function generateOptions(correctClue: FandomClue | null, entitlements: string[] = []): string[] {
+  if (!correctClue) return [];
+
   const correct = correctClue.correctAnswer;
   const accessible = getAccessibleClues(entitlements);
   const allFandoms = Array.from(new Set(accessible.map(c => c.correctAnswer)));
@@ -371,20 +388,27 @@ export function generateOptions(correctClue: FandomClue, entitlements: string[] 
 }
 
 // Timer
+// `timerInterval` is owned exclusively by startTimer/stopTimer — no other
+// code should read or clear it directly, so there's a single source of
+// truth for whether a timer is currently running.
 let timerInterval: ReturnType<typeof setInterval> | null = null;
 
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+}
+
 function startTimer() {
-  if (timerInterval) clearInterval(timerInterval);
+  stopTimer();
 
   timerInterval = setInterval(() => {
     const store = useGameStore.getState();
     if (store.isPlaying) {
       store.tickTimer();
     } else {
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-      }
+      stopTimer();
     }
   }, 100);
 }
