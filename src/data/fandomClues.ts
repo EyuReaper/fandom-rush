@@ -172,7 +172,7 @@ export const fandomClues: FandomClue[] = [
   { id: 526, fandom: "Basketball", category: "sports", difficulty: "hard", premium: "enthusiast", objectName: "Championship Trophy", imagePath: "/src/assets/sports/basketball/championship-trophy.png", correctAnswer: "Basketball" },
   { id: 527, fandom: "Soccer", category: "sports", difficulty: "easy", premium: "enthusiast", objectName: "Soccer Ball", imagePath: "/src/assets/sports/soccer/soccer-ball.png", correctAnswer: "Soccer" },
   { id: 528, fandom: "Soccer", category: "sports", difficulty: "medium", premium: "enthusiast", objectName: "World Cup Trophy", imagePath: "/src/assets/sports/soccer/world-cup-trophy.png", correctAnswer: "Soccer" },
-  { id: 529, fandom: "Soccer", category: "sports", difficulty: "hard", premium: "enthusiast", objectName: "Red Card", imagePath: "/src/assets/sports/soccer/red-card.png", correctAnswer: "Soccer" },
+  { id: 529, fandom: "Soccer", category: "sports", difficulty: "hard", premium: "enthusiast", objectName: "Goalkeeper's Glove", imagePath: "/src/assets/sports/soccer/goalkeepers-glove.png", correctAnswer: "Soccer" },
   { id: 530, fandom: "Boxing", category: "sports", difficulty: "easy", premium: "enthusiast", objectName: "Boxing Glove", imagePath: "/src/assets/sports/boxing/boxing-glove.png", correctAnswer: "Boxing" },
   { id: 531, fandom: "Boxing", category: "sports", difficulty: "medium", premium: "enthusiast", objectName: "Heavyweight Belt", imagePath: "/src/assets/sports/boxing/heavyweight-belt.png", correctAnswer: "Boxing" },
   { id: 532, fandom: "Boxing", category: "sports", difficulty: "hard", premium: "enthusiast", objectName: "Punching Bag", imagePath: "/src/assets/sports/boxing/punching-bag.png", correctAnswer: "Boxing" },

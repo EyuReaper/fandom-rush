@@ -1,11 +1,10 @@
-import { useEffect, useCallback, useState, useRef } from "react";
+import { useEffect, useCallback, useState, useRef, lazy, Suspense } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import { useGameStore } from "../stores/useGameStore";
 import { authClient } from "../lib/auth-client";
 import { API_URL } from "../lib/config";
 import { TimeBar } from "./TimeBar";
 import { ScoreDisplay } from "./ScoreDisplay";
-import Leaderboard from "./Leaderboard";
 import StarRating from "./StarRating";
 import BannerAd from "./BannerAd";
 import ReviveModal from "./ReviveModal";
@@ -22,6 +21,10 @@ import {
   ArrowRight,
   Play,
 } from "lucide-react";
+
+// Same component as MainMenu.tsx's lazy Leaderboard — Vite/Rollup dedupes
+// dynamic imports of the same module into one shared chunk either way.
+const Leaderboard = lazy(() => import("./Leaderboard"));
 
 export default function GameScreen() {
   const {
@@ -452,7 +455,11 @@ export default function GameScreen() {
         {/* Vignette */}
         <div className="fixed inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%)' }} />
 
-        {showLeaderboard && <Leaderboard onClose={() => setShowLeaderboard(false)} />}
+        {showLeaderboard && (
+          <Suspense fallback={null}>
+            <Leaderboard onClose={() => setShowLeaderboard(false)} />
+          </Suspense>
+        )}
       </div>
     );
   }
@@ -673,9 +680,11 @@ export default function GameScreen() {
       {/* Keyboard Help */}
       <KeyboardHelp />
 
-      <AnimatePresence>
-        {showLeaderboard && <Leaderboard onClose={() => setShowLeaderboard(false)} />}
-      </AnimatePresence>
+      <Suspense fallback={null}>
+        <AnimatePresence>
+          {showLeaderboard && <Leaderboard onClose={() => setShowLeaderboard(false)} />}
+        </AnimatePresence>
+      </Suspense>
 
       {/* CRT overlay */}
       <div className="crt-overlay fixed inset-0 opacity-[0.04]" />

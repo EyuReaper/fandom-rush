@@ -9,11 +9,13 @@ import dns from 'node:dns';
 import telemetryRouter from './routes/telemetry.js';
 import ratingsRouter from './routes/ratings.js';
 import packRouter from './routes/packs.js';
+import { initMonitoring, Sentry } from './lib/monitoring.js';
 
 
 dns.setDefaultResultOrder('ipv4first');
 
 dotenv.config();
+initMonitoring();
 
 const requiredEnvVars = [
   'DATABASE_URL',
@@ -51,6 +53,7 @@ app.on(['POST', 'GET'], '/api/auth/*', async (c) => {
     return await auth.handler(c.req.raw);
   } catch (err) {
     console.error('BetterAuth handler error:', err);
+    Sentry.captureException(err);
     return c.json({ error: 'Authentication error' }, 500);
   }
 });
@@ -62,6 +65,7 @@ console.log(`Server is running on http://localhost:${port}`);
 // Error middleware - catches everything above
 app.onError((err, c) => {
   console.error(err);
+  Sentry.captureException(err);
   return c.json({
     error: process.env.NODE_ENV === 'production'
       ? 'Internal Server Error'

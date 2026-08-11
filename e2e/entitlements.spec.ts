@@ -13,7 +13,7 @@ test.describe('Survival Mode gate', () => {
     await page.goto('/')
     // Populate store as if user owns fanatic pack
     await page.evaluate(() => {
-      const store = (window as any).__ZUSTAND_STORE__
+      const store = (window as unknown as { __ZUSTAND_STORE__?: { getState: () => { setEntitlements: (ents: string[]) => void } } }).__ZUSTAND_STORE__
       store?.getState().setEntitlements(['enthusiast', 'fanatic'])
     })
     // Wait for React re-render
@@ -33,7 +33,7 @@ test.describe('clue filtering', () => {
     for (let i = 0; i < 5; i++) {
       await page.waitForTimeout(600)
       const correct = await page.evaluate(() => {
-        const state = (window as any).__ZUSTAND_STORE__?.getState()
+        const state = (window as unknown as { __ZUSTAND_STORE__?: { getState: () => { currentClue?: { correctAnswer?: string } } } }).__ZUSTAND_STORE__?.getState()
         return state?.currentClue?.correctAnswer
       })
       if (correct) await page.getByRole('button', { name: correct }).click()

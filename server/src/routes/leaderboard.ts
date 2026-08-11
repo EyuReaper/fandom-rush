@@ -4,12 +4,14 @@ import { zValidator } from '@hono/zod-validator';
 import { pool } from '../lib/db.js';
 import { auth } from '../lib/auth.js';
 import { rateLimiter } from 'hono-rate-limiter';
+import { ipKeyGenerator } from '../lib/rateLimitKey.js';
 
 const router = new Hono();
 
 const scoreLimiter = rateLimiter({
   windowMs: 60 * 1000, // 60-second window
-  max: 10, // max 10 requests per window
+  limit: 10, // max 10 requests per window
+  keyGenerator: ipKeyGenerator,
   message: { error: 'Too many requests. Slow down.' },
 
 });
@@ -120,7 +122,7 @@ router.get('/', zValidator('query', querySchema), async (c) => {
 });
 
 // POST /api/scores
-router.post('/', scoreLimiter, authMiddleware, zValidator('json', scoreSchema), async (c) => {
+router.post('/', scoreLimiter, authMiddleware, zValidator('json', scoreSchema), async (c: any) => {
   const session = c.get('session');
   const { score, gameMode, category } = c.req.valid('json');
 
@@ -144,7 +146,7 @@ router.post('/', scoreLimiter, authMiddleware, zValidator('json', scoreSchema), 
 });
 
 // POST /api/claim-score
-router.post('/claim', scoreLimiter,  authMiddleware, zValidator('json', scoreSchema), async (c) => {
+router.post('/claim', scoreLimiter,  authMiddleware, zValidator('json', scoreSchema), async (c: any) => {
     const session = c.get('session');
     const { score, gameMode, category } = c.req.valid('json');
 

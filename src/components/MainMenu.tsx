@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { useGameStore } from "../stores/useGameStore";
@@ -6,9 +6,6 @@ import { audioManager } from "../lib/audioManager";
 import { authClient } from "../lib/auth-client";
 import { API_URL } from "../lib/config";
 import LoginButton from "./LoginButton";
-import Leaderboard from "./Leaderboard";
-import TelemetryDashboard from "./TelemetryDashboard";
-import ShopScreen from "./ShopScreen";
 import StarRating from "./StarRating";
 import fandomHeartLogo from "../assets/fandom-heart-logo.svg";
 import {
@@ -29,6 +26,13 @@ import {
   Gift,
   LockKeyhole,
 } from "lucide-react";
+
+// Lazy-loaded: each is a full-screen overlay only reachable after a menu
+// click, well after first paint, so keeping them out of the initial bundle
+// shrinks the main chunk without affecting time-to-interactive.
+const Leaderboard = lazy(() => import("./Leaderboard"));
+const TelemetryDashboard = lazy(() => import("./TelemetryDashboard"));
+const ShopScreen = lazy(() => import("./ShopScreen"));
 
 const particles = Array.from({ length: 20 }).map((_, i) => ({
   duration: 0.8 + Math.random(),
@@ -982,21 +986,27 @@ export default function MainMenu() {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {showShop && <ShopScreen onClose={() => setShowShop(false)} />}
-      </AnimatePresence>
+      <Suspense fallback={null}>
+        <AnimatePresence>
+          {showShop && <ShopScreen onClose={() => setShowShop(false)} />}
+        </AnimatePresence>
+      </Suspense>
 
-      <AnimatePresence>
-        {showLeaderboard && (
-          <Leaderboard onClose={() => setShowLeaderboard(false)} />
-        )}
-      </AnimatePresence>
+      <Suspense fallback={null}>
+        <AnimatePresence>
+          {showLeaderboard && (
+            <Leaderboard onClose={() => setShowLeaderboard(false)} />
+          )}
+        </AnimatePresence>
+      </Suspense>
 
-      <AnimatePresence>
-        {showTelemetry && (
-          <TelemetryDashboard onClose={() => setShowTelemetry(false)} />
-        )}
-      </AnimatePresence>
+      <Suspense fallback={null}>
+        <AnimatePresence>
+          {showTelemetry && (
+            <TelemetryDashboard onClose={() => setShowTelemetry(false)} />
+          )}
+        </AnimatePresence>
+      </Suspense>
 
       {/* CRT overlay */}
       <div className="crt-overlay fixed inset-0 opacity-[0.04]" />

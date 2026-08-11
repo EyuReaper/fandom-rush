@@ -19,7 +19,7 @@ const ENTRIES = {
   ],
   sports: [
     ["basketball", ["basketball-ball", "jersey-23", "championship-trophy"]],
-    ["soccer", ["soccer-ball", "world-cup-trophy", "red-card"]],
+    ["soccer", ["soccer-ball", "world-cup-trophy", "goalkeepers-glove"]],
     ["boxing", ["boxing-glove", "heavyweight-belt", "punching-bag"]],
     ["olympics", ["gold-medal", "olympic-torch", "laurel-wreath"]],
   ],

@@ -5,14 +5,16 @@ import { pool } from '../lib/db.js';
 import { auth } from '../lib/auth.js';
 import { rateLimiter } from 'hono-rate-limiter';
 import { containsProfanity } from '../lib/profanity.js';
+import { ipKeyGenerator } from '../lib/rateLimitKey.js';
 
 const router = new Hono();
 
 const ratingLimiter = rateLimiter({
   windowMs: 60 * 1000,
-  max: 10,
+  limit: 10,
+  keyGenerator: ipKeyGenerator,
   message: { error: 'Too many requests. Slow down.' },
-} as any);
+});
 
 const authMiddleware = async (c: any, next: any) => {
   const session = await auth.api.getSession({ headers: c.req.raw.headers });

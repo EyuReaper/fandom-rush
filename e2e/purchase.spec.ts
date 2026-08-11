@@ -44,7 +44,7 @@ test('shows owned badge for purchased packs', async ({ page }) => {
 
   // Set entitlements directly in the Zustand store
   await page.evaluate(() => {
-    const store = (window as any).__ZUSTAND_STORE__
+    const store = (window as unknown as { __ZUSTAND_STORE__?: { getState: () => { setEntitlements: (ents: string[]) => void } } }).__ZUSTAND_STORE__
     store?.getState().setEntitlements(['enthusiast'])
   })
   await page.waitForTimeout(300)
@@ -62,7 +62,7 @@ test('shows owned badge for purchased packs', async ({ page }) => {
 })
 
 test('clicking Unlock Now calls checkout API', async ({ page }) => {
-  let checkoutRequest: any = null
+  let checkoutRequest: import('@playwright/test').Request | null = null
   await page.route('**/api/packs/checkout', async (route) => {
     checkoutRequest = route.request()
     await route.fulfill({ body: JSON.stringify({ url: 'https://checkout.example.com/pay' }) })

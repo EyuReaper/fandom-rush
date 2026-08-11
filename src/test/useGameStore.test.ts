@@ -301,4 +301,35 @@ describe('useGameStore', () => {
     })
   })
 
+  describe('empty clue pool', () => {
+    beforeEach(() => {
+      vi.resetModules()
+      vi.doMock('../data/fandomClues', () => ({ fandomClues: [] }))
+    })
+
+    afterEach(() => {
+      vi.doUnmock('../data/fandomClues')
+    })
+
+    it('startGame bails out instead of crashing when no clues are accessible', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const { useGameStore: emptyStore } = await import('../stores/useGameStore')
+
+      emptyStore.getState().startGame('endless')
+
+      const state = emptyStore.getState()
+      expect(state.isPlaying).toBe(false)
+      expect(state.currentClue).toBeNull()
+      expect(consoleSpy).toHaveBeenCalledWith('No accessible clues available to start the game.')
+
+      consoleSpy.mockRestore()
+    })
+
+    it('generateOptions returns an empty array when there is no current clue', async () => {
+      const { generateOptions: generateOptionsEmpty } = await import('../stores/useGameStore')
+
+      expect(generateOptionsEmpty(null, [])).toEqual([])
+    })
+  })
+
 });
