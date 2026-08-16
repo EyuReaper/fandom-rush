@@ -332,4 +332,40 @@ describe('useGameStore', () => {
     })
   })
 
+  describe('timer timeout edge cases', () => {
+    it('fires only one timeout per question (does not drain all lives)', () => {
+      useGameStore.getState().startGame('endless');
+      expect(useGameStore.getState().lives).toBe(3);
+
+      // Hit 0, then simulate multiple 100ms ticks before the 420ms nextQuestion fires
+      useGameStore.setState({ timeLeft: 0 });
+      useGameStore.getState().tickTimer();
+      useGameStore.getState().tickTimer();
+      useGameStore.getState().tickTimer();
+      useGameStore.getState().tickTimer();
+
+      // Only ONE life lost despite 4 tick calls
+      expect(useGameStore.getState().lives).toBe(2);
+    });
+
+    it('resets timeoutPending when the next question loads', () => {
+      useGameStore.getState().startGame('endless');
+
+      useGameStore.setState({ timeLeft: 0 });
+      useGameStore.getState().tickTimer();
+      expect(useGameStore.getState().timeoutPending).toBe(true);
+
+      vi.advanceTimersByTime(450);
+      expect(useGameStore.getState().timeoutPending).toBe(false);
+    });
+
+    it('resets timeoutPending on startGame', () => {
+      useGameStore.getState().startGame('endless');
+      useGameStore.setState({ timeLeft: 0, timeoutPending: true });
+
+      useGameStore.getState().startGame('endless');
+      expect(useGameStore.getState().timeoutPending).toBe(false);
+    });
+  })
+
 });

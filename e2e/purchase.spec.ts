@@ -28,19 +28,20 @@ async function openShop(page: import('@playwright/test').Page) {
   await page.waitForSelector('[aria-label="Shop"]')
   await page.locator('[aria-label="Shop"]').click()
   await page.waitForSelector('text=Enthusiast Pack')
+  return page.getByRole('dialog')
 }
 
 test('renders both pack cards with prices', async ({ page }) => {
-  await openShop(page)
+  const dialog = await openShop(page)
 
-  await expect(page.getByRole('heading', { name: 'Enthusiast Pack' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Fanatic Pack' })).toBeVisible()
-  await expect(page.getByText('0.99 ETB')).toBeVisible()
-  await expect(page.getByText('2.49 ETB')).toBeVisible()
+  await expect(dialog.getByRole('heading', { name: 'Enthusiast Pack' })).toBeVisible()
+  await expect(dialog.getByRole('heading', { name: 'Fanatic Pack' })).toBeVisible()
+  await expect(dialog.getByText('99 birr')).toBeVisible()
+  await expect(dialog.getByText('249 birr')).toBeVisible()
 })
 
 test('shows owned badge for purchased packs', async ({ page }) => {
-  await openShop(page)
+  const dialog = await openShop(page)
 
   // Set entitlements directly in the Zustand store
   await page.evaluate(() => {
@@ -49,28 +50,28 @@ test('shows owned badge for purchased packs', async ({ page }) => {
   })
   await page.waitForTimeout(300)
 
-  // Entitlement "enthusiast" → Enthusiast card shows "Owned" badge
+  // Entitlement "enthusiast" → Enthusiast card shows a "CLEARED" owned indicator
   await expect(
-    page.getByRole('heading', { name: 'Enthusiast Pack' })
+    dialog.getByRole('heading', { name: 'Enthusiast Pack' })
       .locator('..')
-      .getByText('Owned')
+      .getByRole('button', { name: 'CLEARED' })
   ).toBeVisible()
 
-  // Only 1 "Unlock Now" button remains (for Fanatic, since Enthusiast is owned)
-  const unlockButtons = page.getByRole('button', { name: /Unlock Now/ })
+  // Only 1 "INSERT COIN" button remains (for Fanatic, since Enthusiast is owned)
+  const unlockButtons = dialog.getByRole('button', { name: /INSERT COIN/ })
   await expect(unlockButtons).toHaveCount(1)
 })
 
-test('clicking Unlock Now calls checkout API', async ({ page }) => {
+test('clicking INSERT COIN calls checkout API', async ({ page }) => {
   let checkoutRequest: import('@playwright/test').Request | null = null
   await page.route('**/api/packs/checkout', async (route) => {
     checkoutRequest = route.request()
     await route.fulfill({ body: JSON.stringify({ url: 'https://checkout.example.com/pay' }) })
   })
 
-  await openShop(page)
+  const dialog = await openShop(page)
 
-  await page.getByRole('button', { name: 'Unlock Now' }).first().click()
+  await dialog.getByRole('button', { name: 'INSERT COIN' }).first().click()
   await page.waitForTimeout(1000)
 
   // Verify the checkout API was called with the correct pack ID

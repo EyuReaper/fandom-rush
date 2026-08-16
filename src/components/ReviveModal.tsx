@@ -2,10 +2,12 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Heart, Loader2 } from "lucide-react";
 import { useGameStore } from "../stores/useGameStore";
+import { useModalA11y } from "../hooks/useModalA11y";
 
 export default function ReviveModal() {
   const revive = useGameStore((s) => s.revive);
   const endGame = useGameStore((s) => s.endGame);
+  const modalRef = useModalA11y(true, endGame);
   const [isWatching, setIsWatching] = useState(false);
 
   const handleWatchAd = async () => {
@@ -31,6 +33,7 @@ export default function ReviveModal() {
 
   return (
     <motion.div
+      ref={modalRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

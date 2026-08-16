@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { X, Crown, Sparkles, Lock, Check, Loader2 } from "lucide-react";
+import { X, Crown, Sparkles, Lock, Check, Loader2, WifiOff } from "lucide-react";
 import { useGameStore } from "../stores/useGameStore";
+import { useModalA11y } from "../hooks/useModalA11y";
 import { getPlans, initiateCheckout } from "../lib/birrjs-client";
 
 interface ShopScreenProps {
@@ -23,19 +24,26 @@ interface Plans {
 
 export default function ShopScreen({ onClose }: ShopScreenProps) {
   const entitlements = useGameStore((s) => s.entitlements);
+  const modalRef = useModalA11y(true, onClose);
   const [plans, setPlans] = useState<Plans | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [checkingOut, setCheckingOut] = useState<string | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     const abortController = new AbortController();
     const timeout = setTimeout(() => abortController.abort(), 10000);
     const fetchPlans = async () => {
+      setLoading(true);
+      setError(null);
       try {
         const data = await getPlans();
         if (!abortController.signal.aborted) setPlans(data);
       } catch {
-        // silently fail
+        if (!abortController.signal.aborted)
+          setError("Couldn't load game packs. Check your connection and try again.");
       } finally {
         if (!abortController.signal.aborted) setLoading(false);
       }
@@ -45,17 +53,20 @@ export default function ShopScreen({ onClose }: ShopScreenProps) {
       clearTimeout(timeout);
       abortController.abort();
     };
-  }, []);
+  }, [retryCount]);
 
   const handleCheckout = async (packId: string) => {
     setCheckingOut(packId);
+    setCheckoutError(null);
     try {
       const result = await initiateCheckout(packId);
       if (result?.url) {
         window.location.assign(result.url);
+      } else {
+        setCheckoutError("Payment couldn't be started. Please try again.");
       }
     } catch {
-      // silently fail
+      setCheckoutError("Payment couldn't be started. Please try again.");
     } finally {
       setCheckingOut(null);
     }
@@ -67,6 +78,10 @@ export default function ShopScreen({ onClose }: ShopScreenProps) {
 
   return (
     <motion.div
+      ref={modalRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="shop-title"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -89,6 +104,7 @@ export default function ShopScreen({ onClose }: ShopScreenProps) {
       >
         <button
           onClick={onClose}
+          aria-label="Close shop"
           className="absolute top-4 right-4 p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
         >
           <X className="w-5 h-5 text-gray-400" />
@@ -99,7 +115,7 @@ export default function ShopScreen({ onClose }: ShopScreenProps) {
             <Crown className="w-6 h-6 text-gold" />
           </div>
           <div>
-            <h2 className="text-3xl font-black italic tracking-tight text-white">
+            <h2 id="shop-title" className="text-3xl font-black italic tracking-tight text-white">
               GAME PACKS // <span className="text-hot-pink">EXTRA CONTENT</span>
             </h2>
             <p className="text-sm text-gray-400 mt-1">
@@ -114,10 +130,32 @@ export default function ShopScreen({ onClose }: ShopScreenProps) {
           </div>
         )}
 
-        {!loading && packEntries.length === 0 && (
+        {!loading && error && (
+          <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
+            <div className="w-16 h-16 rounded-full bg-red-500/5 flex items-center justify-center border border-red-500/20">
+              <WifiOff className="w-8 h-8 text-red-400/70" />
+            </div>
+            <p className="text-gray-400 text-sm max-w-xs">{error}</p>
+            <button
+              onClick={() => setRetryCount((c) => c + 1)}
+              className="px-6 py-2.5 rounded-xl bg-cyan-500/15 border border-cyan-500/40 text-cyan-400 text-xs font-black uppercase tracking-[0.2em] hover:bg-cyan-500/25 transition-all"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
+        {!loading && !error && packEntries.length === 0 && (
           <div className="text-center py-20 text-gray-500">
             <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-30" />
             <p className="text-lg font-medium">No packs available</p>
+          </div>
+        )}
+
+        {checkoutError && (
+          <div className="mb-6 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm text-center">
+            <WifiOff className="w-4 h-4 shrink-0" />
+            {checkoutError}
           </div>
         )}
 

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore } from "../stores/useGameStore";
 import { TimeBar } from "./TimeBar";
 import { ScoreDisplay } from "./ScoreDisplay";
+import ClueImage from "./ClueImage";
 import {
   Heart,
   Shield,
@@ -99,14 +100,14 @@ export default function SurvivalMode() {
       }`} />
 
       {/* Top HUD */}
-      <div className="absolute top-0 left-0 right-0 z-50 px-6 py-6 flex justify-between items-center bg-gradient-to-b from-[#0a0a1a] to-transparent">
-        <div className="flex items-center gap-6">
+      <div className="absolute top-0 left-0 right-0 z-50 px-4 sm:px-6 py-6 flex flex-wrap justify-between items-center gap-y-3 bg-gradient-to-b from-[#0a0a1a] to-transparent">
+        <div className="flex items-center gap-4 sm:gap-6 flex-wrap">
           {/* Lives — 6 hearts */}
-          <div className="flex gap-1 bg-white/5 px-4 py-2 rounded-2xl border border-white/10">
+          <div className="flex gap-1 bg-white/5 px-3 sm:px-4 py-2 rounded-2xl border border-white/10">
             {Array.from({ length: 6 }).map((_, i) => (
               <Heart
                 key={i}
-                className={`w-4 h-4 transition-all duration-300 ${
+                className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-all duration-300 ${
                   i < lives
                     ? "text-red-500 fill-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]"
                     : "text-gray-800"
@@ -136,7 +137,7 @@ export default function SurvivalMode() {
       </div>
 
       {/* Main Game Area */}
-      <div className="h-full min-h-screen flex flex-col items-center justify-center pt-24 pb-12 px-6">
+      <div className="h-full min-h-screen flex flex-col items-center justify-center pt-40 sm:pt-24 pb-12 px-6">
         <div className="w-full max-w-xl relative">
           {/* Survival Mode Header */}
           <div className="absolute -top-20 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2">
@@ -186,7 +187,7 @@ export default function SurvivalMode() {
                 </div>
                 <div className="absolute inset-0 bg-gold/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                <img
+                <ClueImage
                   src={currentClue.imagePath}
                   alt={currentClue.objectName}
                   className="max-h-[240px] md:max-h-[340px] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10 transition-all duration-500 group-hover:scale-105"
@@ -217,7 +218,7 @@ export default function SurvivalMode() {
                 return (
                   <motion.button
                     key={option}
-                    whileHover={!feedback ? { scale: 1.02, skewX: "-2deg" } : {}}
+                    whileHover={!feedback ? { scale: 1.02 } : {}}
                     whileTap={!feedback ? { scale: 0.98 } : {}}
                     onClick={() => handleAnswer(option)}
                     disabled={!!feedback}

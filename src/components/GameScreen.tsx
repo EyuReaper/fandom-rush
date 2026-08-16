@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState, useRef, lazy, Suspense } from "react";
-import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useTransform, useReducedMotion } from "framer-motion";
 import { useGameStore } from "../stores/useGameStore";
 import { authClient } from "../lib/auth-client";
 import { API_URL } from "../lib/config";
@@ -8,8 +8,10 @@ import { ScoreDisplay } from "./ScoreDisplay";
 import StarRating from "./StarRating";
 import BannerAd from "./BannerAd";
 import ReviveModal from "./ReviveModal";
+import LoadingSpinner from "./LoadingSpinner";
 import { Send, CheckCircle2 } from "lucide-react";
 import SurvivalMode from "./SurvivalMode";
+import ClueImage from "./ClueImage";
 import {
   Heart,
   CheckCircle,
@@ -27,6 +29,7 @@ import {
 const Leaderboard = lazy(() => import("./Leaderboard"));
 
 export default function GameScreen() {
+  const shouldReduceMotion = useReducedMotion();
   const {
     currentClue,
     options,
@@ -45,6 +48,7 @@ export default function GameScreen() {
     resetGame,
     chaosModifiers,
     showRevivePrompt,
+    lastTimeoutAt,
   } = useGameStore();
 
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
@@ -138,6 +142,21 @@ export default function GameScreen() {
     return () => abortController.abort();
   }, [isGameOver, session]);
 
+  // Flash the card red when a question times out (store-level selectAnswer(""))
+  useEffect(() => {
+    if (!lastTimeoutAt || !isPlaying || feedback !== null) return;
+    const timers = [
+      setTimeout(() => setFeedback("wrong"), 0),
+      setTimeout(() => {
+        setFeedback(null);
+        setSelectedOption(null);
+        setActiveKeyIndex(null);
+        x.set(0);
+      }, 420),
+    ];
+    return () => timers.forEach(clearTimeout);
+  }, [lastTimeoutAt, isPlaying, feedback, x]);
+
   const submitRating = useCallback(async () => {
     if (!session || rating === 0) return;
     setRatingStatus("submitting");
@@ -223,7 +242,7 @@ export default function GameScreen() {
   // Keyboard Support
   const handleKeyPress = useCallback(
     (e: KeyboardEvent) => {
-      if (!isPlaying || !options.length || feedback) return;
+      if (!isPlaying || !options.length || feedback || showRevivePrompt) return;
 
       const key = e.key.toLowerCase();
       const { invertedControls } = chaosModifiers;
@@ -241,7 +260,7 @@ export default function GameScreen() {
       if (key === "d" || key === "arrowright") handleAnswer(options[invertedControls ? 1 : 2], invertedControls ? 1 : 2);
       if (key === "s" || key === "arrowdown") handleAnswer(options[invertedControls ? 0 : 3], invertedControls ? 0 : 3);
     },
-    [isPlaying, options, feedback, handleAnswer, chaosModifiers],
+    [isPlaying, options, feedback, handleAnswer, chaosModifiers, showRevivePrompt],
   );
 
   useEffect(() => {
@@ -312,14 +331,14 @@ export default function GameScreen() {
             <div className="mb-10">
               <p className="text-gray-500 text-[10px] font-black tracking-[0.4em] uppercase mb-4">SCORE TALLY</p>
               <div className="relative inline-block">
-                <p className="text-8xl font-black text-white tabular-nums tracking-tighter leading-none">
+                <p className="text-5xl sm:text-7xl md:text-8xl font-black text-white tabular-nums tracking-tighter leading-none">
                   {score.toLocaleString()}
                 </p>
                 {score > 0 && score === highScore && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0, rotate: -20 }}
                     animate={{ opacity: 1, scale: 1, rotate: -10 }}
-                    className="absolute -top-10 -right-20 bg-yellow-400 text-black text-[9px] font-black px-4 py-1.5 rounded-full shadow-[0_5px_20px_rgba(250,204,21,0.4)] uppercase tracking-widest"
+                    className="absolute -top-8 sm:-top-10 -right-10 sm:-right-20 bg-yellow-400 text-black text-[9px] font-black px-4 py-1.5 rounded-full shadow-[0_5px_20px_rgba(250,204,21,0.4)] uppercase tracking-widest"
                   >
                     NEW HIGH SCORE!
                   </motion.div>
@@ -381,11 +400,13 @@ export default function GameScreen() {
             )}
 
             {/* Global Leaderboard Access */}
-            <motion.div
+            <motion.button
+                type="button"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowLeaderboard(true)}
-                className="mb-10 py-5 px-6 bg-white/[0.03] hover:bg-white/[0.06] cursor-pointer transition-all rounded-2xl border border-white/5 flex items-center justify-between group/btn"
+                aria-label="Open global rankings"
+                className="mb-10 py-5 px-6 bg-white/[0.03] hover:bg-white/[0.06] cursor-pointer transition-all rounded-2xl border border-white/5 flex items-center justify-between group/btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500/60 focus-visible:ring-offset-2"
             >
                 <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 group-hover/btn:border-yellow-500/40 transition-colors">
@@ -409,7 +430,7 @@ export default function GameScreen() {
                 <div className="text-[10px] font-black text-cyan-400 uppercase tracking-widest group-hover/btn:translate-x-1 transition-transform">
                     Expand →
                 </div>
-            </motion.div>
+            </motion.button>
 
             <div className="grid grid-cols-2 gap-10 pt-8 border-t border-white/5">
               <div>
@@ -456,7 +477,7 @@ export default function GameScreen() {
         <div className="fixed inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%)' }} />
 
         {showLeaderboard && (
-          <Suspense fallback={null}>
+          <Suspense fallback={<LoadingSpinner />}>
             <Leaderboard onClose={() => setShowLeaderboard(false)} />
           </Suspense>
         )}
@@ -479,15 +500,15 @@ export default function GameScreen() {
       }`} />
 
       {/* Top HUD */}
-      <div className="absolute top-0 left-0 right-0 z-50 px-6 py-6 flex justify-between items-center bg-gradient-to-b from-[#0a0a1a] to-transparent">
-        <div className="flex items-center gap-6">
+      <div className="absolute top-0 left-0 right-0 z-50 px-4 sm:px-6 py-6 flex flex-wrap justify-between items-center gap-y-3 bg-gradient-to-b from-[#0a0a1a] to-transparent">
+        <div className="flex items-center gap-4 sm:gap-6">
           {gameMode !== 'sixty-second' && (
-            <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-2xl border border-white/10">
+            <div className="flex items-center gap-2 sm:gap-3 bg-white/5 px-3 sm:px-4 py-2 rounded-2xl border border-white/10">
               <span className="text-[9px] font-black uppercase tracking-[0.3em] text-gray-400">CREDITS</span>
               {Array.from({ length: 3 }).map((_, i) => (
                 <Heart
                   key={i}
-                  className={`w-5 h-5 transition-all duration-300 ${i < lives ? "text-red-500 fill-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]" : "text-gray-800"}`}
+                  className={`w-4 h-4 sm:w-5 sm:h-5 transition-all duration-300 ${i < lives ? "text-red-500 fill-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]" : "text-gray-800"}`}
                 />
               ))}
             </div>
@@ -505,7 +526,7 @@ export default function GameScreen() {
       </div>
 
       {/* Main Game Area */}
-      <div className="h-full min-h-screen flex flex-col items-center justify-center pt-24 pb-12 px-6">
+      <div className="h-full min-h-screen flex flex-col items-center justify-center pt-40 sm:pt-24 pb-12 px-6">
         <div className="w-full max-w-xl relative">
           {/* Combo Streak Indicator */}
           <AnimatePresence>
@@ -532,7 +553,7 @@ export default function GameScreen() {
               onDragEnd={onDragEnd}
               whileDrag={{ scale: 1.05, cursor: "grabbing" }}
               initial={{ scale: 0.8, opacity: 0, y: 50 }}
-              animate={chaosModifiers.movingTargets ? {
+              animate={chaosModifiers.movingTargets && !shouldReduceMotion ? {
                 scale: 1,
                 opacity: 1,
                 y: [0, -15, 15, 0],
@@ -562,7 +583,7 @@ export default function GameScreen() {
                 {/* Object Glow */}
                 <div className="absolute inset-0 bg-cyan-500/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                <img
+                <ClueImage
                   src={currentClue.imagePath}
                   alt={currentClue.objectName}
                   style={{ filter: chaosModifiers.blurryClues ? "blur(10px)" : "none" }}
@@ -680,7 +701,7 @@ export default function GameScreen() {
       {/* Keyboard Help */}
       <KeyboardHelp />
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<LoadingSpinner />}>
         <AnimatePresence>
           {showLeaderboard && <Leaderboard onClose={() => setShowLeaderboard(false)} />}
         </AnimatePresence>

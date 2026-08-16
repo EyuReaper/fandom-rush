@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { X, Loader2 } from "lucide-react";
 import { authClient } from "../lib/auth-client";
 import { API_URL } from "../lib/config";
+import { useModalA11y } from "../hooks/useModalA11y";
 import confetti from "canvas-confetti";
 
 interface TelemetryData {
@@ -38,6 +39,7 @@ function greenBar(value: number, max: number) {
 
 export default function TelemetryDashboard({ onClose }: TelemetryDashboardProps) {
   const { data: session } = authClient.useSession();
+  const modalRef = useModalA11y(true, onClose);
   const [data, setData] = useState<TelemetryData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -73,6 +75,10 @@ export default function TelemetryDashboard({ onClose }: TelemetryDashboardProps)
 
   return (
     <motion.div
+      ref={modalRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="telemetry-title"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -95,12 +101,12 @@ export default function TelemetryDashboard({ onClose }: TelemetryDashboardProps)
             <span className="text-[#00ff41] text-xl leading-none" style={{ fontFamily: "monospace", fontWeight: 700 }}>{">"}_</span>
             <div>
               <p className="text-[10px] uppercase tracking-[0.3em] text-[#00aa22]">// CLASSIFIED //</p>
-              <h2 className="text-xl font-bold tracking-tight text-[#00ff41]">
+              <h2 id="telemetry-title" className="text-xl font-bold tracking-tight text-[#00ff41]">
                 TELEMETRY TERMINAL
               </h2>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 border border-[#00ff41]/30 hover:bg-[#00ff41]/10 transition-colors" style={{ color: G }}>
+          <button onClick={onClose} aria-label="Close telemetry dashboard" className="p-2 border border-[#00ff41]/30 hover:bg-[#00ff41]/10 transition-colors" style={{ color: G }}>
             <X className="w-5 h-5" />
           </button>
         </div>

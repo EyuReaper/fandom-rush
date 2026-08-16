@@ -26,12 +26,15 @@ export interface GameState {
   chaosModifiers: ChaosModifiers;
   previousClueIds: number[];
   entitlements: string[];
+  entitlementsError: boolean;
   bankedScore: number;
   streak: number;
   escalationLevel: number;
   bestBankedScore: number;
   reviveUsedThisGame: boolean;
   showRevivePrompt: boolean;
+  timeoutPending: boolean;
+  lastTimeoutAt: number;
   chaosAdUnlocked: boolean;
   scoreMultiplier: number;
   dailyBonusDate: string | null;

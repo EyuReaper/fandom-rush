@@ -18,7 +18,7 @@ export function TimeBar({
           {timeLeft.toFixed(1)}s
         </span>
       </div>
-      <div className="w-64 bg-white/[0.03] rounded-sm h-3 border border-white/5 p-[1px] overflow-hidden relative">
+      <div className="w-40 sm:w-64 bg-white/[0.03] rounded-sm h-3 border border-white/5 p-[1px] overflow-hidden relative">
         {/* Background Segments */}
         <div className="absolute inset-0 flex justify-between pointer-events-none px-1">
             {Array.from({ length: 12 }).map((_, i) => (

@@ -41,17 +41,20 @@ export default function StarRating({ value, variant, onChange, size }: StarRatin
   const iconSize = size || 24;
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1" role="radiogroup" aria-label="Rating">
       {[1, 2, 3, 4, 5].map((star) => {
         const filled = star <= displayValue;
         return (
           <button
             key={star}
             type="button"
+            role="radio"
+            aria-checked={value === star}
+            aria-label={`${star} star${star !== 1 ? "s" : ""}${value === star ? ", selected" : ""}`}
             onClick={() => onChange?.(star)}
             onMouseEnter={() => setHoveredStar(star)}
             onMouseLeave={() => setHoveredStar(0)}
-            className="transition-transform hover:scale-110 active:scale-90 focus:outline-none"
+            className="transition-transform hover:scale-110 active:scale-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg)] rounded-md"
           >
             <Star
               size={iconSize}

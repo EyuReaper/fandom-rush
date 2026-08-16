@@ -17,7 +17,7 @@ interface GameStore extends GameState {
   unlockChaosPreview: () => Promise<void>;
   toggleSwipeMode: () => void;
   toggleMute: () => void;
-  entitlements: string[]; fetchEntitlements: () => Promise<void>; setEntitlements: (ents: string[]) => void;
+  entitlements: string[]; fetchEntitlements: () => Promise<void>; setEntitlements: (ents: string[]) => void; entitlementsError: boolean;
 }
 
 const isMobile = typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -53,12 +53,15 @@ const initialState: GameState = {
   },
   previousClueIds: [],
   entitlements: [],
+  entitlementsError: false,
   bankedScore: 0,
   streak: 0,
   escalationLevel: 1,
   bestBankedScore: 0,
   reviveUsedThisGame: false,
   showRevivePrompt: false,
+  timeoutPending: false,
+  lastTimeoutAt: 0,
   chaosAdUnlocked: localStorage.getItem("fandomRushChaosAdUnlocked") === "true",
   scoreMultiplier: 1,
   dailyBonusDate: localStorage.getItem("fandomRushDailyBonusDate"),
@@ -98,6 +101,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       maxTime: mode === "sixty-second" ? 60 : mode === "survival" ? 8 : 8,
       chaosModifiers,
       previousClueIds: [firstClue.id],
+      timeoutPending: false,
       ...(mode === "survival" && {
         bankedScore: 0,
         streak: 0,
@@ -249,17 +253,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
       timeLeft: gameMode === "sixty-second" ? timeLeft : survivalTime ?? 8,
       maxTime: survivalTime ?? state.maxTime,
       previousClueIds: [...state.previousClueIds.slice(-10), nextClue.id],
+      timeoutPending: false,
     }));
   },
 
   tickTimer: () => {
-    const { timeLeft, isPlaying, gameMode, chaosModifiers, showRevivePrompt } = get();
+    const { timeLeft, isPlaying, gameMode, chaosModifiers, showRevivePrompt, timeoutPending } = get();
     if (!isPlaying) return;
     if (showRevivePrompt) return;
 
     if (timeLeft <= 0) {
       if (gameMode !== "sixty-second") {
-        get().selectAnswer(""); // Time out = wrong
+        if (!timeoutPending) {
+          set({ timeoutPending: true, lastTimeoutAt: Date.now() });
+          get().selectAnswer(""); // Time out = wrong
+        }
       } else {
         get().endGame();
       }
@@ -289,9 +297,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
   fetchEntitlements: async () => {
     try {
       const entitlements = await getEntitlements();
-      set({ entitlements });
+      set({ entitlements, entitlementsError: false });
     } catch {
-      set({ entitlements: [] });
+      set({ entitlements: [], entitlementsError: true });
     }
   },
 

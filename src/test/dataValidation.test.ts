@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { fandomClues } from '../data/fandomClues';
 import { z } from 'zod';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 const ClueSchema = z.object({
   id: z.number().int().positive(),
@@ -35,6 +37,19 @@ describe('Fandom Clues Data Validation', () => {
       // Basic check that it looks like a valid path
       expect(clue.imagePath).toMatch(/\.(png|jpg|jpeg|svg|webp)$/i);
     });
+  });
+
+  it('should have all clue images present in the built dist/ bundle', () => {
+    const dist = resolve(process.cwd(), 'dist');
+    // This assertion only makes sense after a production build has run.
+    if (!existsSync(dist)) {
+      console.warn('No dist/ directory found — skipping built-asset check (run `npm run build` first).');
+      return;
+    }
+    const missing = fandomClues
+      .map(c => c.imagePath.replace(/^\//, ''))
+      .filter(p => !existsSync(resolve(dist, p)));
+    expect(missing).toEqual([]);
   });
 
   it('should have correctAnswer matching the fandom name (usually)', () => {

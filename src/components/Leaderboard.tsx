@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { X, Zap, Clock, Target, Loader2, Trophy, User, Shield, Shuffle } from "lucide-react";
+import { X, Zap, Clock, Target, Loader2, Trophy, User, Shield, Shuffle, WifiOff } from "lucide-react";
 import { authClient } from "../lib/auth-client";
 import { API_URL } from "../lib/config";
+import Avatar from "./Avatar";
+import { useModalA11y } from "../hooks/useModalA11y";
 
 interface Score {
   user_id: string;
@@ -27,8 +29,11 @@ interface LeaderboardProps {
 
 export default function Leaderboard({ onClose }: LeaderboardProps) {
   const { data: session } = authClient.useSession();
+  const modalRef = useModalA11y(true, onClose);
   const [data, setData] = useState<LeaderboardData>({ scores: [], userScore: null });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const [activeMode, setActiveMode] = useState("endless");
 
   const modes = [
@@ -43,6 +48,7 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
     const timeout = setTimeout(() => abortController.abort(), 10000);
     const fetchScores = async () => {
       setLoading(true);
+      setError(null);
       try {
         const response = await fetch(`${API_URL}/api/leaderboard?mode=${activeMode}`, {
           headers: {
@@ -51,11 +57,14 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
           credentials: "include",
           signal: abortController.signal,
         });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const result = await response.json();
         setData(result);
       } catch (err) {
-        if (!abortController.signal.aborted)
+        if (!abortController.signal.aborted) {
           console.error("Failed to fetch leaderboard:", err);
+          setError("Failed to load the high score table. Check your connection and try again.");
+        }
       } finally {
         setLoading(false);
       }
@@ -63,12 +72,16 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
 
     fetchScores();
     return () => { clearTimeout(timeout); abortController.abort(); };
-  }, [activeMode]);
+  }, [activeMode, retryCount]);
 
   const isUserInTop = data.scores.some(s => s.user_id === session?.user?.id);
 
   return (
     <motion.div
+      ref={modalRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="leaderboard-title"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -97,13 +110,14 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
                 <div className="w-1.5 h-1.5 rounded-full bg-neon animate-pulse" />
                 <p className="text-[10px] font-black text-neon/60 uppercase tracking-[0.4em]">HIGH SCORE TABLE</p>
               </div>
-              <h2 className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase leading-none text-white">
+              <h2 id="leaderboard-title" className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase leading-none text-white">
                 Top <span className="text-neon">Scores</span>
               </h2>
             </div>
           </div>
           <button
             onClick={onClose}
+            aria-label="Close leaderboard"
             className="p-3 hover:bg-white/10 rounded-xl transition-all group"
           >
             <X className="w-6 h-6 text-gray-500 group-hover:text-white" />
@@ -138,7 +152,23 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
                 <Loader2 className="w-12 h-12 text-cyan-500 animate-spin" />
                 <div className="absolute inset-0 blur-xl bg-cyan-500/20 animate-pulse" />
               </div>
-              <p className="text-[11px] font-black text-cyan-500/50 uppercase tracking-[0.5em] animate-pulse">Decrypting mission logs...</p>
+              <p className="text-[11px] font-black text-cyan-500/50 uppercase tracking-[0.5em] animate-pulse">Loading high scores...</p>
+            </div>
+          ) : error ? (
+            <div className="h-80 flex flex-col items-center justify-center gap-6 text-center">
+              <div className="w-20 h-20 rounded-full bg-red-500/5 flex items-center justify-center border border-red-500/20">
+                <WifiOff className="w-10 h-10 text-red-400/70" />
+              </div>
+              <div>
+                <p className="text-gray-400 text-lg font-bold italic mb-2 tracking-tight">CONNECTION ERROR</p>
+                <p className="text-gray-600 text-sm mb-4">{error}</p>
+                <button
+                  onClick={() => setRetryCount((c) => c + 1)}
+                  className="px-6 py-2.5 rounded-xl bg-cyan-500/15 border border-cyan-500/40 text-cyan-400 text-xs font-black uppercase tracking-[0.2em] hover:bg-cyan-500/25 transition-all"
+                >
+                  Retry
+                </button>
+              </div>
             </div>
           ) : data.scores.length === 0 ? (
             <div className="h-80 flex flex-col items-center justify-center gap-6 text-center">
@@ -188,7 +218,7 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
                         isCurrentUser ? "border-cyan-500/50" : "border-white/10"
                         }`}>
                         {score.user_image ? (
-                            <img src={score.user_image} alt={score.user_name} className="w-full h-full object-cover" />
+                            <Avatar src={score.user_image} name={score.user_name} className="w-full h-full" />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-500 font-black text-sm">
                                 {score.user_name?.charAt(0) || <User className="w-5 h-5" />}
@@ -255,7 +285,7 @@ export default function Leaderboard({ onClose }: LeaderboardProps) {
                     <div className="w-14 h-14 rounded-2xl border-2 border-cyan-500/30 overflow-hidden bg-[#050508] p-1">
                       <div className="w-full h-full rounded-xl overflow-hidden">
                         {data.userScore.user_image ? (
-                            <img src={data.userScore.user_image} alt={data.userScore.user_name} className="w-full h-full object-cover" />
+                            <Avatar src={data.userScore.user_image} name={data.userScore.user_name} className="w-full h-full" />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-500 font-black text-sm">
                                 {data.userScore.user_name?.charAt(0) || <User className="w-6 h-6" />}

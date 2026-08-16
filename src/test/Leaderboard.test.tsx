@@ -32,7 +32,7 @@ describe('Leaderboard', () => {
   it('shows loading state initially', () => {
     vi.mocked(globalThis.fetch).mockResolvedValue(new Promise(() => {}) as any);
     render(<Leaderboard onClose={vi.fn()} />);
-    expect(screen.getByText(/Decrypting mission logs/i)).toBeInTheDocument();
+    expect(screen.getByText(/Loading high scores/i)).toBeInTheDocument();
   });
 
   it('renders the Top Scores heading', async () => {
@@ -93,8 +93,8 @@ describe('Leaderboard', () => {
       ok: true,
     } as any);
     render(<Leaderboard onClose={onClose} />);
-    const closeBtn = await screen.findByRole('button', { name: '' });
-    fireEvent.click(closeBtn.closest('button')!);
+    const closeBtn = await screen.findByRole('button', { name: 'Close leaderboard' });
+    fireEvent.click(closeBtn);
     await waitFor(() => {
       expect(onClose).toHaveBeenCalled();
     });

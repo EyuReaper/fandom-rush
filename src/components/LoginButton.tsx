@@ -1,6 +1,7 @@
 import { authClient } from "../lib/auth-client";
 import { LogIn, LogOut, User } from "lucide-react";
 import { motion } from "framer-motion";
+import Avatar from "./Avatar";
 
 export default function LoginButton() {
   const { data: session, isPending } = authClient.useSession();
@@ -38,10 +39,11 @@ export default function LoginButton() {
         <div className="group relative">
           <button
             onClick={handleSignOut}
+            aria-label={`Sign out ${session.user.name}`}
             className="w-12 h-12 rounded-xl border border-white/10 overflow-hidden hover:border-red-500/50 transition-colors"
           >
             {session.user.image ? (
-              <img src={session.user.image} alt={session.user.name} className="w-full h-full object-cover" />
+              <Avatar src={session.user.image} name={session.user.name} className="w-full h-full" />
             ) : (
               <User className="w-full h-full p-2.5 text-gray-400" />
             )}

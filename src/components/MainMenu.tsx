@@ -2,11 +2,14 @@ import { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { useGameStore } from "../stores/useGameStore";
+import { useModalA11y } from "../hooks/useModalA11y";
 import { audioManager } from "../lib/audioManager";
 import { authClient } from "../lib/auth-client";
 import { API_URL } from "../lib/config";
 import LoginButton from "./LoginButton";
 import StarRating from "./StarRating";
+import LoadingSpinner from "./LoadingSpinner";
+import Avatar from "./Avatar";
 import fandomHeartLogo from "../assets/fandom-heart-logo.svg";
 import {
   Zap,
@@ -25,6 +28,7 @@ import {
   Crown,
   Gift,
   LockKeyhole,
+  WifiOff,
 } from "lucide-react";
 
 // Lazy-loaded: each is a full-screen overlay only reachable after a menu
@@ -40,44 +44,6 @@ const particles = Array.from({ length: 20 }).map((_, i) => ({
   x: [(i - 10) * 8, (i - 10) * 12],
 }));
 
-const FOCUSABLE_SELECTOR =
-  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
-function useModalA11y(isOpen: boolean, onClose: () => void) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const node = ref.current;
-    const focusable = node?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
-    (focusable?.[0] ?? node)?.focus();
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.stopPropagation();
-        onClose();
-        return;
-      }
-      if (e.key !== "Tab" || !focusable || focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
-
-  return ref;
-}
-
 export default function MainMenu() {
   const {
     startGame,
@@ -88,6 +54,7 @@ export default function MainMenu() {
     toggleMute,
     isPlaying,
     entitlements,
+    entitlementsError,
     fetchEntitlements,
     dailyBonusDate,
     claimDailyBonus,
@@ -123,6 +90,7 @@ export default function MainMenu() {
     total: number;
     recent: ReviewEntry[];
   } | null>(null);
+  const [ratingError, setRatingError] = useState(false);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -184,8 +152,9 @@ export default function MainMenu() {
       .then((res) => res.ok ? res.json() : null)
       .then((data) => {
         if (data) setRatingData({ average: data.average, total: data.total, recent: data.recent ?? [] });
+        else setRatingError(true);
       })
-      .catch(() => { });
+      .catch(() => setRatingError(true));
 
     return () => { clearTimeout(timeout); abortController.abort(); };
 
@@ -325,9 +294,9 @@ export default function MainMenu() {
       />
 
       {/* --- TOP HUD --- */}
-      <div className="absolute top-16 left-12 right-12 z-[100] flex justify-between items-start">
+      <div className="absolute top-16 left-4 sm:left-12 right-4 sm:right-12 z-[100] flex flex-wrap justify-between items-start gap-3">
         <LoginButton />
-        <div className="flex gap-3">
+        <div className="flex gap-2 sm:gap-3">
           <motion.button
             aria-label="Shop"
             initial={{ opacity: 0, scale: 0 }}
@@ -335,9 +304,9 @@ export default function MainMenu() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => setShowShop(true)}
-            className="p-5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl hover:bg-white/10 transition-colors shadow-2xl"
+            className="p-4 sm:p-5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl hover:bg-white/10 transition-colors shadow-2xl"
           >
-            <Store className="w-7 h-7 text-pink-400 drop-shadow-[0_0_8px_rgba(219,39,119,0.5)]" />
+            <Store className="w-6 h-6 sm:w-7 sm:h-7 text-pink-400 drop-shadow-[0_0_8px_rgba(219,39,119,0.5)]" />
           </motion.button>
 
           <motion.button
@@ -347,20 +316,21 @@ export default function MainMenu() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => setShowHowToPlay(true)}
-            className="p-5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl hover:bg-white/10 transition-colors shadow-2xl"
+            className="p-4 sm:p-5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl hover:bg-white/10 transition-colors shadow-2xl"
           >
-            <Info className="w-7 h-7 text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+            <Info className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
           </motion.button>
 
           <motion.button
+            aria-label="Settings"
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
             whileHover={{ rotate: 90, scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => setShowSettings(true)}
-            className="p-5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl hover:bg-white/10 transition-colors shadow-2xl"
+            className="p-4 sm:p-5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl hover:bg-white/10 transition-colors shadow-2xl"
           >
-            <Settings className="w-7 h-7 text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+            <Settings className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
           </motion.button>
         </div>
       </div>
@@ -475,10 +445,12 @@ export default function MainMenu() {
             <div className="h-16" />
 
             {/* --- TOP STATS --- */}
-            <motion.div
+            <motion.button
+              type="button"
               variants={itemVariants}
               onClick={() => setShowLeaderboard(true)}
-              className="group w-full max-w-lg cursor-pointer active:scale-95 transition-transform mt-8"
+              aria-label="Open global high score table"
+              className="group w-full max-w-lg cursor-pointer active:scale-95 transition-transform mt-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg)] rounded-[16px]"
             >
               <Panel
                 className="p-10 flex items-center gap-10"
@@ -503,7 +475,36 @@ export default function MainMenu() {
                   </p>
                 </div>
               </Panel>
-            </motion.div>
+            </motion.button>
+
+            {ratingError && (
+              <motion.div variants={itemVariants} className="mb-28 w-full max-w-lg">
+                <Panel className="p-6 flex items-center gap-4">
+                  <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center border border-red-500/30 shrink-0">
+                    <WifiOff className="w-5 h-5 text-red-400/70" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-400">Couldn't load community ratings.</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setRatingError(false);
+                      setRatingData(null);
+                      fetch(`${API_URL}/api/ratings`)
+                        .then((res) => res.ok ? res.json() : null)
+                        .then((data) => {
+                          if (data) setRatingData({ average: data.average, total: data.total, recent: data.recent ?? [] });
+                          else setRatingError(true);
+                        })
+                        .catch(() => setRatingError(true));
+                    }}
+                    className="px-4 py-2 rounded-lg bg-cyan-500/15 border border-cyan-500/40 text-cyan-400 text-xs font-black uppercase tracking-[0.2em] hover:bg-cyan-500/25 transition-all"
+                  >
+                    Retry
+                  </button>
+                </Panel>
+              </motion.div>
+            )}
 
             {ratingData && ratingData.total > 0 && (
               <motion.div
@@ -553,10 +554,10 @@ export default function MainMenu() {
                     >
                       <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
                         {ratingData.recent[carouselIndex].user_image ? (
-                          <img
+                          <Avatar
                             src={ratingData.recent[carouselIndex].user_image}
-                            alt=""
-                            className="w-full h-full object-cover"
+                            name={ratingData.recent[carouselIndex].user_name}
+                            className="w-full h-full"
                           />
                         ) : (
                           <span className="text-cyan-400 font-black text-lg">
@@ -582,6 +583,8 @@ export default function MainMenu() {
                     {ratingData.recent.map((_, i) => (
                       <button
                         key={i}
+                        aria-label={`Show review ${i + 1}`}
+                        aria-current={i === carouselIndex ? "true" : undefined}
                         onClick={() => setCarouselIndex(i)}
                         className={`w-2 h-2 rounded-full transition-all ${
                           i === carouselIndex ? "bg-cyan-400 w-4" : "bg-white/20 hover:bg-white/40"
@@ -609,6 +612,29 @@ export default function MainMenu() {
             )}
 
             {/* --- DAILY BONUS --- */}
+            {entitlementsError && (
+              <motion.div
+                variants={itemVariants}
+                className="mb-16 w-full max-w-lg"
+              >
+                <Panel className="p-6 flex items-center gap-4" border="border-amber-500/20">
+                  <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center border border-amber-500/30 shrink-0">
+                    <LockKeyhole className="w-5 h-5 text-amber-400/80" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-400">Couldn't verify your game packs.</p>
+                    <p className="text-xs text-gray-600 mt-0.5">Premium content may be temporarily locked.</p>
+                  </div>
+                  <button
+                    onClick={() => fetchEntitlements()}
+                    className="px-4 py-2 rounded-lg bg-cyan-500/15 border border-cyan-500/40 text-cyan-400 text-xs font-black uppercase tracking-[0.2em] hover:bg-cyan-500/25 transition-all shrink-0"
+                  >
+                    Retry
+                  </button>
+                </Panel>
+              </motion.div>
+            )}
+
             <motion.div
               variants={itemVariants}
               className="mb-16 w-full max-w-lg"
@@ -748,15 +774,15 @@ export default function MainMenu() {
                   <div
                     className={`absolute inset-0 bg-gradient-to-br ${cat.color} opacity-5 group-hover:opacity-20 transition-opacity`}
                   />
-                  <div className="h-full w-full bg-[var(--color-card)] rounded-[14px] flex items-center p-10 relative z-10 border border-white/5 overflow-hidden">
+                  <div className="h-full w-full bg-[var(--color-card)] rounded-[14px] flex items-center p-4 sm:p-10 relative z-10 border border-white/5 overflow-hidden">
                     <div
-                      className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${cat.color} p-[1px] group-hover:rotate-6 transition-transform mr-8 flex-shrink-0`}
+                      className={`w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br ${cat.color} p-[1px] group-hover:rotate-6 transition-transform mr-4 sm:mr-8 flex-shrink-0`}
                     >
-                      <div className="w-full h-full bg-[var(--color-card)] rounded-[15px] flex items-center justify-center text-4xl">
+                      <div className="w-full h-full bg-[var(--color-card)] rounded-[15px] flex items-center justify-center text-3xl sm:text-4xl">
                         {cat.icon}
                       </div>
                     </div>
-                    <span className="text-4xl font-black italic tracking-tight uppercase group-hover:text-white transition-colors">
+                    <span className="text-2xl sm:text-4xl font-black italic tracking-tight uppercase group-hover:text-white transition-colors truncate">
                       {cat.name}
                     </span>
                   </div>
@@ -808,6 +834,7 @@ export default function MainMenu() {
                 </div>
                 <button
                   onClick={() => setShowSettings(false)}
+                  aria-label="Close settings"
                   className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
                 >
                   <X className="w-5 h-5 text-gray-400 group-hover:text-white" />
@@ -827,6 +854,9 @@ export default function MainMenu() {
                       SWIPE
                     </span>
                     <button
+                      role="switch"
+                      aria-checked={swipeMode}
+                      aria-label="Swipe controls"
                       onClick={toggleSwipeMode}
                       className={`relative w-12 h-6 rounded-full transition-colors duration-300 border ${swipeMode ? "bg-cyan-500/20 border-cyan-500" : "bg-white/5 border-white/10"}`}
                     >
@@ -848,6 +878,9 @@ export default function MainMenu() {
                       </span>
                     </div>
                     <button
+                      role="switch"
+                      aria-checked={!isMuted}
+                      aria-label="Toggle audio"
                       onClick={toggleMute}
                       className={`relative w-12 h-6 rounded-full transition-colors duration-300 border ${!isMuted ? "bg-cyan-500/20 border-cyan-500" : "bg-white/5 border-white/10"}`}
                     >
@@ -926,6 +959,7 @@ export default function MainMenu() {
                 </div>
                 <button
                   onClick={() => setShowHowToPlay(false)}
+                  aria-label="Close how to play"
                   className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
                 >
                   <X className="w-5 h-5 text-gray-400 group-hover:text-white" />
@@ -986,13 +1020,13 @@ export default function MainMenu() {
         )}
       </AnimatePresence>
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<LoadingSpinner />}>
         <AnimatePresence>
           {showShop && <ShopScreen onClose={() => setShowShop(false)} />}
         </AnimatePresence>
       </Suspense>
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<LoadingSpinner />}>
         <AnimatePresence>
           {showLeaderboard && (
             <Leaderboard onClose={() => setShowLeaderboard(false)} />
@@ -1000,7 +1034,7 @@ export default function MainMenu() {
         </AnimatePresence>
       </Suspense>
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<LoadingSpinner />}>
         <AnimatePresence>
           {showTelemetry && (
             <TelemetryDashboard onClose={() => setShowTelemetry(false)} />
