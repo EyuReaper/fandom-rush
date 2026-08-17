@@ -40,6 +40,10 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Test (server)
+        working-directory: server
+        run: npm test
+
       - name: Build
         run: npm run build
 

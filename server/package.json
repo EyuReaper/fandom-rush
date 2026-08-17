@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
-    "dev:webhook": "tsx watch src/index.ts --port 3000"
+    "dev:webhook": "tsx watch src/index.ts --port 3000",
+    "test": "vitest run"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +30,7 @@
     "@better-auth/cli": "^1.4.21",
     "@types/node": "^25.9.1",
     "@types/pg": "^8.20.0",
-    "tsx": "^4.22.3"
+    "tsx": "^4.22.3",
+    "vitest": "^4.1.10"
   }
 }
