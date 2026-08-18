@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@better-auth/cli": "^1.4.21",
+    "@testcontainers/postgresql": "^12.1.0",
     "@types/node": "^25.9.1",
     "@types/pg": "^8.20.0",
     "tsx": "^4.22.3",

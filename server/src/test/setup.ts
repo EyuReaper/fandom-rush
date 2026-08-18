@@ -8,7 +8,7 @@ let container: StartedPostgreSqlContainer;
 
 beforeAll(async () => {
   // Start the PostgreSQL container
-  container = await new PostgreSqlContainer().start();
+  container = await new PostgreSqlContainer('postgres:16-alpine').start();
 
   // Set the environment variable so the pool connects to the test database
   process.env.DATABASE_URL = container.getConnectionUri();
@@ -25,9 +25,9 @@ beforeAll(async () => {
 
   // Run the schema
   await pool.query(schema);
-});
+}, 120000);
 
 afterAll(async () => {
   await pool.end();
-  await container.stop();
-});
+  await container?.stop();
+}, 120000);
