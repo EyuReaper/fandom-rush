@@ -90,10 +90,17 @@ test('category tiles fit on mobile', async ({ page }) => {
 
   // Open the category picker via the "Category Rush" mode button
   await page.getByRole('button', { name: /category rush/i }).click()
-  await page.waitForTimeout(400)
 
   const tile = page.getByRole('button', { name: /Movies/i })
   await expect(tile).toBeVisible()
-  const box = await tile.boundingBox()
-  expect(box!.x + box!.width).toBeLessThanOrEqual(375)
+
+  // Poll instead of a fixed wait: the categories view slides in via framer-motion
+  // (x: 100 -> 0), and Firefox settles that spring slower than Chromium, so a
+  // hard wait measured the tile mid-animation (~100px right of its resting spot).
+  await expect
+    .poll(async () => {
+      const box = await tile.boundingBox()
+      return box ? box.x + box.width : Infinity
+    })
+    .toBeLessThanOrEqual(375)
 })
