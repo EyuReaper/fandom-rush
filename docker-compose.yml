@@ -26,7 +26,7 @@ services:
       - "3000:3000"
     env_file: ./server/.env
     environment:
-      DATABASE_URL: postgresql://postgres:fandom_rush_pass@postgres:5432/fandom_rush
+      #DATABASE_URL: postgresql://postgres:fandom_rush_pass@postgres:5432/fandom_rush
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-change-in-prod}
       BETTER_AUTH_URL: http://localhost:3000
       CORS_ORIGIN: http://localhost:5173
@@ -34,9 +34,9 @@ services:
     volumes:
       - ./server/src:/app/src
       - /app/node_modules
-    depends_on:
-      postgres:
-        condition: service_healthy
+   # depends_on:
+    #  postgres:
+     #   condition: service_healthy
 
   frontend:
     build:

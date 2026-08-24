@@ -1,6 +1,6 @@
 -- 1. BetterAuth Core Tables
 -- Note: "user" is a reserved keyword in Postgres, so we must use double quotes
-CREATE TABLE "user" (
+CREATE TABLE IF NOT EXISTS "user" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "name" TEXT NOT NULL,
   "email" TEXT NOT NULL UNIQUE,
@@ -10,7 +10,7 @@ CREATE TABLE "user" (
   "updatedAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-CREATE TABLE "session" (
+CREATE TABLE IF NOT EXISTS "session" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "expiresAt" TIMESTAMPTZ NOT NULL,
   "token" TEXT NOT NULL UNIQUE,
@@ -21,7 +21,7 @@ CREATE TABLE "session" (
   "userId" TEXT NOT NULL REFERENCES "user" ("id") ON DELETE CASCADE
 );
 
-CREATE TABLE "account" (
+CREATE TABLE IF NOT EXISTS "account" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "accountId" TEXT NOT NULL,
   "providerId" TEXT NOT NULL,
@@ -37,7 +37,7 @@ CREATE TABLE "account" (
   "updatedAt" TIMESTAMPTZ NOT NULL
 );
 
-CREATE TABLE "verification" (
+CREATE TABLE IF NOT EXISTS "verification" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "identifier" TEXT NOT NULL,
   "value" TEXT NOT NULL,
@@ -46,9 +46,9 @@ CREATE TABLE "verification" (
   "updatedAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-CREATE INDEX "session_userId_idx" ON "session" ("userId");
-CREATE INDEX "account_userId_idx" ON "account" ("userId");
-CREATE INDEX "verification_identifier_idx" ON "verification" ("identifier");
+CREATE INDEX IF NOT EXISTS "session_userId_idx" ON "session" ("userId");
+CREATE INDEX IF NOT EXISTS "account_userId_idx" ON "account" ("userId");
+CREATE INDEX IF NOT EXISTS "verification_identifier_idx" ON "verification" ("identifier");
 
 -- 2. Game Leaderboard Table
 CREATE TABLE IF NOT EXISTS scores (
@@ -90,13 +90,20 @@ CREATE INDEX IF NOT EXISTS idx_scores_game_mode_score ON scores (game_mode, scor
 
 -- 3. Security (RLS)
 ALTER TABLE ratings ENABLE ROW LEVEL SECURITY;
-
 ALTER TABLE pack_purchases ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view their own purchases" ON pack_purchases;
 CREATE POLICY "Users can view their own purchases" ON pack_purchases FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Only server can insert" ON pack_purchases;
 CREATE POLICY "Only server can insert" ON pack_purchases FOR insert WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Allow public read access to ratings" ON ratings;
 CREATE POLICY "Allow public read access to ratings" ON ratings FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow users to manage their own ratings" ON ratings;
 CREATE POLICY "Allow users to manage their own ratings" ON ratings FOR ALL USING (true);
+
 -- Use double quotes for "user" table
 ALTER TABLE "user" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "session" ENABLE ROW LEVEL SECURITY;
@@ -104,8 +111,12 @@ ALTER TABLE "account" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE scores ENABLE ROW LEVEL SECURITY;
 
 -- Basic Policies
+DROP POLICY IF EXISTS "Allow public read access to scores" ON scores;
 CREATE POLICY "Allow public read access to scores" ON scores FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow users to manage their own scores" ON scores;
 CREATE POLICY "Allow users to manage their own scores" ON scores FOR ALL USING (true);
 
 -- Allow users to see their own data
+DROP POLICY IF EXISTS "Users can see their own user data" ON "user";
 CREATE POLICY "Users can see their own user data" ON "user" FOR SELECT USING (true);
